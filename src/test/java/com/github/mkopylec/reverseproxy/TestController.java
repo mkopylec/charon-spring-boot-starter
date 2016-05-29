@@ -8,7 +8,7 @@ public class TestController {
 
 	public static final String SAMPLE_MESSAGE = "Sample message";
 
-	@RequestMapping("/")
+	@RequestMapping("/not/mapped/uri")
 	public String getMessage() {
 		return SAMPLE_MESSAGE;
 	}

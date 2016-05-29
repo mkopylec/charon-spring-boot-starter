@@ -3,7 +3,8 @@ package com.github.mkopylec.reverseproxy.specification
 import com.github.mkopylec.reverseproxy.BasicSpec
 import spock.lang.Unroll
 
-import static com.github.mkopylec.reverseproxy.assertions.Assertions.assertThatRequestWasProxiedTo
+import static com.github.mkopylec.reverseproxy.TestController.SAMPLE_MESSAGE
+import static com.github.mkopylec.reverseproxy.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpMethod.HEAD
@@ -11,6 +12,7 @@ import static org.springframework.http.HttpMethod.OPTIONS
 import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
+import static org.springframework.http.HttpStatus.OK
 
 class ProxyingRequestSpec extends BasicSpec {
 
@@ -23,7 +25,8 @@ class ProxyingRequestSpec extends BasicSpec {
         sendRequest method, '/uri/1/path/1'
 
         then:
-        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
                 .withMethodAndUri(method, '/path/1')
 
         where:
@@ -39,7 +42,8 @@ class ProxyingRequestSpec extends BasicSpec {
         sendRequest GET, requestUri
 
         then:
-        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
                 .withMethodAndUri(GET, destinationUri)
 
         where:
@@ -63,7 +67,8 @@ class ProxyingRequestSpec extends BasicSpec {
         sendRequest GET, '/uri/1/path/1', requestHeaders
 
         then:
-        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
                 .withHeaders(destinationHeaders)
 
         where:
@@ -82,10 +87,36 @@ class ProxyingRequestSpec extends BasicSpec {
         sendRequest POST, '/uri/1/path/1', [:], body
 
         then:
-        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
                 .withBody(body)
 
         where:
         body << ['', '   ', 'Sample body']
+    }
+
+    def "Should proxy HTTP request stripping mapped path when path stripping is enabled"() {
+        given:
+        stubRequest GET, '/uri/2/path/2'
+
+        when:
+        sendRequest GET, '/uri/2/path/2'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, '/uri/2/path/2')
+    }
+
+    def "Should not proxy HTTP request when request URI is excluded from mappings"() {
+        when:
+        def response = sendRequest GET, '/not/mapped/uri'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(OK)
+                .hasBody(SAMPLE_MESSAGE);
     }
 }

@@ -1,10 +1,15 @@
 package com.github.mkopylec.reverseproxy.assertions
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
+import org.springframework.http.ResponseEntity
 
 class Assertions {
 
-    static RequestDestinationAssert assertThatRequestWasProxiedTo(WireMockRule... destinations) {
-        return new RequestDestinationAssert(destinations)
+    static DestinationAssert assertThat(WireMockRule... destinations) {
+        return new DestinationAssert(destinations)
+    }
+
+    static ResponseAssert assertThat(ResponseEntity response) {
+        return new ResponseAssert(response)
     }
 }

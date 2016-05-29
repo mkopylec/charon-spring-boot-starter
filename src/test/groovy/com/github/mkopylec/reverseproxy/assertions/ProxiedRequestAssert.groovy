@@ -26,23 +26,22 @@ import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
 
-class RequestDestinationAssert {
+class ProxiedRequestAssert {
 
     private List<WireMockRule> actual
 
-    protected RequestDestinationAssert(WireMockRule... actual) {
-        assert actual != null
+    protected ProxiedRequestAssert(WireMockRule... actual) {
         this.actual = actual
     }
 
-    RequestDestinationAssert withMethodAndUri(HttpMethod method, String uri) {
+    ProxiedRequestAssert withMethodAndUri(HttpMethod method, String uri) {
         verify {
             it.verify(requestedFor(method, urlEqualTo(uri)))
         }
         return this
     }
 
-    RequestDestinationAssert withHeaders(Map<String, String> headers) {
+    ProxiedRequestAssert withHeaders(Map<String, String> headers) {
         verify {
             def matcher = allRequests()
             headers.each {
@@ -53,7 +52,7 @@ class RequestDestinationAssert {
         return this
     }
 
-    RequestDestinationAssert withBody(String body) {
+    ProxiedRequestAssert withBody(String body) {
         verify {
             it.verify(allRequests().withRequestBody(equalTo(body)))
         }
