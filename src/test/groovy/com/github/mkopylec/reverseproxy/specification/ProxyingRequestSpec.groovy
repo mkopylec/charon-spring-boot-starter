@@ -43,11 +43,15 @@ class ProxyingRequestSpec extends BasicSpec {
                 .withMethodAndUri(GET, destinationUri)
 
         where:
-        requestUri       | destinationUri
-        '/uri/1'         | '/'
-        '/uri/1/'        | '/'
-        '/uri/1/path/1'  | '/path/1'
-        '/uri/1/path/1/' | '/path/1/'
+        requestUri                       | destinationUri
+        '/uri/1'                         | '/'
+        '/uri/1?param1=1&param2'         | '/?param1=1&param2'
+        '/uri/1/'                        | '/'
+        '/uri/1/?param1=1&param2'        | '/?param1=1&param2'
+        '/uri/1/path/1'                  | '/path/1'
+        '/uri/1/path/1?param1=1&param2'  | '/path/1?param1=1&param2'
+        '/uri/1/path/1/'                 | '/path/1/'
+        '/uri/1/path/1/?param1=1&param2' | '/path/1/?param1=1&param2'
     }
 
     @Unroll
@@ -67,5 +71,21 @@ class ProxyingRequestSpec extends BasicSpec {
         [:]                                                            | [:]
         ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']
         ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2']
+    }
+
+    @Unroll
+    def "Should proxy HTTP request preserving request body when body is '#body'"() {
+        given:
+        stubRequest POST, '/path/1', body
+
+        when:
+        sendRequest POST, '/uri/1/path/1', [:], body
+
+        then:
+        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+                .withBody(body)
+
+        where:
+        body << ['', '   ', 'Sample body']
     }
 }

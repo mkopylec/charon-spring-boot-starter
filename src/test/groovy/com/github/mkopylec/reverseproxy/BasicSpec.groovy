@@ -16,6 +16,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.mkopylec.reverseproxy.stubs.DestinationStubs.stubRequest
+import static org.apache.commons.lang3.StringUtils.EMPTY
 
 @WebIntegrationTest(randomPort = true)
 @ContextConfiguration(loader = SpringApplicationContextLoader, classes = TestApplication)
@@ -31,11 +32,11 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private EmbeddedWebApplicationContext context
 
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:]) {
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
         def url = "http://localhost:$context.embeddedServletContainer.port$uri"
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.add(name, value) }
-        def request = new HttpEntity<>(httpHeaders)
+        def request = new HttpEntity<>(body, httpHeaders)
         def response = restTemplate.exchange(url, method, request, String)
 
         return response
@@ -47,5 +48,9 @@ abstract class BasicSpec extends Specification {
 
     protected void stubRequest(HttpMethod method, String uri, Map<String, String> requestHeaders) {
         stubRequest(method, uri, requestHeaders, localhost8080, localhost8081)
+    }
+
+    protected void stubRequest(HttpMethod method, String uri, String requestBody) {
+        stubRequest(method, uri, requestBody, localhost8080, localhost8081)
     }
 }

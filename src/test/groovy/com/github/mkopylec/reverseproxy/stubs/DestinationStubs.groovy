@@ -29,17 +29,20 @@ import static org.springframework.http.HttpStatus.OK
 class DestinationStubs {
 
     static void stubRequest(HttpMethod method, String uri, WireMockRule... destinations) {
-        stubDestinationRequest(method, uri, [:], [:], EMPTY, OK, [:], EMPTY, destinations)
+        stubDestinationRequest(method, uri, [:], EMPTY, OK, [:], EMPTY, destinations)
     }
 
     static void stubRequest(HttpMethod method, String uri, Map<String, String> requestHeaders, WireMockRule... destinations) {
-        stubDestinationRequest(method, uri, [:], requestHeaders, EMPTY, OK, [:], EMPTY, destinations)
+        stubDestinationRequest(method, uri, requestHeaders, EMPTY, OK, [:], EMPTY, destinations)
+    }
+
+    static void stubRequest(HttpMethod method, String uri, String requestBody, WireMockRule... destinations) {
+        stubDestinationRequest(method, uri, [:], requestBody, OK, [:], EMPTY, destinations)
     }
 
     private static void stubDestinationRequest(
             HttpMethod httpMethod,
             String uri,
-            Map<String, String> queryParams,
             Map<String, String> requestHeaders,
             String requestBody,
             HttpStatus responseStatus,
@@ -50,7 +53,6 @@ class DestinationStubs {
         destinations.each {
             def stub = method(httpMethod, urlEqualTo(uri))
             requestHeaders.each { k, v -> stub = stub.withHeader(k, equalTo(v)) }
-            queryParams.each { k, v -> stub = stub.withQueryParam(k, equalTo(v)) }
             stub = stub.withRequestBody(equalTo(requestBody))
 
             def response = aResponse()

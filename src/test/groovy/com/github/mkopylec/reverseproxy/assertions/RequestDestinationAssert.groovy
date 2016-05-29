@@ -16,6 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.traceRequestedFor
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.GET
@@ -37,7 +38,7 @@ class RequestDestinationAssert {
 
     RequestDestinationAssert withMethodAndUri(HttpMethod method, String uri) {
         verify {
-            it.verify(requestedFor(method, urlPathEqualTo(uri)))
+            it.verify(requestedFor(method, urlEqualTo(uri)))
         }
         return this
     }
