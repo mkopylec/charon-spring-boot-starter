@@ -1,14 +1,19 @@
 reverse-proxy:
   filter-order: 2147483647
   timeout:
-    connect: 500
-    read: 2000
+    connect: 100
+    read: 1000
   mappings:
     -
       path: /uri/1
       hosts: http://localhost:8080, localhost:8081
-      strip-path: true
     -
       path: /uri/2
       hosts: http://localhost:8080, localhost:8081
       strip-path: false
+    -
+      path: /uri/3
+      hosts: http://localhost:8080
+    -
+      path: /uri/3/path
+      hosts: http://localhost:8080

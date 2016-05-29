@@ -37,9 +37,7 @@ abstract class BasicSpec extends Specification {
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.add(name, value) }
         def request = new HttpEntity<>(body, httpHeaders)
-        def response = restTemplate.exchange(url, method, request, String)
-
-        return response
+        return restTemplate.exchange(url, method, request, String)
     }
 
     protected void stubRequest(HttpMethod method, String uri) {

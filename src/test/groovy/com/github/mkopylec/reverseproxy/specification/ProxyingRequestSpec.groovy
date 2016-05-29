@@ -1,9 +1,9 @@
 package com.github.mkopylec.reverseproxy.specification
 
 import com.github.mkopylec.reverseproxy.BasicSpec
+import org.springframework.web.client.HttpServerErrorException
 import spock.lang.Unroll
 
-import static com.github.mkopylec.reverseproxy.TestController.SAMPLE_MESSAGE
 import static com.github.mkopylec.reverseproxy.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.GET
@@ -12,7 +12,6 @@ import static org.springframework.http.HttpMethod.OPTIONS
 import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
-import static org.springframework.http.HttpStatus.OK
 
 class ProxyingRequestSpec extends BasicSpec {
 
@@ -108,15 +107,13 @@ class ProxyingRequestSpec extends BasicSpec {
                 .withMethodAndUri(GET, '/uri/2/path/2')
     }
 
-    def "Should not proxy HTTP request when request URI is excluded from mappings"() {
+    def "Should fail to proxy HTTP request when there are multiple mappings for request URI"() {
         when:
-        def response = sendRequest GET, '/not/mapped/uri'
+        sendRequest GET, '/uri/3/path/3'
 
         then:
+        thrown HttpServerErrorException
         assertThat(localhost8080, localhost8081)
                 .haveReceivedNoRequest()
-        assertThat(response)
-                .hasStatus(OK)
-                .hasBody(SAMPLE_MESSAGE);
     }
 }
