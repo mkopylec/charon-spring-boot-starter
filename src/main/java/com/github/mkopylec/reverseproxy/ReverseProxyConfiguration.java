@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -41,7 +40,6 @@ public class ReverseProxyConfiguration {
 	public FilterRegistrationBean httpProxyFilterRegistrationBean(HttpProxyFilter proxyFilter) {
 		FilterRegistrationBean registrationBean = new FilterRegistrationBean(proxyFilter);
 		registrationBean.setOrder(reverseProxy.getFilterOrder());
-		registrationBean.setUrlPatterns(singletonList("/**"));
 		return registrationBean;
 	}
 
@@ -55,9 +53,15 @@ public class ReverseProxyConfiguration {
 	@ConditionalOnMissingBean
 	public RestTemplate restTemplate() {
 		Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
-		requestFactory.setConnectTimeout(reverseProxy.getConnectTimeout());
-		requestFactory.setReadTimeout(reverseProxy.getReadTimeout());
+		requestFactory.setConnectTimeout(reverseProxy.getTimeout().getConnect());
+		requestFactory.setReadTimeout(reverseProxy.getTimeout().getRead());
 		return new RestTemplate(requestFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public RequestDataExtractor requestDataExtractor() {
+		return new RequestDataExtractor();
 	}
 
 	@Bean
@@ -74,20 +78,22 @@ public class ReverseProxyConfiguration {
 
 	@PostConstruct
 	protected void checkConfiguration() {
-		if (reverseProxy.getConnectTimeout() < 0) {
-			throw new ReverseProxyException("Invalid connect timeout value: " + reverseProxy.getConnectTimeout());
+		int connectTimeout = reverseProxy.getTimeout().getConnect();
+		int readTimeout = reverseProxy.getTimeout().getRead();
+		List<Mapping> mappings = reverseProxy.getMappings();
+		if (connectTimeout < 0) {
+			throw new ReverseProxyException("Invalid connect timeout value: " + connectTimeout);
 		}
-		if (reverseProxy.getReadTimeout() < 0) {
-			throw new ReverseProxyException("Invalid read timeout value: " + reverseProxy.getReadTimeout());
+		if (readTimeout < 0) {
+			throw new ReverseProxyException("Invalid read timeout value: " + readTimeout);
 		}
-		if (isNotEmpty(reverseProxy.getMappings())) {
-			reverseProxy.getMappings().forEach(this::correctMapping);
-			int numberOfPaths = reverseProxy.getMappings()
-					.stream()
+		if (isNotEmpty(mappings)) {
+			mappings.forEach(this::correctMapping);
+			int numberOfPaths = mappings.stream()
 					.map(Mapping::getPath)
 					.collect(toSet())
 					.size();
-			if (numberOfPaths < reverseProxy.getMappings().size()) {
+			if (numberOfPaths < mappings.size()) {
 				throw new ReverseProxyException("Duplicated destination paths in mappings");
 			}
 		}

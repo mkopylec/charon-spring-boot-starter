@@ -20,7 +20,7 @@ archivesBaseName = name
 version scmVersion.version
 
 sourceCompatibility = 1.8
-targetCompatibility = 1.7
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -38,7 +38,7 @@ dependencies {
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '+'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '+'
     testCompile group: 'org.spockframework', name: 'spock-spring', version: '+'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '1.58'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '+'
 }
 
 configurations {

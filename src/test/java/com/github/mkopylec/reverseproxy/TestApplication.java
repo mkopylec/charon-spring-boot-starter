@@ -7,7 +7,7 @@ import static org.springframework.boot.SpringApplication.run;
 @SpringBootApplication
 public class TestApplication {
 
-    public static void main(String[] args) {
-        run(TestApplication.class, args);
-    }
+	public static void main(String[] args) {
+		run(TestApplication.class, args);
+	}
 }

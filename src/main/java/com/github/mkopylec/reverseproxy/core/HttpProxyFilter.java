@@ -108,6 +108,8 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		responseEntity.getHeaders().forEach((name, values) ->
 				values.forEach(value -> response.addHeader(name, value))
 		);
-		response.getOutputStream().write(responseEntity.getBody());
+		if (responseEntity.getBody() != null) {
+			response.getOutputStream().write(responseEntity.getBody());
+		}
 	}
 }

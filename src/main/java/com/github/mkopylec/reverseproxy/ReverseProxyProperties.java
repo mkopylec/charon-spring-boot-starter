@@ -1,5 +1,6 @@
 package com.github.mkopylec.reverseproxy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -11,25 +12,16 @@ import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 @ConfigurationProperties("reverse-proxy")
 public class ReverseProxyProperties {
 
-	private int connectTimeout = 500;
-	private int readTimeout = 2000;
 	private int filterOrder = LOWEST_PRECEDENCE;
-	private List<Mapping> mappings;
+	private Timeout timeout = new Timeout();
+	private List<Mapping> mappings = new ArrayList<>();
 
-	public int getConnectTimeout() {
-		return connectTimeout;
+	public Timeout getTimeout() {
+		return timeout;
 	}
 
-	public void setConnectTimeout(int connectTimeout) {
-		this.connectTimeout = connectTimeout;
-	}
-
-	public int getReadTimeout() {
-		return readTimeout;
-	}
-
-	public void setReadTimeout(int readTimeout) {
-		this.readTimeout = readTimeout;
+	public void setTimeout(Timeout timeout) {
+		this.timeout = timeout;
 	}
 
 	public int getFilterOrder() {
@@ -46,6 +38,28 @@ public class ReverseProxyProperties {
 
 	public void setMappings(List<Mapping> mappings) {
 		this.mappings = mappings;
+	}
+
+	public static class Timeout {
+
+		private int connect = 500;
+		private int read = 2000;
+
+		public int getConnect() {
+			return connect;
+		}
+
+		public void setConnect(int connect) {
+			this.connect = connect;
+		}
+
+		public int getRead() {
+			return read;
+		}
+
+		public void setRead(int read) {
+			this.read = read;
+		}
 	}
 
 	public static class Mapping {
