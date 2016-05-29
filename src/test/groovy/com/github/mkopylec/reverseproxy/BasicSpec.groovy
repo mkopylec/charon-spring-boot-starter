@@ -31,7 +31,7 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private EmbeddedWebApplicationContext context
 
-    protected ResponseEntity<String> sendRequest(String uri, HttpMethod method, Map<String, String> headers = [:]) {
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:]) {
         def url = "http://localhost:$context.embeddedServletContainer.port$uri"
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.add(name, value) }
@@ -43,5 +43,9 @@ abstract class BasicSpec extends Specification {
 
     protected void stubRequest(HttpMethod method, String uri) {
         stubRequest(method, uri, localhost8080, localhost8081)
+    }
+
+    protected void stubRequest(HttpMethod method, String uri, Map<String, String> requestHeaders) {
+        stubRequest(method, uri, requestHeaders, localhost8080, localhost8081)
     }
 }

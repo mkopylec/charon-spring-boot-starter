@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.client.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.client.UrlMatchingStrategy
 import com.github.tomakehurst.wiremock.client.VerificationException
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 
 import static com.github.tomakehurst.wiremock.client.RequestPatternBuilder.allRequests
@@ -43,11 +42,11 @@ class RequestDestinationAssert {
         return this
     }
 
-    RequestDestinationAssert withHeaders(HttpHeaders headers) {
+    RequestDestinationAssert withHeaders(Map<String, String> headers) {
         verify {
             def matcher = allRequests()
             headers.each {
-                k, v -> matcher = matcher.withHeader(k, equalTo(v as String))
+                k, v -> matcher = matcher.withHeader(k, equalTo(v))
             }
             it.verify(matcher)
         }

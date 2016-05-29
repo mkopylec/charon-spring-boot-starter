@@ -32,6 +32,10 @@ class DestinationStubs {
         stubDestinationRequest(method, uri, [:], [:], EMPTY, OK, [:], EMPTY, destinations)
     }
 
+    static void stubRequest(HttpMethod method, String uri, Map<String, String> requestHeaders, WireMockRule... destinations) {
+        stubDestinationRequest(method, uri, [:], requestHeaders, EMPTY, OK, [:], EMPTY, destinations)
+    }
+
     private static void stubDestinationRequest(
             HttpMethod httpMethod,
             String uri,

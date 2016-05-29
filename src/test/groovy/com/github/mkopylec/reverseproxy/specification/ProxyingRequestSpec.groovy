@@ -15,12 +15,12 @@ import static org.springframework.http.HttpMethod.TRACE
 class ProxyingRequestSpec extends BasicSpec {
 
     @Unroll
-    def "Should proxy HTTP request when request method is #method"() {
+    def "Should proxy HTTP request preserving request method when method is #method"() {
         given:
-        stubRequest(method, '/path/1')
+        stubRequest method, '/path/1'
 
         when:
-        sendRequest '/uri/1/path/1', method
+        sendRequest method, '/uri/1/path/1'
 
         then:
         assertThatRequestWasProxiedTo(localhost8080, localhost8081)
@@ -28,5 +28,44 @@ class ProxyingRequestSpec extends BasicSpec {
 
         where:
         method << [GET, POST, OPTIONS, DELETE, PUT, TRACE, HEAD]
+    }
+
+    @Unroll
+    def "Should proxy HTTP request to #destinationUri when request uri is #requestUri"() {
+        given:
+        stubRequest GET, destinationUri
+
+        when:
+        sendRequest GET, requestUri
+
+        then:
+        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+                .withMethodAndUri(GET, destinationUri)
+
+        where:
+        requestUri       | destinationUri
+        '/uri/1'         | '/'
+        '/uri/1/'        | '/'
+        '/uri/1/path/1'  | '/path/1'
+        '/uri/1/path/1/' | '/path/1/'
+    }
+
+    @Unroll
+    def "Should proxy HTTP request with headers #destinationHeaders when request headers are #requestHeaders"() {
+        given:
+        stubRequest GET, '/path/1', destinationHeaders
+
+        when:
+        sendRequest GET, '/uri/1/path/1', requestHeaders
+
+        then:
+        assertThatRequestWasProxiedTo(localhost8080, localhost8081)
+                .withHeaders(destinationHeaders)
+
+        where:
+        requestHeaders                                                 | destinationHeaders
+        [:]                                                            | [:]
+        ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']
+        ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2']
     }
 }
