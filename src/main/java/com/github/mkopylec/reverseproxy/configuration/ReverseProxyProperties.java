@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy;
+package com.github.mkopylec.reverseproxy.configuration;
 
 import java.util.List;
 

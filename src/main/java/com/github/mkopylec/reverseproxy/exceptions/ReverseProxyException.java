@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy;
+package com.github.mkopylec.reverseproxy.exceptions;
 
 public class ReverseProxyException extends RuntimeException {
 

@@ -11,9 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.mkopylec.reverseproxy.ReverseProxyException;
-import com.github.mkopylec.reverseproxy.ReverseProxyProperties;
-import com.github.mkopylec.reverseproxy.ReverseProxyProperties.Mapping;
+import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
+import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
+import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;

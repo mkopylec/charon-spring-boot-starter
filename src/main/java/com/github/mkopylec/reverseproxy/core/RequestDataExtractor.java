@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.mkopylec.reverseproxy.ReverseProxyException;
+import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

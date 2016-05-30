@@ -2,7 +2,7 @@ package com.github.mkopylec.reverseproxy.core;
 
 import java.util.List;
 
-import com.github.mkopylec.reverseproxy.ReverseProxyProperties;
+import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
 
 public class ConfigurationMappingsProvider implements MappingsProvider {
 

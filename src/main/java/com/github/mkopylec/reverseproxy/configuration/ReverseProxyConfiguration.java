@@ -1,17 +1,17 @@
-package com.github.mkopylec.reverseproxy;
+package com.github.mkopylec.reverseproxy.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import com.github.mkopylec.reverseproxy.ReverseProxyProperties.Mapping;
 import com.github.mkopylec.reverseproxy.core.ConfigurationMappingsProvider;
 import com.github.mkopylec.reverseproxy.core.HttpProxyFilter;
 import com.github.mkopylec.reverseproxy.core.LoadBalancer;
 import com.github.mkopylec.reverseproxy.core.MappingsProvider;
 import com.github.mkopylec.reverseproxy.core.RandomLoadBalancer;
 import com.github.mkopylec.reverseproxy.core.RequestDataExtractor;
+import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -80,7 +80,7 @@ public class ReverseProxyConfiguration {
 	protected void checkConfiguration() {
 		int connectTimeout = reverseProxy.getTimeout().getConnect();
 		int readTimeout = reverseProxy.getTimeout().getRead();
-		List<Mapping> mappings = reverseProxy.getMappings();
+		List<ReverseProxyProperties.Mapping> mappings = reverseProxy.getMappings();
 		if (connectTimeout < 0) {
 			throw new ReverseProxyException("Invalid connect timeout value: " + connectTimeout);
 		}
@@ -90,7 +90,7 @@ public class ReverseProxyConfiguration {
 		if (isNotEmpty(mappings)) {
 			mappings.forEach(this::correctMapping);
 			int numberOfPaths = mappings.stream()
-					.map(Mapping::getPath)
+					.map(ReverseProxyProperties.Mapping::getPath)
 					.collect(toSet())
 					.size();
 			if (numberOfPaths < mappings.size()) {
@@ -99,12 +99,12 @@ public class ReverseProxyConfiguration {
 		}
 	}
 
-	protected void correctMapping(Mapping mapping) {
+	protected void correctMapping(ReverseProxyProperties.Mapping mapping) {
 		correctDestinations(mapping);
 		correctPath(mapping);
 	}
 
-	protected void correctDestinations(Mapping mapping) {
+	protected void correctDestinations(ReverseProxyProperties.Mapping mapping) {
 		if (isEmpty(mapping.getDestinations())) {
 			throw new ReverseProxyException("No destination hosts for mapping " + mapping);
 		}
@@ -122,7 +122,7 @@ public class ReverseProxyConfiguration {
 		mapping.setDestinations(correctedHosts);
 	}
 
-	protected void correctPath(Mapping mapping) {
+	protected void correctPath(ReverseProxyProperties.Mapping mapping) {
 		if (isBlank(mapping.getPath())) {
 			throw new ReverseProxyException("No destination path for mapping " + mapping);
 		}

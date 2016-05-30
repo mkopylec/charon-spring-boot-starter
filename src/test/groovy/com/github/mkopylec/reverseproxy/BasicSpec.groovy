@@ -1,5 +1,6 @@
 package com.github.mkopylec.reverseproxy
 
+import com.github.mkopylec.reverseproxy.application.TestApplication
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired

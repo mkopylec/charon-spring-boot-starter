@@ -3,7 +3,7 @@ package com.github.mkopylec.reverseproxy.specification
 import com.github.mkopylec.reverseproxy.BasicSpec
 import spock.lang.Unroll
 
-import static com.github.mkopylec.reverseproxy.TestController.SAMPLE_MESSAGE
+import static com.github.mkopylec.reverseproxy.application.TestController.SAMPLE_MESSAGE
 import static com.github.mkopylec.reverseproxy.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.BAD_REQUEST

@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy;
+package com.github.mkopylec.reverseproxy.application;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
