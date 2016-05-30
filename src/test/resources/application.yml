@@ -1,8 +1,8 @@
 reverse-proxy:
   filter-order: 2147483647
   timeout:
-    connect: 100
-    read: 1000
+    connect: 500
+    read: 2000
   mappings:
     -
       path: /uri/1
