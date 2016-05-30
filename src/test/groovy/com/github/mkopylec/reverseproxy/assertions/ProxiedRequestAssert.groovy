@@ -44,9 +44,7 @@ class ProxiedRequestAssert {
     ProxiedRequestAssert withHeaders(Map<String, String> headers) {
         verify {
             def matcher = allRequests()
-            headers.each {
-                k, v -> matcher = matcher.withHeader(k, equalTo(v))
-            }
+            headers.each { k, v -> matcher = matcher.withHeader(k, equalTo(v)) }
             it.verify(matcher)
         }
         return this

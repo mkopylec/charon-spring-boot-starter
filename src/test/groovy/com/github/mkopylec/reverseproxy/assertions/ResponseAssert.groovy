@@ -21,4 +21,9 @@ class ResponseAssert {
         assert actual.statusCode == status
         return this
     }
+
+    ResponseAssert containsHeaders(Map<String, String> headers) {
+        headers.each { k, v -> assert actual.headers.get(k).join(', ') == v }
+        return this
+    }
 }

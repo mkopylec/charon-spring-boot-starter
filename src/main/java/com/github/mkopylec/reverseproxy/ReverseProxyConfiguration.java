@@ -100,26 +100,26 @@ public class ReverseProxyConfiguration {
 	}
 
 	protected void correctMapping(Mapping mapping) {
-		correctHosts(mapping);
+		correctDestinations(mapping);
 		correctPath(mapping);
 	}
 
-	protected void correctHosts(Mapping mapping) {
-		if (isEmpty(mapping.getHosts())) {
+	protected void correctDestinations(Mapping mapping) {
+		if (isEmpty(mapping.getDestinations())) {
 			throw new ReverseProxyException("No destination hosts for mapping " + mapping);
 		}
-		List<String> correctedHosts = new ArrayList<>(mapping.getHosts().size());
-		mapping.getHosts().forEach(host -> {
-			if (isBlank(host)) {
-				throw new ReverseProxyException("Empty destination host for mapping " + mapping);
+		List<String> correctedHosts = new ArrayList<>(mapping.getDestinations().size());
+		mapping.getDestinations().forEach(destination -> {
+			if (isBlank(destination)) {
+				throw new ReverseProxyException("Empty destination for mapping " + mapping);
 			}
-			if (!host.matches(".+://.+")) {
-				host = "http://" + host;
+			if (!destination.matches(".+://.+")) {
+				destination = "http://" + destination;
 			}
-			host = removeEnd(host, "/");
-			correctedHosts.add(host);
+			destination = removeEnd(destination, "/");
+			correctedHosts.add(destination);
 		});
-		mapping.setHosts(correctedHosts);
+		mapping.setDestinations(correctedHosts);
 	}
 
 	protected void correctPath(Mapping mapping) {

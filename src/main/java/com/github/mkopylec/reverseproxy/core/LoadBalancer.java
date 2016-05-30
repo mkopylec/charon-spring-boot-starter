@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface LoadBalancer {
 
-	String chooseHost(List<String> hosts);
+	String chooseDestination(List<String> destination);
 }

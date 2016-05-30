@@ -9,14 +9,18 @@ import org.springframework.boot.test.WebIntegrationTest
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.mkopylec.reverseproxy.stubs.DestinationStubs.stubRequest
+import static com.github.mkopylec.reverseproxy.stubs.DestinationStubs.stubRequestWithResponse
 import static org.apache.commons.lang3.StringUtils.EMPTY
+import static org.springframework.http.ResponseEntity.status
 
 @WebIntegrationTest(randomPort = true)
 @ContextConfiguration(loader = SpringApplicationContextLoader, classes = TestApplication)
@@ -37,7 +41,13 @@ abstract class BasicSpec extends Specification {
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.add(name, value) }
         def request = new HttpEntity<>(body, httpHeaders)
-        return restTemplate.exchange(url, method, request, String)
+        try {
+            return restTemplate.exchange(url, method, request, String)
+        } catch (HttpStatusCodeException e) {
+            return status(e.getStatusCode())
+                    .headers(e.responseHeaders)
+                    .body(e.responseBodyAsString);
+        }
     }
 
     protected void stubRequest(HttpMethod method, String uri) {
@@ -50,5 +60,17 @@ abstract class BasicSpec extends Specification {
 
     protected void stubRequest(HttpMethod method, String uri, String requestBody) {
         stubRequest(method, uri, requestBody, localhost8080, localhost8081)
+    }
+
+    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus) {
+        stubRequestWithResponse(method, uri, responseStatus, localhost8080, localhost8081)
+    }
+
+    protected void stubRequestWithResponse(HttpMethod method, String uri, Map<String, String> responseHeaders) {
+        stubRequestWithResponse(method, uri, responseHeaders, localhost8080, localhost8081)
+    }
+
+    protected void stubRequestWithResponse(HttpMethod method, String uri, String responseBody) {
+        stubRequestWithResponse(method, uri, responseBody, localhost8080, localhost8081)
     }
 }

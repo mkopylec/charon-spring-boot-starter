@@ -83,11 +83,11 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		if (mapping.isStripPath()) {
 			uri = removeStart(uri, mapping.getPath());
 		}
-		String host = loadBalancer.chooseHost(mapping.getHosts());
+		String host = loadBalancer.chooseDestination(mapping.getDestinations());
 		try {
 			return new URI(host + uri);
 		} catch (URISyntaxException e) {
-			throw new ReverseProxyException("Error creating destination URL from HTTP request URI: " + uri + " for mapping " + mapping, e);
+			throw new ReverseProxyException("Error creating destination URL from HTTP request URI: " + uri + " using mapping " + mapping, e);
 		}
 	}
 

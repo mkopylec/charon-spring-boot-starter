@@ -1,7 +1,6 @@
 package com.github.mkopylec.reverseproxy.specification
 
 import com.github.mkopylec.reverseproxy.BasicSpec
-import org.springframework.web.client.HttpServerErrorException
 import spock.lang.Unroll
 
 import static com.github.mkopylec.reverseproxy.assertions.Assertions.assertThat
@@ -12,6 +11,7 @@ import static org.springframework.http.HttpMethod.OPTIONS
 import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 
 class ProxyingRequestSpec extends BasicSpec {
 
@@ -109,11 +109,23 @@ class ProxyingRequestSpec extends BasicSpec {
 
     def "Should fail to proxy HTTP request when there are multiple mappings for request URI"() {
         when:
-        sendRequest GET, '/uri/3/path/3'
+        def response = sendRequest GET, '/uri/3/path/3'
 
         then:
-        thrown HttpServerErrorException
         assertThat(localhost8080, localhost8081)
                 .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+    }
+
+    def "Should fail to proxy HTTP request when destination URL cannot be created"() {
+        when:
+        def response = sendRequest GET, '/uri/4/path/4'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
     }
 }

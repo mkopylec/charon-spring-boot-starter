@@ -1,20 +1,20 @@
 package com.github.mkopylec.reverseproxy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
 @ConfigurationProperties("reverse-proxy")
 public class ReverseProxyProperties {
 
 	private int filterOrder = LOWEST_PRECEDENCE;
-	private Timeout timeout = new Timeout();
-	private List<Mapping> mappings = new ArrayList<>();
+	private Timeout timeout;
+	private List<Mapping> mappings;
 
 	public Timeout getTimeout() {
 		return timeout;
@@ -65,7 +65,7 @@ public class ReverseProxyProperties {
 	public static class Mapping {
 
 		private String path;
-		private List<String> hosts;
+		private List<String> destinations;
 		private boolean stripPath = true;
 
 		public String getPath() {
@@ -76,12 +76,12 @@ public class ReverseProxyProperties {
 			this.path = path;
 		}
 
-		public List<String> getHosts() {
-			return hosts;
+		public List<String> getDestinations() {
+			return destinations;
 		}
 
-		public void setHosts(List<String> hosts) {
-			this.hosts = hosts;
+		public void setDestinations(List<String> destinations) {
+			this.destinations = destinations;
 		}
 
 		public boolean isStripPath() {
@@ -94,9 +94,9 @@ public class ReverseProxyProperties {
 
 		@Override
 		public String toString() {
-			return new ToStringBuilder(this)
+			return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
 					.append("path", path)
-					.append("hosts", hosts)
+					.append("destinations", destinations)
 					.append("stripPath", stripPath)
 					.toString();
 		}

@@ -6,14 +6,17 @@ reverse-proxy:
   mappings:
     -
       path: /uri/1
-      hosts: http://localhost:8080, localhost:8081
+      destinations: http://localhost:8080, localhost:8081
     -
       path: /uri/2
-      hosts: http://localhost:8080, localhost:8081
+      destinations: http://localhost:8080, localhost:8081
       strip-path: false
     -
       path: /uri/3
-      hosts: http://localhost:8080
+      destinations: http://localhost:8080
     -
       path: /uri/3/path
-      hosts: http://localhost:8080
+      destinations: http://localhost:8080
+    -
+      path: /uri/4
+      destinations: invalid%://localhost:8080

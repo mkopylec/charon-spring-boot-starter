@@ -40,6 +40,18 @@ class DestinationStubs {
         stubDestinationRequest(method, uri, [:], requestBody, OK, [:], EMPTY, destinations)
     }
 
+    static void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus, WireMockRule... destinations) {
+        stubDestinationRequest(method, uri, [:], EMPTY, responseStatus, [:], EMPTY, destinations)
+    }
+
+    static void stubRequestWithResponse(HttpMethod method, String uri, Map<String, String> responseHeaders, WireMockRule... destinations) {
+        stubDestinationRequest(method, uri, [:], EMPTY, OK, responseHeaders, EMPTY, destinations)
+    }
+
+    static void stubRequestWithResponse(HttpMethod method, String uri, String responseBody, WireMockRule... destinations) {
+        stubDestinationRequest(method, uri, [:], EMPTY, OK, [:], responseBody, destinations)
+    }
+
     private static void stubDestinationRequest(
             HttpMethod httpMethod,
             String uri,
