@@ -14,6 +14,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - customizable proxy mappings provider
 - customizable load balancer
 - resilient to destination hosts changes during runtime
+- X-Forwarded-For header support
 
 ## License
 Reverse Proxy Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

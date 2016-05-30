@@ -17,6 +17,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.traceRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import static org.apache.commons.lang3.StringUtils.EMPTY
 import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpMethod.HEAD
@@ -44,7 +45,11 @@ class ProxiedRequestAssert {
     ProxiedRequestAssert withHeaders(Map<String, String> headers) {
         verify {
             def matcher = allRequests()
-            headers.each { k, v -> matcher = matcher.withHeader(k, equalTo(v)) }
+            headers.each { name, value ->
+                value.split(', ').each {
+                    matcher = matcher.withHeader(name, equalTo(it))
+                }
+            }
             it.verify(matcher)
         }
         return this
@@ -57,8 +62,15 @@ class ProxiedRequestAssert {
         return this
     }
 
+    ProxiedRequestAssert withoutBody() {
+        verify {
+            it.verify(allRequests().withRequestBody(equalTo(EMPTY)))
+        }
+        return this
+    }
+
     private void verify(Closure verification) {
-        def error = ''
+        def error = EMPTY
         def matchesCount = actual.count {
             try {
                 verification(it)

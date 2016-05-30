@@ -17,9 +17,11 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
 import spock.lang.Specification
 
-import static com.github.mkopylec.reverseproxy.stubs.DestinationStubs.stubRequest
-import static com.github.mkopylec.reverseproxy.stubs.DestinationStubs.stubRequestWithResponse
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import static com.github.tomakehurst.wiremock.client.WireMock.any
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import static org.apache.commons.lang3.StringUtils.EMPTY
+import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.status
 
 @WebIntegrationTest(randomPort = true)
@@ -39,7 +41,7 @@ abstract class BasicSpec extends Specification {
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
         def url = "http://localhost:$context.embeddedServletContainer.port$uri"
         def httpHeaders = new HttpHeaders()
-        headers.each { name, value -> httpHeaders.add(name, value) }
+        headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         try {
             return restTemplate.exchange(url, method, request, String)
@@ -50,35 +52,35 @@ abstract class BasicSpec extends Specification {
         }
     }
 
-    protected void stubRequest(HttpMethod method, String uri) {
-        stubRequest(method, uri, localhost8080, localhost8081)
+    protected void stubDestinationResponse(HttpStatus responseStatus) {
+        stubResponse(responseStatus)
     }
 
-    protected void stubRequest(HttpMethod method, String uri, Map<String, String> requestHeaders) {
-        stubRequest(method, uri, requestHeaders, localhost8080, localhost8081)
+    protected void stubDestinationResponse(Map<String, String> responseHeaders) {
+        stubResponse(OK, responseHeaders)
     }
 
-    protected void stubRequest(HttpMethod method, String uri, String requestBody) {
-        stubRequest(method, uri, requestBody, localhost8080, localhost8081)
+    protected void stubDestinationResponse(HttpStatus responseStatus, Map<String, String> responseHeaders) {
+        stubResponse(responseStatus, responseHeaders)
     }
 
-    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus) {
-        stubRequestWithResponse(method, uri, responseStatus, localhost8080, localhost8081)
+    protected void stubDestinationResponse(String responseBody) {
+        stubResponse(OK, [:], responseBody)
     }
 
-    protected void stubRequestWithResponse(HttpMethod method, String uri, Map<String, String> responseHeaders) {
-        stubRequestWithResponse(method, uri, responseHeaders, localhost8080, localhost8081)
+    protected void stubDestinationResponse(HttpStatus responseStatus, String responseBody) {
+        stubResponse(responseStatus, [:], responseBody)
     }
 
-    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus, Map<String, String> responseHeaders) {
-        stubRequestWithResponse(method, uri, responseStatus, responseHeaders, localhost8080, localhost8081)
-    }
-
-    protected void stubRequestWithResponse(HttpMethod method, String uri, String responseBody) {
-        stubRequestWithResponse(method, uri, responseBody, localhost8080, localhost8081)
-    }
-
-    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus, String responseBody) {
-        stubRequestWithResponse(method, uri, responseStatus, responseBody, localhost8080, localhost8081)
+    private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null) {
+        [localhost8080, localhost8081].each {
+            def response = aResponse()
+            responseHeaders.each { name, value -> response = response.withHeader(name, value) }
+            if (responseBody) {
+                response = response.withBody(responseBody)
+            }
+            response = response.withStatus(responseStatus.value())
+            it.stubFor(any(urlMatching('.*')).willReturn(response))
+        }
     }
 }

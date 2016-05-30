@@ -17,9 +17,6 @@ class ProxyingRequestSpec extends BasicSpec {
 
     @Unroll
     def "Should proxy HTTP request preserving request method when method is #method"() {
-        given:
-        stubRequest method, '/path/1'
-
         when:
         sendRequest method, '/uri/1/path/1'
 
@@ -27,6 +24,7 @@ class ProxyingRequestSpec extends BasicSpec {
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
                 .withMethodAndUri(method, '/path/1')
+                .withoutBody()
 
         where:
         method << [GET, POST, OPTIONS, DELETE, PUT, TRACE, HEAD]
@@ -34,9 +32,6 @@ class ProxyingRequestSpec extends BasicSpec {
 
     @Unroll
     def "Should proxy HTTP request to #destinationUri when request uri is #requestUri"() {
-        given:
-        stubRequest GET, destinationUri
-
         when:
         sendRequest GET, requestUri
 
@@ -44,6 +39,7 @@ class ProxyingRequestSpec extends BasicSpec {
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
                 .withMethodAndUri(GET, destinationUri)
+                .withoutBody()
 
         where:
         requestUri                       | destinationUri
@@ -59,45 +55,40 @@ class ProxyingRequestSpec extends BasicSpec {
 
     @Unroll
     def "Should proxy HTTP request with headers #destinationHeaders when request headers are #requestHeaders"() {
-        given:
-        stubRequest GET, '/path/1', destinationHeaders
-
         when:
         sendRequest GET, '/uri/1/path/1', requestHeaders
 
         then:
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
+                .withMethodAndUri(GET, '/path/1')
                 .withHeaders(destinationHeaders)
+                .withoutBody()
 
         where:
         requestHeaders                                                 | destinationHeaders
-        [:]                                                            | [:]
-        ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']
-        ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2']
+        [:]                                                            | ['X-Forwarded-For': '127.0.0.1']
+        ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1', 'X-Forwarded-For': '127.0.0.1']
+        ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'X-Forwarded-For': '127.0.0.1']
+        ['X-Forwarded-For': '172.10.89.11']                            | ['X-Forwarded-For': '172.10.89.11, 127.0.0.1']
     }
 
     @Unroll
     def "Should proxy HTTP request preserving request body when body is '#body'"() {
-        given:
-        stubRequest POST, '/path/1', body
-
         when:
         sendRequest POST, '/uri/1/path/1', [:], body
 
         then:
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
+                .withMethodAndUri(POST, '/path/1')
                 .withBody(body)
 
         where:
         body << ['', '   ', 'Sample body']
     }
 
-    def "Should proxy HTTP request stripping mapped path when path stripping is enabled"() {
-        given:
-        stubRequest GET, '/uri/2/path/2'
-
+    def "Should proxy HTTP request without stripping mapped path when path stripping is disabled"() {
         when:
         sendRequest GET, '/uri/2/path/2'
 
@@ -105,6 +96,7 @@ class ProxyingRequestSpec extends BasicSpec {
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
                 .withMethodAndUri(GET, '/uri/2/path/2')
+                .withoutBody()
     }
 
     def "Should fail to proxy HTTP request when there are multiple mappings for request URI"() {

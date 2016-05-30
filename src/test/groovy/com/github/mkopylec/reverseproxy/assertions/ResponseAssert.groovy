@@ -3,6 +3,8 @@ package com.github.mkopylec.reverseproxy.assertions
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
+import static org.apache.commons.lang3.StringUtils.isEmpty
+
 class ResponseAssert {
 
     private ResponseEntity actual
@@ -14,6 +16,11 @@ class ResponseAssert {
 
     ResponseAssert hasBody(String body) {
         assert actual.body == body
+        return this
+    }
+
+    ResponseAssert hasNoBody() {
+        assert isEmpty(actual.body as CharSequence)
         return this
     }
 

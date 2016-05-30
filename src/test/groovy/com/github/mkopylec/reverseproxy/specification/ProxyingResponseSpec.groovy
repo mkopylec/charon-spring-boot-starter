@@ -18,7 +18,7 @@ class ProxyingResponseSpec extends BasicSpec {
     @Unroll
     def "Should get proxied HTTP response with preserved status when response status is #status"() {
         given:
-        stubRequestWithResponse GET, '/path/1', status
+        stubDestinationResponse status
 
         when:
         def response = sendRequest GET, '/uri/1/path/1'
@@ -26,6 +26,7 @@ class ProxyingResponseSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(status)
+                .hasNoBody()
 
         where:
         status << [OK, NO_CONTENT, FOUND, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR]
@@ -34,14 +35,16 @@ class ProxyingResponseSpec extends BasicSpec {
     @Unroll
     def "Should get proxied HTTP response with #responseHeaders when response headers are #receivedHeaders"() {
         given:
-        stubRequestWithResponse GET, '/path/1', receivedHeaders
+        stubDestinationResponse receivedHeaders
 
         when:
         def response = sendRequest GET, '/uri/1/path/1'
 
         then:
         assertThat(response)
+                .hasStatus(OK)
                 .containsHeaders(responseHeaders)
+                .hasNoBody()
 
         where:
         receivedHeaders                                                | responseHeaders
@@ -52,26 +55,29 @@ class ProxyingResponseSpec extends BasicSpec {
 
     def "Should get proxied HTTP response with preserved headers when response status indicates error"() {
         given:
-        stubRequestWithResponse GET, '/path/1', INTERNAL_SERVER_ERROR, ['Header-1': 'Value 1']
+        stubDestinationResponse INTERNAL_SERVER_ERROR, ['Header-1': 'Value 1']
 
         when:
         def response = sendRequest GET, '/uri/1/path/1'
 
         then:
         assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
                 .containsHeaders(['Header-1': 'Value 1'])
+                .hasNoBody()
     }
 
     @Unroll
     def "Should get proxied HTTP response with preserved body when response body is '#body'"() {
         given:
-        stubRequestWithResponse GET, '/path/1', body
+        stubDestinationResponse body
 
         when:
         def response = sendRequest GET, '/uri/1/path/1'
 
         then:
         assertThat(response)
+                .hasStatus(OK)
                 .hasBody(body)
 
         where:
@@ -80,13 +86,14 @@ class ProxyingResponseSpec extends BasicSpec {
 
     def "Should get proxied HTTP response with preserved body when response status indicates error"() {
         given:
-        stubRequestWithResponse GET, '/path/1', BAD_REQUEST, 'Sample body'
+        stubDestinationResponse BAD_REQUEST, 'Sample body'
 
         when:
         def response = sendRequest GET, '/uri/1/path/1'
 
         then:
         assertThat(response)
+                .hasStatus(BAD_REQUEST)
                 .hasBody('Sample body')
     }
 

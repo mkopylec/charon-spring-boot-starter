@@ -3,6 +3,7 @@ package com.github.mkopylec.reverseproxy.core;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -31,6 +32,8 @@ import static org.springframework.http.ResponseEntity.status;
 
 public class HttpProxyFilter extends OncePerRequestFilter {
 
+	protected static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
+
 	private static final Logger log = getLogger(HttpProxyFilter.class);
 
 	protected final ReverseProxyProperties reverseProxy;
@@ -58,6 +61,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		}
 		String body = extractor.extractBody(request);
 		HttpHeaders headers = extractor.extractHttpHeaders(request);
+		addClientIp(request, headers);
 		HttpMethod method = extractor.extractHttpMethod(request);
 		RequestEntity<String> requestEntity = new RequestEntity<>(body, headers, method, url);
 		ResponseEntity<byte[]> responseEntity = sendRequest(requestEntity);
@@ -89,6 +93,15 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		} catch (URISyntaxException e) {
 			throw new ReverseProxyException("Error creating destination URL from HTTP request URI: " + uri + " using mapping " + mapping, e);
 		}
+	}
+
+	protected void addClientIp(HttpServletRequest request, HttpHeaders headers) {
+		List<String> clientIps = headers.get(X_FORWARDED_FOR_HEADER);
+		if (isEmpty(clientIps)) {
+			clientIps = new ArrayList<>(1);
+		}
+		clientIps.add(request.getRemoteAddr());
+		headers.put(X_FORWARDED_FOR_HEADER, clientIps);
 	}
 
 	protected ResponseEntity<byte[]> sendRequest(RequestEntity<String> requestEntity) {
