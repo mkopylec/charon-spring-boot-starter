@@ -70,7 +70,15 @@ abstract class BasicSpec extends Specification {
         stubRequestWithResponse(method, uri, responseHeaders, localhost8080, localhost8081)
     }
 
+    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus, Map<String, String> responseHeaders) {
+        stubRequestWithResponse(method, uri, responseStatus, responseHeaders, localhost8080, localhost8081)
+    }
+
     protected void stubRequestWithResponse(HttpMethod method, String uri, String responseBody) {
         stubRequestWithResponse(method, uri, responseBody, localhost8080, localhost8081)
+    }
+
+    protected void stubRequestWithResponse(HttpMethod method, String uri, HttpStatus responseStatus, String responseBody) {
+        stubRequestWithResponse(method, uri, responseStatus, responseBody, localhost8080, localhost8081)
     }
 }

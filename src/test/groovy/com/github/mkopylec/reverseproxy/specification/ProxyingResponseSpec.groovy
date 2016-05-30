@@ -50,6 +50,18 @@ class ProxyingResponseSpec extends BasicSpec {
         ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2']
     }
 
+    def "Should get proxied HTTP response with preserved headers when response status indicates error"() {
+        given:
+        stubRequestWithResponse GET, '/path/1', INTERNAL_SERVER_ERROR, ['Header-1': 'Value 1']
+
+        when:
+        def response = sendRequest GET, '/uri/1/path/1'
+
+        then:
+        assertThat(response)
+                .containsHeaders(['Header-1': 'Value 1'])
+    }
+
     @Unroll
     def "Should get proxied HTTP response with preserved body when response body is '#body'"() {
         given:
@@ -64,6 +76,18 @@ class ProxyingResponseSpec extends BasicSpec {
 
         where:
         body << [null, '   ', 'Sample body']
+    }
+
+    def "Should get proxied HTTP response with preserved body when response status indicates error"() {
+        given:
+        stubRequestWithResponse GET, '/path/1', BAD_REQUEST, 'Sample body'
+
+        when:
+        def response = sendRequest GET, '/uri/1/path/1'
+
+        then:
+        assertThat(response)
+                .hasBody('Sample body')
     }
 
     def "Should not get proxied HTTP response when request URI is excluded from mappings"() {

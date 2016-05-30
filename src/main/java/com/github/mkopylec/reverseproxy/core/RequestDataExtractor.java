@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.github.mkopylec.reverseproxy.ReverseProxyException;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
@@ -20,7 +22,7 @@ public class RequestDataExtractor {
 		try {
 			request.getReader().lines().forEach(body::append);
 		} catch (IOException e) {
-			throw new IllegalStateException("Error extracting body of HTTP request with URI: " + extractUri(request), e);
+			throw new ReverseProxyException("Error extracting body of HTTP request with URI: " + extractUri(request), e);
 		}
 		return body.toString();
 	}
