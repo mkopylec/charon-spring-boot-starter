@@ -13,6 +13,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
 - customizable proxy mappings provider
 - customizable load balancer
+- resilient to destination hosts changes during runtime
 
 ## License
 Reverse Proxy Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
