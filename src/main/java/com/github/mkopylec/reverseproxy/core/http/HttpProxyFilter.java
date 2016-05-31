@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy.core;
+package com.github.mkopylec.reverseproxy.core.http;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
+import com.github.mkopylec.reverseproxy.core.balancer.LoadBalancer;
+import com.github.mkopylec.reverseproxy.core.mappings.MappingsProvider;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 import org.slf4j.Logger;
 
@@ -48,6 +50,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		this.extractor = extractor;
 		this.mappingsProvider = mappingsProvider;
 		this.loadBalancer = loadBalancer;
+		this.mappingsProvider.updateMappings();
 	}
 
 	@Override

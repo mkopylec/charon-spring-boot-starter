@@ -3,6 +3,10 @@ reverse-proxy:
   timeout:
     connect: 500
     read: 2000
+  mappings-update:
+    enabled: true
+    on-network-error: true
+    interval-in-millis: 10000
   mappings:
     -
       path: /uri/1
@@ -20,3 +24,7 @@ reverse-proxy:
     -
       path: /uri/4
       destinations: invalid%://localhost:8080
+
+logging.level:
+  com.github.mkopylec.reverseproxy: trace
+  org.eclipse.jetty: error

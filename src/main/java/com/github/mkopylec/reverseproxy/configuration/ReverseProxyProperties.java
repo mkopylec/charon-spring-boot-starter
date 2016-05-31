@@ -1,5 +1,6 @@
 package com.github.mkopylec.reverseproxy.configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -13,8 +14,17 @@ import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 public class ReverseProxyProperties {
 
 	private int filterOrder = LOWEST_PRECEDENCE;
-	private Timeout timeout;
-	private List<Mapping> mappings;
+	private Timeout timeout = new Timeout();
+	private MappingsUpdate mappingsUpdate = new MappingsUpdate();
+	private List<Mapping> mappings = new ArrayList<>();
+
+	public int getFilterOrder() {
+		return filterOrder;
+	}
+
+	public void setFilterOrder(int filterOrder) {
+		this.filterOrder = filterOrder;
+	}
 
 	public Timeout getTimeout() {
 		return timeout;
@@ -24,12 +34,12 @@ public class ReverseProxyProperties {
 		this.timeout = timeout;
 	}
 
-	public int getFilterOrder() {
-		return filterOrder;
+	public MappingsUpdate getMappingsUpdate() {
+		return mappingsUpdate;
 	}
 
-	public void setFilterOrder(int filterOrder) {
-		this.filterOrder = filterOrder;
+	public void setMappingsUpdate(MappingsUpdate mappingsUpdate) {
+		this.mappingsUpdate = mappingsUpdate;
 	}
 
 	public List<Mapping> getMappings() {
@@ -62,10 +72,41 @@ public class ReverseProxyProperties {
 		}
 	}
 
+	public static class MappingsUpdate {
+
+		private boolean enabled = true;
+		private boolean onNetworkError = true;
+		private int intervalInMillis = 10000;
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public boolean isOnNetworkError() {
+			return onNetworkError;
+		}
+
+		public void setOnNetworkError(boolean onNetworkError) {
+			this.onNetworkError = onNetworkError;
+		}
+
+		public int getIntervalInMillis() {
+			return intervalInMillis;
+		}
+
+		public void setIntervalInMillis(int intervalInMillis) {
+			this.intervalInMillis = intervalInMillis;
+		}
+	}
+
 	public static class Mapping {
 
 		private String path;
-		private List<String> destinations;
+		private List<String> destinations = new ArrayList<>();
 		private boolean stripPath = true;
 
 		public String getPath() {

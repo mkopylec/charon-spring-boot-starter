@@ -5,16 +5,18 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import com.github.mkopylec.reverseproxy.core.ConfigurationMappingsProvider;
-import com.github.mkopylec.reverseproxy.core.HttpProxyFilter;
-import com.github.mkopylec.reverseproxy.core.LoadBalancer;
-import com.github.mkopylec.reverseproxy.core.MappingsProvider;
-import com.github.mkopylec.reverseproxy.core.RandomLoadBalancer;
-import com.github.mkopylec.reverseproxy.core.RequestDataExtractor;
+import com.github.mkopylec.reverseproxy.core.balancer.LoadBalancer;
+import com.github.mkopylec.reverseproxy.core.balancer.RandomLoadBalancer;
+import com.github.mkopylec.reverseproxy.core.http.HttpProxyFilter;
+import com.github.mkopylec.reverseproxy.core.http.RequestDataExtractor;
+import com.github.mkopylec.reverseproxy.core.mappings.ConfigurationMappingsProvider;
+import com.github.mkopylec.reverseproxy.core.mappings.MappingsProvider;
+import com.github.mkopylec.reverseproxy.core.mappings.MappingsUpdater;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -74,6 +76,13 @@ public class ReverseProxyConfiguration {
 	@ConditionalOnMissingBean
 	public LoadBalancer loadBalancer() {
 		return new RandomLoadBalancer();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnProperty("reverse-proxy.mappings-update.enabled")
+	public MappingsUpdater mappingsUpdater(MappingsProvider mappingsProvider) {
+		return new MappingsUpdater(mappingsProvider);
 	}
 
 	@PostConstruct

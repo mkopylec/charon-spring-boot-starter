@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy.core;
+package com.github.mkopylec.reverseproxy.core.balancer;
 
 import java.util.List;
 

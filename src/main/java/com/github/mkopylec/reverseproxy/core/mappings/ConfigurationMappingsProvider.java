@@ -1,10 +1,11 @@
-package com.github.mkopylec.reverseproxy.core;
+package com.github.mkopylec.reverseproxy.core.mappings;
 
 import java.util.List;
 
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
+import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
 
-public class ConfigurationMappingsProvider implements MappingsProvider {
+public class ConfigurationMappingsProvider extends MappingsProvider {
 
 	protected final ReverseProxyProperties reverseProxy;
 
@@ -13,7 +14,7 @@ public class ConfigurationMappingsProvider implements MappingsProvider {
 	}
 
 	@Override
-	public List<ReverseProxyProperties.Mapping> getMappings() {
+	protected List<Mapping> retrieveMappings() {
 		return reverseProxy.getMappings();
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.mkopylec.reverseproxy.core;
+package com.github.mkopylec.reverseproxy.core.http;
 
 import java.io.IOException;
 import java.util.Enumeration;
