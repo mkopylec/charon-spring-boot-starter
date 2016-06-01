@@ -22,8 +22,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.RetryOperations;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static java.util.stream.Collectors.toList;
@@ -39,14 +41,23 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 	private static final Logger log = getLogger(HttpProxyFilter.class);
 
 	protected final ReverseProxyProperties reverseProxy;
-	protected final RestTemplate restTemplate;
+	protected final RestOperations restOperations;
+	protected final RetryOperations retryOperations;
 	protected final RequestDataExtractor extractor;
 	protected final MappingsProvider mappingsProvider;
 	protected final LoadBalancer loadBalancer;
 
-	public HttpProxyFilter(ReverseProxyProperties reverseProxy, RestTemplate restTemplate, RequestDataExtractor extractor, MappingsProvider mappingsProvider, LoadBalancer loadBalancer) {
+	public HttpProxyFilter(
+			ReverseProxyProperties reverseProxy,
+			RestOperations restOperations,
+			RetryOperations retryOperations,
+			RequestDataExtractor extractor,
+			MappingsProvider mappingsProvider,
+			LoadBalancer loadBalancer
+	) {
 		this.reverseProxy = reverseProxy;
-		this.restTemplate = restTemplate;
+		this.restOperations = restOperations;
+		this.retryOperations = retryOperations;
 		this.extractor = extractor;
 		this.mappingsProvider = mappingsProvider;
 		this.loadBalancer = loadBalancer;
@@ -67,7 +78,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		addClientIp(request, headers);
 		HttpMethod method = extractor.extractHttpMethod(request);
 		RequestEntity<String> requestEntity = new RequestEntity<>(body, headers, method, url);
-		ResponseEntity<byte[]> responseEntity = sendRequest(requestEntity);
+		ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> sendRequest(requestEntity));
 		processResponse(response, responseEntity);
 		log.debug("{} {} -> {} {}", request.getMethod(), uri, url, responseEntity.getStatusCode().value());
 	}
@@ -110,11 +121,16 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 	protected ResponseEntity<byte[]> sendRequest(RequestEntity<String> requestEntity) {
 		ResponseEntity<byte[]> responseEntity;
 		try {
-			responseEntity = restTemplate.exchange(requestEntity, byte[].class);
+			responseEntity = restOperations.exchange(requestEntity, byte[].class);
 		} catch (HttpStatusCodeException e) {
 			responseEntity = status(e.getStatusCode())
 					.headers(e.getResponseHeaders())
 					.body(e.getResponseBodyAsByteArray());
+		} catch (ResourceAccessException e) {
+			if (reverseProxy.getMappingsUpdate().isOnNetworkError()) {
+				mappingsProvider.updateMappings();
+			}
+			throw e;
 		}
 		return responseEntity;
 	}

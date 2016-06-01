@@ -15,6 +15,7 @@ public class ReverseProxyProperties {
 
 	private int filterOrder = LOWEST_PRECEDENCE;
 	private Timeout timeout = new Timeout();
+	private Retrying retrying = new Retrying();
 	private MappingsUpdate mappingsUpdate = new MappingsUpdate();
 	private List<Mapping> mappings = new ArrayList<>();
 
@@ -32,6 +33,14 @@ public class ReverseProxyProperties {
 
 	public void setTimeout(Timeout timeout) {
 		this.timeout = timeout;
+	}
+
+	public Retrying getRetrying() {
+		return retrying;
+	}
+
+	public void setRetrying(Retrying retrying) {
+		this.retrying = retrying;
 	}
 
 	public MappingsUpdate getMappingsUpdate() {
@@ -69,6 +78,19 @@ public class ReverseProxyProperties {
 
 		public void setRead(int read) {
 			this.read = read;
+		}
+	}
+
+	public static class Retrying {
+
+		private int maxAttempts = 3;
+
+		public int getMaxAttempts() {
+			return maxAttempts;
+		}
+
+		public void setMaxAttempts(int maxAttempts) {
+			this.maxAttempts = maxAttempts;
 		}
 	}
 

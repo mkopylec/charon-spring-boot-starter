@@ -1,7 +1,9 @@
 package com.github.mkopylec.reverseproxy.configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -22,6 +24,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
+import org.springframework.retry.RetryOperations;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import static java.util.stream.Collectors.toSet;
@@ -47,17 +54,34 @@ public class ReverseProxyConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public HttpProxyFilter httpProxyFilter(RestTemplate restTemplate, RequestDataExtractor extractor, MappingsProvider mappingsProvider, LoadBalancer loadBalancer) {
-		return new HttpProxyFilter(reverseProxy, restTemplate, extractor, mappingsProvider, loadBalancer);
+	public HttpProxyFilter httpProxyFilter(
+			RestOperations restOperations,
+			RetryOperations retryOperations,
+			RequestDataExtractor extractor,
+			MappingsProvider mappingsProvider,
+			LoadBalancer loadBalancer
+	) {
+		return new HttpProxyFilter(reverseProxy, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RestTemplate restTemplate() {
+	public RestOperations restOperations() {
 		Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
 		requestFactory.setConnectTimeout(reverseProxy.getTimeout().getConnect());
 		requestFactory.setReadTimeout(reverseProxy.getTimeout().getRead());
 		return new RestTemplate(requestFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public RetryOperations retryOperations() {
+		Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(1);
+		retryableExceptions.put(ResourceAccessException.class, true);
+		SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(reverseProxy.getRetrying().getMaxAttempts(), retryableExceptions);
+		RetryTemplate retryTemplate = new RetryTemplate();
+		retryTemplate.setRetryPolicy(retryPolicy);
+		return retryTemplate;
 	}
 
 	@Bean

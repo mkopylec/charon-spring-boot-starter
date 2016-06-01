@@ -32,6 +32,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '+'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '+'
     compile group: 'io.netty', name: 'netty-all', version: '4.0.36.Final'
+    compile group: 'org.springframework.retry', name: 'spring-retry', version: '+'
 
     compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '+', optional
 

@@ -3,6 +3,8 @@ reverse-proxy:
   timeout:
     connect: 500
     read: 2000
+  retrying:
+    max-attempts: 3
   mappings-update:
     enabled: true
     on-network-error: true
@@ -28,3 +30,4 @@ reverse-proxy:
 logging.level:
   com.github.mkopylec.reverseproxy: trace
   org.eclipse.jetty: error
+  org.springframework.retry: debug
