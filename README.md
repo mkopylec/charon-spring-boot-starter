@@ -139,7 +139,7 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - mapping destinations can have custom schemes; when a destination lacks of a scheme part the _http://_ will be prepended
 - client IP address will be added to X-Forwarded-For header to every forwarded request
 - to turn off scheduled mappings update set the interval to 0
-- the proxy is based on servlet filter, the order of the filter is configurable
+- the proxy is based on a servlet filter, the order of the filter is configurable
 
 ## Configuration properties list
 
