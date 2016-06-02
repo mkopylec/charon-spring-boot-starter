@@ -29,6 +29,9 @@ reverse-proxy:
     -
       path: /uri/5
       destinations: http://nonexistinghost:8080
+    -
+      path: /uri/6
+      destinations: http://localhost:8080
 
 logging.level:
   com.github.mkopylec.reverseproxy: trace
