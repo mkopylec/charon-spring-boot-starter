@@ -47,12 +47,104 @@ Configure proxy mappings in _application.yml_ file:
 reverse-proxy.mappings:
     -
         path: /some/path
-        destinations: firsthost:8080, secondhost:8081
+        destinations: http://firsthost:8080, http://secondhost:8081
 ```
 
 When an application is configured like above then every request to _/some/path/endpoint/**_
 will be forwarded to _http://firsthost:8080/endpoint/**_ or _http://secondhost:8081/endpoint/**_.
 Note that the mapped path _/some/path_ is stripped from the forwarded request URL.
+Also note that the `reverse-proxy.mappings` property's value is a list, therefore more mappings can be set.
+
+## Advanced usage
+The starter can be configured in many ways. This can be done by configuration properties in _application.yml_ file or by creating Spring beans.
+
+### Mapped path stripping
+By default the mapped path is stripped from the forward request URL.
+To preserve the mapped path in the URL set an appropriate configuration property:
+
+```yaml
+reverse-proxy.mappings:
+    -
+        ...
+        strip-path: false
+```
+
+### Retrying
+By default there are maximum 3 tries to make a forward request. The next try is triggered when a non-HTTP error occurs.
+This means that the 4xx and 5xx responses from destination hosts will not trigger the next try.
+To change the maximum number of attempts set an appropriate configuration property:
+
+```yaml
+reverse-proxy.retrying.max-attempts: <number_of_tries>
+```
+
+### Mappings provider
+If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
+This can done by creating a Spring bean of type `MappingsProvider`:
+
+```java
+@Component
+@EnableConfigurationProperties(ReverseProxyProperties.class)
+public class ConfigurationMappingsProvider extends MappingsProvider {
+
+    @Autowired
+	public ConfigurationMappingsProvider(TaskScheduler scheduler, ReverseProxyProperties reverseProxy, MappingsCorrector mappingsCorrector) {
+		super(scheduler, reverseProxy, mappingsCorrector);
+	}
+
+	@Override
+	protected List<Mapping> retrieveMappings() {
+		...
+	}
+}
+```
+
+### Load balancer
+The default load balancer randomly chooses a destination host from the available list.
+A custom load balancer can be created by creating a Spring bean of type `LoadBalancer`:
+
+```java
+@Component
+public class RandomLoadBalancer implements LoadBalancer {
+
+	@Override
+	public String chooseDestination(List<String> destinations) {
+		...
+	}
+}
+```
+
+### Mappings update
+The starter is resilient to mappings changes during application runtime.
+By default the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
+This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
+This behaviour can be changed by setting an appropriate configuration property:
+
+```yaml
+reverse-proxy.mappings-update.on-non-http-error: false
+```
+
+There is also a scheduled task which updates mappings in time intervals.
+By default the mappings are updated every 30 seconds.
+To change the interval set an appropriate configuration property:
+
+```yaml
+reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
+```
+
+### Other tips
+- change the logging levels of `com.github.mkopylec.reverseproxy` and `org.springframework.retry` to DEBUG or TRACE to see what's going on under the hood
+- check the [`ReverseProxyConfiguration`](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/reverseproxy/configuration/ReverseProxyConfiguration.java) to see what else can overridden by creating a Spring bean
+- if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
+- client IP address will be added to X-Forwarded-For header to every forwarded request
+
+## Configuration properties list
+
+```yaml
+tbd
+```
+## Examples
+See [test application](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/tree/master/src/test/java/com/github/mkopylec/reverseproxy/application) for more examples.
 
 ## License
 Reverse Proxy Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

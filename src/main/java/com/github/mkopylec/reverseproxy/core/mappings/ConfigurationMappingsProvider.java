@@ -9,11 +9,8 @@ import org.springframework.scheduling.TaskScheduler;
 
 public class ConfigurationMappingsProvider extends MappingsProvider {
 
-	protected final ReverseProxyProperties reverseProxy;
-
 	public ConfigurationMappingsProvider(TaskScheduler scheduler, ReverseProxyProperties reverseProxy, MappingsCorrector mappingsCorrector) {
 		super(scheduler, reverseProxy, mappingsCorrector);
-		this.reverseProxy = reverseProxy;
 	}
 
 	@Override
