@@ -28,7 +28,7 @@ dependencies {
 ```
 
 ## Basic usage
-Add `@EnableReverseProxy` to Spring Boot web application:
+Add `@EnableReverseProxy` to a Spring Boot web application:
 
 ```java
 @EnableReverseProxy
@@ -51,8 +51,8 @@ reverse-proxy.mappings:
 ```
 
 When an application is configured like above then every request to _/some/path/endpoint/**_
-will be proxied to _http://firsthost:8080/endpoint/**_ or _http://secondhost:8081/endpoint/**_.
-Note that the mapped path is stripped from proxied request URL.
+will be forwarded to _http://firsthost:8080/endpoint/**_ or _http://secondhost:8081/endpoint/**_.
+Note that the mapped path _/some/path_ is stripped from the forwarded request URL.
 
 ## License
 Reverse Proxy Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
