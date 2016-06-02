@@ -71,7 +71,7 @@ reverse-proxy.mappings:
 
 ### Retrying
 By default there are maximum 3 tries to make a forward request. The next try is triggered when a non-HTTP error occurs.
-This means that the 4xx and 5xx responses from destination hosts will not trigger the next try.
+This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
 To change the maximum number of attempts set an appropriate configuration property:
 
 ```yaml
@@ -136,7 +136,9 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - change the logging levels of `com.github.mkopylec.reverseproxy` and `org.springframework.retry` to DEBUG or TRACE to see what's going on under the hood
 - check the [`ReverseProxyConfiguration`](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/reverseproxy/configuration/ReverseProxyConfiguration.java) to see what else can overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
+- mapping destinations can have custom schemes; when a destination lacks of a scheme part the _http://_ will be prepended
 - client IP address will be added to X-Forwarded-For header to every forwarded request
+- to turn off scheduled mappings update set the interval to 0
 
 ## Configuration properties list
 
