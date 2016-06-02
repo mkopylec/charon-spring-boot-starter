@@ -1,23 +1,11 @@
 package com.github.mkopylec.reverseproxy.core.http;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
 import com.github.mkopylec.reverseproxy.core.balancer.LoadBalancer;
 import com.github.mkopylec.reverseproxy.core.mappings.MappingsProvider;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 import org.slf4j.Logger;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
@@ -27,6 +15,16 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -61,7 +59,6 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		this.extractor = extractor;
 		this.mappingsProvider = mappingsProvider;
 		this.loadBalancer = loadBalancer;
-		this.mappingsProvider.updateMappings();
 	}
 
 	@Override

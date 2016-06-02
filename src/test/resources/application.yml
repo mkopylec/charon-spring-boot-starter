@@ -8,7 +8,7 @@ reverse-proxy:
   mappings-update:
     enabled: true
     on-network-error: true
-    interval-in-millis: 10000
+    interval-in-millis: 30000
   mappings:
     -
       path: /uri/1
@@ -26,6 +26,9 @@ reverse-proxy:
     -
       path: /uri/4
       destinations: invalid%://localhost:8080
+    -
+      path: /uri/5
+      destinations: http://nonexistinghost:8080
 
 logging.level:
   com.github.mkopylec.reverseproxy: trace

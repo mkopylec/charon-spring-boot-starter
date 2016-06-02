@@ -1,15 +1,13 @@
 package com.github.mkopylec.reverseproxy.core.http;
 
+import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 
 import static java.util.Collections.list;
 import static org.apache.commons.lang3.StringUtils.EMPTY;

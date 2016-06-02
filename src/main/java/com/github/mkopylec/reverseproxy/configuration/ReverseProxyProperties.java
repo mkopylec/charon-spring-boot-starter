@@ -1,11 +1,10 @@
 package com.github.mkopylec.reverseproxy.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -98,7 +97,7 @@ public class ReverseProxyProperties {
 
 		private boolean enabled = true;
 		private boolean onNetworkError = true;
-		private int intervalInMillis = 10000;
+		private int intervalInMillis = 30000;
 
 		public boolean isEnabled() {
 			return enabled;
