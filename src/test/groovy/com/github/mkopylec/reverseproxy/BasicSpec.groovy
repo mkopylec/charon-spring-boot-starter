@@ -1,6 +1,7 @@
 package com.github.mkopylec.reverseproxy
 
 import com.github.mkopylec.reverseproxy.application.TestApplication
+import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,6 +39,8 @@ abstract class BasicSpec extends Specification {
     private RestTemplate restTemplate = new RestTemplate()
     @Autowired
     private EmbeddedWebApplicationContext context
+    @Autowired
+    private ReverseProxyProperties reverseProxy
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
         def url = "http://localhost:$context.embeddedServletContainer.port$uri"
@@ -50,6 +53,14 @@ abstract class BasicSpec extends Specification {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
                     .body(e.responseBodyAsString);
+        }
+    }
+
+    protected void updateMappingDestinations(String path, String... destinations) {
+        reverseProxy.mappings.each { mapping ->
+            if (mapping.path == path) {
+                mapping.destinations = destinations
+            }
         }
     }
 

@@ -1,10 +1,11 @@
 package com.github.mkopylec.reverseproxy.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -96,7 +97,7 @@ public class ReverseProxyProperties {
 	public static class MappingsUpdate {
 
 		private boolean enabled = true;
-		private boolean onNetworkError = true;
+		private boolean onNonHttpError = true;
 		private int intervalInMillis = 30000;
 
 		public boolean isEnabled() {
@@ -107,12 +108,12 @@ public class ReverseProxyProperties {
 			this.enabled = enabled;
 		}
 
-		public boolean isOnNetworkError() {
-			return onNetworkError;
+		public boolean isOnNonHttpError() {
+			return onNonHttpError;
 		}
 
-		public void setOnNetworkError(boolean onNetworkError) {
-			this.onNetworkError = onNetworkError;
+		public void setOnNonHttpError(boolean onNonHttpError) {
+			this.onNonHttpError = onNonHttpError;
 		}
 
 		public int getIntervalInMillis() {

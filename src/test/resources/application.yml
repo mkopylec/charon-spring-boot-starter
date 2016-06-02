@@ -7,7 +7,7 @@ reverse-proxy:
     max-attempts: 3
   mappings-update:
     enabled: true
-    on-network-error: true
+    on-non-http-error: true
     interval-in-millis: 30000
   mappings:
     -
