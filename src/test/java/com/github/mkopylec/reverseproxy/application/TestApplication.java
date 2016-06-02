@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static org.springframework.boot.SpringApplication.run;
 
-@SpringBootApplication
 @EnableReverseProxy
+@SpringBootApplication
 public class TestApplication {
 
 	public static void main(String[] args) {

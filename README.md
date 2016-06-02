@@ -16,5 +16,43 @@ This tool tries to get the best of them joining their features into a one Spring
 - resilient to destination hosts changes during runtime
 - X-Forwarded-For header support
 
+## Installing
+
+```gradle
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'com.github.mkopylec:reverse-proxy-spring-boot-starter:1.0.0'
+}
+```
+
+## Basic usage
+Add `@EnableReverseProxy` to Spring Boot web application:
+
+```java
+@EnableReverseProxy
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+Configure proxy mappings in _application.yml_ file:
+
+```yaml
+reverse-proxy.mappings:
+    -
+        path: /some/path
+        destinations: firsthost:8080, secondhost:8081
+```
+
+When an application is configured like above then every request to _/some/path/endpoint/**_
+will be proxied to _http://firsthost:8080/endpoint/**_ or _http://secondhost:8081/endpoint/**_.
+Note that the mapped path is stripped from proxied request URL.
+
 ## License
 Reverse Proxy Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
