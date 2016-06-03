@@ -1,23 +1,11 @@
 package com.github.mkopylec.reverseproxy.core.http;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
 import com.github.mkopylec.reverseproxy.core.balancer.LoadBalancer;
 import com.github.mkopylec.reverseproxy.core.mappings.MappingsProvider;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 import org.slf4j.Logger;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
@@ -26,6 +14,16 @@ import org.springframework.retry.RetryOperations;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -65,7 +63,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String uri = extractor.extractUri(request);
-		String body = extractor.extractBody(request);
+		byte[] body = extractor.extractBody(request);
 		HttpHeaders headers = extractor.extractHttpHeaders(request);
 		addClientIp(request, headers);
 		HttpMethod method = extractor.extractHttpMethod(request);
@@ -74,7 +72,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 			if (url == null) {
 				return null;
 			}
-			RequestEntity<String> requestEntity = new RequestEntity<>(body, headers, method, url);
+			RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, url);
 			ResponseEntity<byte[]> result = sendRequest(requestEntity);
 			log.debug("{} {} -> {} {}", request.getMethod(), uri, url, result.getStatusCode().value());
 			return result;
@@ -122,7 +120,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		headers.put(X_FORWARDED_FOR_HEADER, clientIps);
 	}
 
-	protected ResponseEntity<byte[]> sendRequest(RequestEntity<String> requestEntity) {
+	protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity) {
 		ResponseEntity<byte[]> responseEntity;
 		try {
 			responseEntity = restOperations.exchange(requestEntity, byte[].class);
@@ -139,13 +137,17 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 		return responseEntity;
 	}
 
-	protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) throws IOException {
+	protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {
 		response.setStatus(responseEntity.getStatusCode().value());
 		responseEntity.getHeaders().forEach((name, values) ->
 				values.forEach(value -> response.addHeader(name, value))
 		);
 		if (responseEntity.getBody() != null) {
-			response.getOutputStream().write(responseEntity.getBody());
+			try {
+				response.getOutputStream().write(responseEntity.getBody());
+			} catch (IOException e) {
+				throw new ReverseProxyException("Error extracting body of HTTP response with status: " + responseEntity.getStatusCode(), e);
+			}
 		}
 	}
 }

@@ -10,19 +10,18 @@ import java.util.Enumeration;
 import java.util.List;
 
 import static java.util.Collections.list;
+import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.http.HttpMethod.resolve;
 
 public class RequestDataExtractor {
 
-	public String extractBody(HttpServletRequest request) {
-		StringBuilder body = new StringBuilder();
+	public byte[] extractBody(HttpServletRequest request) {
 		try {
-			request.getReader().lines().forEach(body::append);
+			return toByteArray(request.getInputStream());
 		} catch (IOException e) {
 			throw new ReverseProxyException("Error extracting body of HTTP request with URI: " + extractUri(request), e);
 		}
-		return body.toString();
 	}
 
 	public HttpHeaders extractHttpHeaders(HttpServletRequest request) {
