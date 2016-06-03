@@ -28,18 +28,17 @@ repositories {
 
 dependencies {
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '+'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '+'
-    compile group: 'org.apache.commons', name: 'commons-collections4', version: '+'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '1.3.5.RELEASE'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
     compile group: 'io.netty', name: 'netty-all', version: '4.0.36.Final'
-    compile group: 'org.springframework.retry', name: 'spring-retry', version: '+'
+    compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.1.2.RELEASE'
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '+', optional
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '1.3.5.RELEASE', optional
 
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '+'
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '+'
-    testCompile group: 'org.spockframework', name: 'spock-spring', version: '+'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '+'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.3.5.RELEASE'
+    testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.0-groovy-2.4'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.0.10-beta'
 }
 
 configurations {
