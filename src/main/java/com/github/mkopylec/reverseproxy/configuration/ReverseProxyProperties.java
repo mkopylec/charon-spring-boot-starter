@@ -1,22 +1,39 @@
 package com.github.mkopylec.reverseproxy.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
+/**
+ * Reverse proxy configuration properties.
+ */
 @ConfigurationProperties("reverse-proxy")
 public class ReverseProxyProperties {
 
+	/**
+	 * Reverse proxy servlet filter order.
+	 */
 	private int filterOrder = LOWEST_PRECEDENCE;
+	/**
+	 * Properties responsible for timeouts while forwarding HTTP requests.
+	 */
 	private Timeout timeout = new Timeout();
+	/**
+	 * Properties responsible for retrying of HTTP requests forwarding.
+	 */
 	private Retrying retrying = new Retrying();
+	/**
+	 * Properties responsible for proxy mappings updates.
+	 */
 	private MappingsUpdate mappingsUpdate = new MappingsUpdate();
+	/**
+	 * List of proxy mappings.
+	 */
 	private List<Mapping> mappings = new ArrayList<>();
 
 	public int getFilterOrder() {
@@ -61,7 +78,13 @@ public class ReverseProxyProperties {
 
 	public static class Timeout {
 
+		/**
+		 * Connect timeout for HTTP requests forwarding.
+		 */
 		private int connect = 500;
+		/**
+		 * Read timeout for HTTP requests forwarding.
+		 */
 		private int read = 2000;
 
 		public int getConnect() {
@@ -83,6 +106,9 @@ public class ReverseProxyProperties {
 
 	public static class Retrying {
 
+		/**
+		 * Maximum number of HTTP request forward tries.
+		 */
 		private int maxAttempts = 3;
 
 		public int getMaxAttempts() {
@@ -96,8 +122,17 @@ public class ReverseProxyProperties {
 
 	public static class MappingsUpdate {
 
+		/**
+		 * Flag for enabling and disabling mappings updates.
+		 */
 		private boolean enabled = true;
+		/**
+		 * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
+		 */
 		private boolean onNonHttpError = true;
+		/**
+		 * Interval in milliseconds between automatic mappings updates.
+		 */
 		private int intervalInMillis = 30000;
 
 		public boolean isEnabled() {
@@ -127,8 +162,17 @@ public class ReverseProxyProperties {
 
 	public static class Mapping {
 
-		private String path;
+		/**
+		 * Path for mapping incoming HTTP requests URIs.
+		 */
+		private String path = "/";
+		/**
+		 * List of destination hosts where HTTp requests will be forwarded.
+		 */
 		private List<String> destinations = new ArrayList<>();
+		/**
+		 * Flag for enabling and disabling mapped path stripping from forwarded request URI.
+		 */
 		private boolean stripPath = true;
 
 		public String getPath() {

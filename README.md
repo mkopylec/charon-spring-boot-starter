@@ -11,7 +11,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - highly configurable and extensible
 - NIO support based on [Netty](http://netty.io/)
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
-- customizable proxy mappings provider
+- customizable proxy mappings
 - customizable load balancer
 - resilient to destination hosts changes during runtime
 - X-Forwarded-For header support
@@ -124,9 +124,8 @@ This behaviour can be changed by setting an appropriate configuration property:
 reverse-proxy.mappings-update.on-non-http-error: false
 ```
 
-There is also a scheduled task which updates mappings in time intervals.
-By default the mappings are updated every 30 seconds.
-To change the interval set an appropriate configuration property:
+Besides that the mappings are automatically updated every 30 seconds by default.
+To change the interval of updates set an appropriate configuration property:
 
 ```yaml
 reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
@@ -138,14 +137,31 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination lacks of a scheme part the _http://_ will be prepended
 - client IP address will be added to X-Forwarded-For header to every forwarded request
-- to turn off scheduled mappings update set the interval to 0
+- to turn off automatic mappings updates set the interval to 0
+- turn off all mappings updates (automatic and triggered by error) if they are not needed
 - the proxy is based on a servlet filter, the order of the filter is configurable
 
 ## Configuration properties list
 
 ```yaml
-tbd
+reverse-proxy:
+    filter-order: Ordered.LOWEST_PRECEDENCE # Reverse proxy servlet filter order.
+    timeout:
+        connect: 500 # Connect timeout for HTTP requests forwarding.
+        read: 2000 # Read timeout for HTTP requests forwarding.
+    retrying:
+        max-attempts: 3 # Maximum number of HTTP request forward tries.
+    mappings-update:
+        enabled: true # Flag for enabling and disabling mappings updates.
+        on-non-http-error: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
+        interval-in-millis: 30000 # Interval in milliseconds between automatic mappings updates.
+    mappings:
+        -
+            path: / # Path for mapping incoming HTTP requests URIs.
+            destinations: # List of destination hosts where HTTp requests will be forwarded.
+            strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
 ```
+
 ## Examples
 See [test application](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/tree/master/src/test/java/com/github/mkopylec/reverseproxy/application) for more examples.
 

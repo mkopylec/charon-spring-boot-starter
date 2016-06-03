@@ -9,9 +9,9 @@ import static org.springframework.http.HttpMethod.GET
 @TestPropertySource(
         properties = ['reverse-proxy.mappings-update.on-non-http-error: false', 'reverse-proxy.mappings-update.interval-in-millis: 100']
 )
-class MappingsUpdateSpec extends BasicSpec {
+class AutoMappingsUpdateSpec extends BasicSpec {
 
-    def "Should update destination mappings when on non HTTP error while sending request to destination"() {
+    def "Should automatically update destination mappings after a time interval"() {
         when:
         sendRequest GET, '/uri/6/path/6'
 
