@@ -56,7 +56,7 @@ Note that the mapped path _/some/path_ is stripped from the forwarded request UR
 Also note that the `reverse-proxy.mappings` property's value is a list, therefore more mappings can be set.
 
 ## Advanced usage
-The starter can be configured in many ways. This can be done by configuration properties in _application.yml_ file or by creating Spring beans.
+The starter can be configured in many ways. This can be done via configuration properties in _application.yml_ file or by creating Spring beans.
 
 ### Mapped path stripping
 By default the mapped path is stripped from the forward request URL.
@@ -133,9 +133,9 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 
 ### Other tips
 - change the logging levels of `com.github.mkopylec.reverseproxy` and `org.springframework.retry` to DEBUG or TRACE to see what's going on under the hood
-- check the [`ReverseProxyConfiguration`](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/reverseproxy/configuration/ReverseProxyConfiguration.java) to see what else can overridden by creating a Spring bean
+- check the [`ReverseProxyConfiguration`](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/reverseproxy/configuration/ReverseProxyConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
-- mapping destinations can have custom schemes; when a destination lacks of a scheme part the _http://_ will be prepended
+- mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
 - client IP address will be added to X-Forwarded-For header to every forwarded request
 - to turn off automatic mappings updates set the interval to 0
 - turn off all mappings updates (automatic and triggered by error) if they are not needed
