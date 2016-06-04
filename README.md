@@ -1,6 +1,7 @@
 # Reverse Proxy Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/reverse-proxy-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/reverse-proxy-spring-boot-starter)
 [![Coverage Status](https://coveralls.io/repos/mkopylec/reverse-proxy-spring-boot-starter/badge.svg?branch=master&service=github)](https://coveralls.io/github/mkopylec/reverse-proxy-spring-boot-starter?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/reverse-proxy-spring-boot-starter/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/reverse-proxy-spring-boot-starter)
 
 The starter automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
 There are some alternative reverse proxy implementations like: [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
@@ -85,10 +86,10 @@ This can done by creating a Spring bean of type `MappingsProvider`:
 ```java
 @Component
 @EnableConfigurationProperties(ReverseProxyProperties.class)
-public class ConfigurationMappingsProvider extends MappingsProvider {
+public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public ConfigurationMappingsProvider(TaskScheduler scheduler, ReverseProxyProperties reverseProxy, MappingsCorrector mappingsCorrector) {
+	public CustomMappingsProvider(TaskScheduler scheduler, ReverseProxyProperties reverseProxy, MappingsCorrector mappingsCorrector) {
 		super(scheduler, reverseProxy, mappingsCorrector);
 	}
 
@@ -105,7 +106,7 @@ A custom load balancer can be created by creating a Spring bean of type `LoadBal
 
 ```java
 @Component
-public class RandomLoadBalancer implements LoadBalancer {
+public class CustomLoadBalancer implements LoadBalancer {
 
 	@Override
 	public String chooseDestination(List<String> destinations) {
@@ -158,7 +159,7 @@ reverse-proxy:
     mappings:
         -
             path: / # Path for mapping incoming HTTP requests URIs.
-            destinations: # List of destination hosts where HTTp requests will be forwarded.
+            destinations: # List of destination hosts where HTTP requests will be forwarded.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
 ```
 
