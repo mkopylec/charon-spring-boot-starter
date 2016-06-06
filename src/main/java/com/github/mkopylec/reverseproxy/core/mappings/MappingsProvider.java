@@ -29,7 +29,7 @@ public abstract class MappingsProvider {
         return mappings;
     }
 
-    public void updateMappings() {
+    public synchronized void updateMappings() {
         mappings = retrieveMappings();
         mappingsCorrector.correct(mappings);
         log.trace("Destination mappings updated to: {}", mappings);

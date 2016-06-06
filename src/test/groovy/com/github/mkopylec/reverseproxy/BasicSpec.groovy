@@ -5,6 +5,7 @@ import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext
 import org.springframework.boot.test.SpringApplicationContextLoader
 import org.springframework.boot.test.WebIntegrationTest
@@ -23,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import static com.github.tomakehurst.wiremock.client.WireMock.any
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import static org.apache.commons.lang3.StringUtils.EMPTY
+import static org.apache.commons.lang3.StringUtils.trimToEmpty
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.status
 
@@ -41,9 +43,11 @@ abstract class BasicSpec extends Specification {
     private EmbeddedWebApplicationContext context
     @Autowired
     private ReverseProxyProperties reverseProxy
+    @Autowired
+    private ServerProperties server
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
-        def url = "http://localhost:$context.embeddedServletContainer.port$uri"
+        def url = "http://localhost:$context.embeddedServletContainer.port$contextPath$uri"
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
@@ -62,6 +66,10 @@ abstract class BasicSpec extends Specification {
                 mapping.destinations = destinations
             }
         }
+    }
+
+    protected String getContextPath() {
+        return trimToEmpty(server.contextPath)
     }
 
     protected void stubDestinationResponse(HttpStatus responseStatus) {

@@ -125,7 +125,7 @@ public class ReverseProxyProperties {
         /**
          * Flag for enabling and disabling mappings updates.
          */
-        private boolean enabled = true;
+        private boolean enabled = false;
         /**
          * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
          */

@@ -39,4 +39,4 @@ logging.level:
   org.springframework.retry: debug
 
 server:
-  context-path: /
+  context-path: /context

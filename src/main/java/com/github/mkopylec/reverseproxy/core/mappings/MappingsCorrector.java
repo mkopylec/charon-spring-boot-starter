@@ -3,25 +3,18 @@ package com.github.mkopylec.reverseproxy.core.mappings;
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties;
 import com.github.mkopylec.reverseproxy.configuration.ReverseProxyProperties.Mapping;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.mkopylec.reverseproxy.utils.UriCorrector.correctUri;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 public class MappingsCorrector {
-
-    protected final ServerProperties server;
-
-    public MappingsCorrector(ServerProperties server) {
-        this.server = server;
-    }
 
     public void correct(List<Mapping> mappings) {
         if (isNotEmpty(mappings)) {
@@ -63,12 +56,7 @@ public class MappingsCorrector {
         if (isBlank(mapping.getPath())) {
             throw new ReverseProxyException("No destination path for mapping " + mapping);
         }
-        String contextPath = correctUri(server.getContextPath());
         String path = correctUri(mapping.getPath());
-        mapping.setPath(contextPath + path);
-    }
-
-    protected String correctUri(String path) {
-        return removeEnd(prependIfMissing(path, "/"), "/");
+        mapping.setPath(path);
     }
 }

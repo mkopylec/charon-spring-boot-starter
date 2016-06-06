@@ -95,7 +95,7 @@ class ProxyingRequestSpec extends BasicSpec {
         then:
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
-                .withMethodAndUri(GET, '/uri/2/path/2')
+                .withMethodAndUri(GET, "$contextPath/uri/2/path/2")
                 .withoutBody()
     }
 

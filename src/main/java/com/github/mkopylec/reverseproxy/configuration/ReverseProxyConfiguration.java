@@ -9,8 +9,8 @@ import com.github.mkopylec.reverseproxy.core.mappings.MappingsCorrector;
 import com.github.mkopylec.reverseproxy.core.mappings.MappingsProvider;
 import com.github.mkopylec.reverseproxy.exceptions.ReverseProxyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,10 +27,10 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 
 @Configuration
@@ -41,6 +41,9 @@ public class ReverseProxyConfiguration {
     protected ReverseProxyProperties reverseProxy;
     @Autowired
     protected ServerProperties server;
+    @Qualifier("rpTaskScheduler")
+    @Autowired(required = false)
+    protected TaskScheduler scheduler;
 
     @Bean
     public FilterRegistrationBean rpHttpProxyFilterRegistrationBean(HttpProxyFilter proxyFilter, MappingsProvider mappingsProvider) {
@@ -53,13 +56,13 @@ public class ReverseProxyConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public HttpProxyFilter rpHttpProxyFilter(
-            RestOperations restOperations,
-            RetryOperations retryOperations,
+            @Qualifier("rpRestOperations") RestOperations restOperations,
+            @Qualifier("rpRetryOperations") RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer
     ) {
-        return new HttpProxyFilter(reverseProxy, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer);
+        return new HttpProxyFilter(server, reverseProxy, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer);
     }
 
     @Bean
@@ -91,7 +94,7 @@ public class ReverseProxyConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @Autowired(required = false)
-    public MappingsProvider rpMappingsProvider(TaskScheduler scheduler, MappingsCorrector mappingsCorrector) {
+    public MappingsProvider rpMappingsProvider(MappingsCorrector mappingsCorrector) {
         return new ConfigurationMappingsProvider(scheduler, reverseProxy, mappingsCorrector);
     }
 
@@ -103,17 +106,19 @@ public class ReverseProxyConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty({"reverse-proxy.mappings-update.enabled", "reverseProxy.mappingsUpdate.enabled"})
     public TaskScheduler rpTaskScheduler() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(2);
-        return scheduler;
+        if (reverseProxy.getMappingsUpdate().isEnabled()) {
+            ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+            scheduler.setPoolSize(2);
+            return scheduler;
+        }
+        return null;
     }
 
     @Bean
     @ConditionalOnMissingBean
     public MappingsCorrector rpMappingsCorrector() {
-        return new MappingsCorrector(server);
+        return new MappingsCorrector();
     }
 
     @PostConstruct
@@ -138,9 +143,9 @@ public class ReverseProxyConfiguration {
         }
     }
 
-    protected List<String> getFilterUrlPatterns(MappingsProvider mappingsProvider) {
+    protected Set<String> getFilterUrlPatterns(MappingsProvider mappingsProvider) {
         return mappingsProvider.getMappings().stream()
                 .map(mapping -> appendIfMissing(mapping.getPath(), "/*"))
-                .collect(toList());
+                .collect(toSet());
     }
 }

@@ -141,6 +141,7 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - to turn off automatic mappings updates set the interval to 0
 - turn off all mappings updates (automatic and triggered by error) if they are not needed
 - the proxy is based on a servlet filter, the order of the filter is configurable
+- do not prepend server context path to mappings paths
 
 ## Configuration properties list
 
@@ -153,7 +154,7 @@ reverse-proxy:
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
     mappings-update:
-        enabled: true # Flag for enabling and disabling mappings updates.
+        enabled: false # Flag for enabling and disabling mappings updates.
         on-non-http-error: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
         interval-in-millis: 30000 # Interval in milliseconds between automatic mappings updates.
     mappings:
