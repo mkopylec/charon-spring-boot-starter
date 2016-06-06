@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.mkopylec.reverseproxy.utils.UriCorrector.correctUri;
+import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.removeStart;
@@ -36,6 +37,9 @@ import static org.springframework.http.ResponseEntity.status;
 public class HttpProxyFilter extends OncePerRequestFilter {
 
     protected static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    protected static final String X_FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
+    protected static final String X_FORWARDED_HOST_HEADER = "X-Forwarded-Host";
+    protected static final String X_FORWARDED_PORT_HEADER = "X-Forwarded-Port";
 
     private static final Logger log = getLogger(HttpProxyFilter.class);
 
@@ -73,7 +77,7 @@ public class HttpProxyFilter extends OncePerRequestFilter {
 
         byte[] body = extractor.extractBody(request);
         HttpHeaders headers = extractor.extractHttpHeaders(request);
-        addClientIp(request, headers);
+        addForwardHeaders(request, headers);
         HttpMethod method = extractor.extractHttpMethod(request);
 
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
@@ -114,13 +118,16 @@ public class HttpProxyFilter extends OncePerRequestFilter {
         }
     }
 
-    protected void addClientIp(HttpServletRequest request, HttpHeaders headers) {
-        List<String> clientIps = headers.get(X_FORWARDED_FOR_HEADER);
-        if (isEmpty(clientIps)) {
-            clientIps = new ArrayList<>(1);
+    protected void addForwardHeaders(HttpServletRequest request, HttpHeaders headers) {
+        List<String> forwardedFor = headers.get(X_FORWARDED_FOR_HEADER);
+        if (isEmpty(forwardedFor)) {
+            forwardedFor = new ArrayList<>(1);
         }
-        clientIps.add(request.getRemoteAddr());
-        headers.put(X_FORWARDED_FOR_HEADER, clientIps);
+        forwardedFor.add(request.getRemoteAddr());
+        headers.put(X_FORWARDED_FOR_HEADER, forwardedFor);
+        headers.set(X_FORWARDED_PROTO_HEADER, request.getScheme());
+        headers.set(X_FORWARDED_HOST_HEADER, request.getServerName());
+        headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
     protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity) {

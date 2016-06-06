@@ -72,6 +72,10 @@ abstract class BasicSpec extends Specification {
         return trimToEmpty(server.contextPath)
     }
 
+    protected String getPort() {
+        return context.embeddedServletContainer.port
+    }
+
     protected void stubDestinationResponse(HttpStatus responseStatus) {
         stubResponse(responseStatus)
     }

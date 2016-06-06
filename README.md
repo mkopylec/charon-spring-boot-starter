@@ -15,7 +15,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - customizable proxy mappings
 - customizable load balancer
 - resilient to destination hosts changes during runtime
-- X-Forwarded-For header support
+- forward HTTP headers support
 
 ## Installing
 
@@ -137,7 +137,7 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - check the [`ReverseProxyConfiguration`](https://github.com/mkopylec/reverse-proxy-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/reverseproxy/configuration/ReverseProxyConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
-- client IP address will be added to X-Forwarded-For header to every forwarded request
+- X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
 - to turn off automatic mappings updates set the interval to 0
 - turn off all mappings updates (automatic and triggered by error) if they are not needed
 - the proxy is based on a servlet filter, the order of the filter is configurable
