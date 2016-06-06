@@ -24,7 +24,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:reverse-proxy-spring-boot-starter:1.0.0'
+    compile 'com.github.mkopylec:reverse-proxy-spring-boot-starter:1.1.2'
 }
 ```
 
@@ -141,7 +141,7 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - to turn off automatic mappings updates set the interval to 0
 - turn off all mappings updates (automatic and triggered by error) if they are not needed
 - the proxy is based on a servlet filter, the order of the filter is configurable
-- do not prepend server context path to mappings paths
+- do not prepend server context path to mappings paths, it will be done automatically
 
 ## Configuration properties list
 
