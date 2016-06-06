@@ -16,34 +16,34 @@ import static org.springframework.http.HttpMethod.resolve;
 
 public class RequestDataExtractor {
 
-	public byte[] extractBody(HttpServletRequest request) {
-		try {
-			return toByteArray(request.getInputStream());
-		} catch (IOException e) {
-			throw new ReverseProxyException("Error extracting body of HTTP request with URI: " + extractUri(request), e);
-		}
-	}
+    public byte[] extractBody(HttpServletRequest request) {
+        try {
+            return toByteArray(request.getInputStream());
+        } catch (IOException e) {
+            throw new ReverseProxyException("Error extracting body of HTTP request with URI: " + extractUri(request), e);
+        }
+    }
 
-	public HttpHeaders extractHttpHeaders(HttpServletRequest request) {
-		HttpHeaders headers = new HttpHeaders();
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String name = headerNames.nextElement();
-			List<String> value = list(request.getHeaders(name));
-			headers.put(name, value);
-		}
-		return headers;
-	}
+    public HttpHeaders extractHttpHeaders(HttpServletRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            List<String> value = list(request.getHeaders(name));
+            headers.put(name, value);
+        }
+        return headers;
+    }
 
-	public HttpMethod extractHttpMethod(HttpServletRequest request) {
-		return resolve(request.getMethod());
-	}
+    public HttpMethod extractHttpMethod(HttpServletRequest request) {
+        return resolve(request.getMethod());
+    }
 
-	public String extractUri(HttpServletRequest request) {
-		return request.getRequestURI() + getQuery(request);
-	}
+    public String extractUri(HttpServletRequest request) {
+        return request.getRequestURI() + getQuery(request);
+    }
 
-	protected String getQuery(HttpServletRequest request) {
-		return request.getQueryString() == null ? EMPTY : "?" + request.getQueryString();
-	}
+    protected String getQuery(HttpServletRequest request) {
+        return request.getQueryString() == null ? EMPTY : "?" + request.getQueryString();
+    }
 }

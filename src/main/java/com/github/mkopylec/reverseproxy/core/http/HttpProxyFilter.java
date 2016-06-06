@@ -33,121 +33,117 @@ import static org.springframework.http.ResponseEntity.status;
 
 public class HttpProxyFilter extends OncePerRequestFilter {
 
-	protected static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    protected static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
 
-	private static final Logger log = getLogger(HttpProxyFilter.class);
+    private static final Logger log = getLogger(HttpProxyFilter.class);
 
-	protected final ReverseProxyProperties reverseProxy;
-	protected final RestOperations restOperations;
-	protected final RetryOperations retryOperations;
-	protected final RequestDataExtractor extractor;
-	protected final MappingsProvider mappingsProvider;
-	protected final LoadBalancer loadBalancer;
+    protected final ReverseProxyProperties reverseProxy;
+    protected final RestOperations restOperations;
+    protected final RetryOperations retryOperations;
+    protected final RequestDataExtractor extractor;
+    protected final MappingsProvider mappingsProvider;
+    protected final LoadBalancer loadBalancer;
 
-	public HttpProxyFilter(
-			ReverseProxyProperties reverseProxy,
-			RestOperations restOperations,
-			RetryOperations retryOperations,
-			RequestDataExtractor extractor,
-			MappingsProvider mappingsProvider,
-			LoadBalancer loadBalancer
-	) {
-		this.reverseProxy = reverseProxy;
-		this.restOperations = restOperations;
-		this.retryOperations = retryOperations;
-		this.extractor = extractor;
-		this.mappingsProvider = mappingsProvider;
-		this.loadBalancer = loadBalancer;
-	}
+    public HttpProxyFilter(
+            ReverseProxyProperties reverseProxy,
+            RestOperations restOperations,
+            RetryOperations retryOperations,
+            RequestDataExtractor extractor,
+            MappingsProvider mappingsProvider,
+            LoadBalancer loadBalancer
+    ) {
+        this.reverseProxy = reverseProxy;
+        this.restOperations = restOperations;
+        this.retryOperations = retryOperations;
+        this.extractor = extractor;
+        this.mappingsProvider = mappingsProvider;
+        this.loadBalancer = loadBalancer;
+    }
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		String uri = extractor.extractUri(request);
-		byte[] body = extractor.extractBody(request);
-		HttpHeaders headers = extractor.extractHttpHeaders(request);
-		addClientIp(request, headers);
-		HttpMethod method = extractor.extractHttpMethod(request);
-		ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
-			URI url = resolveDestinationUrl(uri);
-			if (url == null) {
-				return null;
-			}
-			RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, url);
-			ResponseEntity<byte[]> result = sendRequest(requestEntity);
-			log.debug("{} {} -> {} {}", request.getMethod(), uri, url, result.getStatusCode().value());
-			return result;
-		});
-		if (responseEntity == null) {
-			filterChain.doFilter(request, response);
-			log.debug("{} {} {}", request.getMethod(), uri, response.getStatus());
-			return;
-		}
-		processResponse(response, responseEntity);
-	}
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = extractor.extractUri(request);
+        byte[] body = extractor.extractBody(request);
+        HttpHeaders headers = extractor.extractHttpHeaders(request);
+        addClientIp(request, headers);
+        HttpMethod method = extractor.extractHttpMethod(request);
+        ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
+            URI url = resolveDestinationUrl(uri);
+            RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, url);
+            ResponseEntity<byte[]> result = sendRequest(requestEntity);
+            log.debug("{} {} -> {} {}", request.getMethod(), uri, url, result.getStatusCode().value());
+            return result;
+        });
+        processResponse(response, responseEntity);
+    }
 
-	protected URI resolveDestinationUrl(String uri) {
-		List<URI> urls = mappingsProvider.getMappings().stream()
-				.filter(mapping -> uri.startsWith(mapping.getPath()))
-				.map(mapping -> createDestinationUrl(uri, mapping))
-				.collect(toList());
-		if (isEmpty(urls)) {
-			return null;
-		}
-		if (urls.size() == 1) {
-			return urls.get(0);
-		}
-		throw new ReverseProxyException("Multiple mapping paths found for HTTP request URI: " + uri);
-	}
+    protected URI resolveDestinationUrl(String uri) {
+        List<URI> urls = mappingsProvider.getMappings().stream()
+                .filter(mapping -> uri.startsWith(mapping.getPath()))
+                .map(mapping -> createDestinationUrl(uri, mapping))
+                .collect(toList());
+        if (isEmpty(urls)) {
+            throw new ReverseProxyException("No mapping found for HTTP request URI: " + uri);
+        }
+        if (urls.size() == 1) {
+            return urls.get(0);
+        }
+        throw new ReverseProxyException("Multiple mapping paths found for HTTP request URI: " + uri);
+    }
 
-	protected URI createDestinationUrl(String uri, Mapping mapping) {
-		if (mapping.isStripPath()) {
-			uri = removeStart(uri, mapping.getPath());
-		}
-		String host = loadBalancer.chooseDestination(mapping.getDestinations());
-		try {
-			return new URI(host + uri);
-		} catch (URISyntaxException e) {
-			throw new ReverseProxyException("Error creating destination URL from HTTP request URI: " + uri + " using mapping " + mapping, e);
-		}
-	}
+    protected URI createDestinationUrl(String uri, Mapping mapping) {
+        if (mapping.isStripPath()) {
+            uri = removeStart(uri, mapping.getPath());
+        }
+        String host = loadBalancer.chooseDestination(mapping.getDestinations());
+        try {
+            return new URI(host + uri);
+        } catch (URISyntaxException e) {
+            throw new ReverseProxyException("Error creating destination URL from HTTP request URI: " + uri + " using mapping " + mapping, e);
+        }
+    }
 
-	protected void addClientIp(HttpServletRequest request, HttpHeaders headers) {
-		List<String> clientIps = headers.get(X_FORWARDED_FOR_HEADER);
-		if (isEmpty(clientIps)) {
-			clientIps = new ArrayList<>(1);
-		}
-		clientIps.add(request.getRemoteAddr());
-		headers.put(X_FORWARDED_FOR_HEADER, clientIps);
-	}
+    protected void addClientIp(HttpServletRequest request, HttpHeaders headers) {
+        List<String> clientIps = headers.get(X_FORWARDED_FOR_HEADER);
+        if (isEmpty(clientIps)) {
+            clientIps = new ArrayList<>(1);
+        }
+        clientIps.add(request.getRemoteAddr());
+        headers.put(X_FORWARDED_FOR_HEADER, clientIps);
+    }
 
-	protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity) {
-		ResponseEntity<byte[]> responseEntity;
-		try {
-			responseEntity = restOperations.exchange(requestEntity, byte[].class);
-		} catch (HttpStatusCodeException e) {
-			responseEntity = status(e.getStatusCode())
-					.headers(e.getResponseHeaders())
-					.body(e.getResponseBodyAsByteArray());
-		} catch (Exception e) {
-			if (reverseProxy.getMappingsUpdate().isOnNonHttpError()) {
-				mappingsProvider.updateMappings();
-			}
-			throw e;
-		}
-		return responseEntity;
-	}
+    protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity) {
+        ResponseEntity<byte[]> responseEntity;
+        try {
+            responseEntity = restOperations.exchange(requestEntity, byte[].class);
+        } catch (HttpStatusCodeException e) {
+            responseEntity = status(e.getStatusCode())
+                    .headers(e.getResponseHeaders())
+                    .body(e.getResponseBodyAsByteArray());
+        } catch (Exception e) {
+            if (shouldUpdateMappingsAfterError()) {
+                mappingsProvider.updateMappings();
+            }
+            throw e;
+        }
+        return responseEntity;
+    }
 
-	protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {
-		response.setStatus(responseEntity.getStatusCode().value());
-		responseEntity.getHeaders().forEach((name, values) ->
-				values.forEach(value -> response.addHeader(name, value))
-		);
-		if (responseEntity.getBody() != null) {
-			try {
-				response.getOutputStream().write(responseEntity.getBody());
-			} catch (IOException e) {
-				throw new ReverseProxyException("Error extracting body of HTTP response with status: " + responseEntity.getStatusCode(), e);
-			}
-		}
-	}
+    protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {
+        response.setStatus(responseEntity.getStatusCode().value());
+        responseEntity.getHeaders().forEach((name, values) ->
+                values.forEach(value -> response.addHeader(name, value))
+        );
+        if (responseEntity.getBody() != null) {
+            try {
+                response.getOutputStream().write(responseEntity.getBody());
+            } catch (IOException e) {
+                throw new ReverseProxyException("Error extracting body of HTTP response with status: " + responseEntity.getStatusCode(), e);
+            }
+        }
+    }
+
+    protected boolean shouldUpdateMappingsAfterError() {
+        return reverseProxy.getMappingsUpdate().isEnabled() && reverseProxy.getMappingsUpdate().isOnNonHttpError();
+    }
 }

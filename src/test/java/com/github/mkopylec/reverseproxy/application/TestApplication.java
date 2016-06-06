@@ -1,7 +1,6 @@
 package com.github.mkopylec.reverseproxy.application;
 
 import com.github.mkopylec.reverseproxy.configuration.EnableReverseProxy;
-
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static org.springframework.boot.SpringApplication.run;
@@ -10,7 +9,7 @@ import static org.springframework.boot.SpringApplication.run;
 @SpringBootApplication
 public class TestApplication {
 
-	public static void main(String[] args) {
-		run(TestApplication.class, args);
-	}
+    public static void main(String[] args) {
+        run(TestApplication.class, args);
+    }
 }

@@ -37,3 +37,6 @@ logging.level:
   com.github.mkopylec.reverseproxy: trace
   org.eclipse.jetty: error
   org.springframework.retry: debug
+
+server:
+  context-path: /
