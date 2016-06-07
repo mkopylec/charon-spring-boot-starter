@@ -93,7 +93,6 @@ public class ReverseProxyConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @Autowired(required = false)
     public MappingsProvider rpMappingsProvider(MappingsCorrector mappingsCorrector) {
         return new ConfigurationMappingsProvider(scheduler, reverseProxy, mappingsCorrector);
     }
