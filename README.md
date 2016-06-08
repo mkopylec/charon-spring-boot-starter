@@ -116,8 +116,15 @@ public class CustomLoadBalancer implements LoadBalancer {
 ```
 
 ### Mappings update
-The starter is resilient to mappings changes during application runtime.
-By default the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
+The starter can be resilient to mappings changes during application runtime.
+To be so mappings updates need to be turned on.
+To turn them on set an appropriate configuration property:
+
+```yaml
+reverse-proxy.mappings-update.enabled: true
+```
+
+When the updates are turned on, the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
 This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
 This behaviour can be changed by setting an appropriate configuration property:
 
@@ -125,7 +132,7 @@ This behaviour can be changed by setting an appropriate configuration property:
 reverse-proxy.mappings-update.on-non-http-error: false
 ```
 
-Besides that the mappings are automatically updated every 30 seconds by default.
+Besides that, when the updates are turned on, the mappings are automatically updated every 30 seconds by default.
 To change the interval of updates set an appropriate configuration property:
 
 ```yaml
