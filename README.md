@@ -71,7 +71,7 @@ reverse-proxy.mappings:
 ```
 
 ### Retrying
-By default there are maximum 3 tries to make a forward request. The next try is triggered when a non-HTTP error occurs.
+By default there are maximum 3 tries to forward request. The next try is triggered when a non-HTTP error occurs.
 This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
 To change the maximum number of attempts set an appropriate configuration property:
 
@@ -146,7 +146,6 @@ reverse-proxy.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
 - X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
 - to turn off automatic mappings updates set the interval to 0
-- turn off all mappings updates (automatic and triggered by error) if they are not needed
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
 
