@@ -7,6 +7,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Reporter;
+import com.codahale.metrics.ScheduledReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
@@ -35,8 +37,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
+import static com.codahale.metrics.Slf4jReporter.forRegistry;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.appendIfMissing;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
 @EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
@@ -46,6 +53,8 @@ public class CharonConfiguration {
     protected CharonProperties charon;
     @Autowired
     protected ServerProperties server;
+    @Autowired
+    protected Reporter metricsReporter;
 
     @Bean
     public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MappingsProvider mappingsProvider) {
@@ -135,7 +144,24 @@ public class CharonConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public MetricRegistry charonMetricRegistry() {
-        return new MetricRegistry();
+        if (charon.getMetrics().isEnabled()) {
+            return new MetricRegistry();
+        }
+        return null;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Reporter charonMetricsReporter(MetricRegistry registry) {
+        if (charon.getMetrics().isEnabled()) {
+            return forRegistry(registry)
+                    .convertDurationsTo(MILLISECONDS)
+                    .convertRatesTo(SECONDS)
+                    .withLoggingLevel(TRACE)
+                    .outputTo(getLogger(ReverseProxyFilter.class))
+                    .build();
+        }
+        return null;
     }
 
     @PostConstruct
@@ -157,6 +183,9 @@ public class CharonConfiguration {
             if (mappingsUpdateInterval < 0) {
                 throw new CharonException("Invalid mappings update interval value: " + mappingsUpdateInterval);
             }
+        }
+        if (metricsReporter != null && ScheduledReporter.class.isAssignableFrom(metricsReporter.getClass())) {
+            ((ScheduledReporter) metricsReporter).start(charon.getMetrics().getReportingIntervalInSeconds(), SECONDS);
         }
     }
 

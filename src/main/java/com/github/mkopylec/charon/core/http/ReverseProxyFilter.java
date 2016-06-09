@@ -44,8 +44,6 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected static final String X_FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
     protected static final String X_FORWARDED_HOST_HEADER = "X-Forwarded-Host";
     protected static final String X_FORWARDED_PORT_HEADER = "X-Forwarded-Port";
-    protected static final String THROUGHPUT_METRICS_NAME_SUFFIX = ".throughput";
-    protected static final String LATENCY_METRICS_NAME_SUFFIX = ".latency";
 
     private static final Logger log = getLogger(ReverseProxyFilter.class);
 
@@ -104,7 +102,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected ForwardDestination resolveForwardDestination(String uri) {
         List<ForwardDestination> destinations = mappingsProvider.getMappings().stream()
                 .filter(mapping -> uri.startsWith(concatContextAndMappingPaths(mapping)))
-                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getMetricName()))
+                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getMetricsName()))
                 .collect(toList());
         if (isEmpty(destinations)) {
             throw new CharonException("No mapping found for HTTP request URI: " + uri);
@@ -140,15 +138,16 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     }
 
     protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
-        //TODO Check if metrics are enabled
         ResponseEntity<byte[]> responseEntity;
-        metricRegistry.meter(mappingMetricsName + THROUGHPUT_METRICS_NAME_SUFFIX).mark();
-        Context context = metricRegistry.timer(mappingMetricsName + LATENCY_METRICS_NAME_SUFFIX).time();
+        Context context = null;
+        if (metricRegistry != null) {
+            context = metricRegistry.timer(mappingMetricsName).time();
+        }
         try {
             responseEntity = restOperations.exchange(requestEntity, byte[].class);
-            context.stop();
+            stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
-            context.stop();
+            stopTimerContext(context);
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
@@ -181,5 +180,11 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
     protected boolean shouldUpdateMappingsAfterError() {
         return charon.getMappingsUpdate().isEnabled() && charon.getMappingsUpdate().isOnNonHttpError();
+    }
+
+    protected void stopTimerContext(Context context) {
+        if (context != null) {
+            context.stop();
+        }
     }
 }

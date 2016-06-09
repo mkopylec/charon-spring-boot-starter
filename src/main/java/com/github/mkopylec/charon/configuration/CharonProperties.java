@@ -30,6 +30,10 @@ public class CharonProperties {
      */
     private Retrying retrying = new Retrying();
     /**
+     * Properties responsible for collecting metrics during HTTP requests forwarding.
+     */
+    private Metrics metrics = new Metrics();
+    /**
      * Properties responsible for proxy mappings updates.
      */
     private MappingsUpdate mappingsUpdate = new MappingsUpdate();
@@ -60,6 +64,14 @@ public class CharonProperties {
 
     public void setRetrying(Retrying retrying) {
         this.retrying = retrying;
+    }
+
+    public Metrics getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
     }
 
     public MappingsUpdate getMappingsUpdate() {
@@ -122,6 +134,34 @@ public class CharonProperties {
         }
     }
 
+    public static class Metrics {
+
+        /**
+         * Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
+         */
+        private boolean enabled = false;
+        /**
+         * Metrics reporting interval in seconds.
+         */
+        private int reportingIntervalInSeconds = 60;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getReportingIntervalInSeconds() {
+            return reportingIntervalInSeconds;
+        }
+
+        public void setReportingIntervalInSeconds(int reportingIntervalInSeconds) {
+            this.reportingIntervalInSeconds = reportingIntervalInSeconds;
+        }
+    }
+
     public static class MappingsUpdate {
 
         /**
@@ -169,7 +209,7 @@ public class CharonProperties {
         /**
          * Mapping metrics name.
          */
-        private String metricName = DEFAULT_METRICS_NAME;
+        private String metricsName = DEFAULT_METRICS_NAME;
         /**
          * Path for mapping incoming HTTP requests URIs.
          */
@@ -183,12 +223,12 @@ public class CharonProperties {
          */
         private boolean stripPath = true;
 
-        public String getMetricName() {
-            return isNotBlank(metricName) ? metricName : DEFAULT_METRICS_NAME;
+        public String getMetricsName() {
+            return isNotBlank(metricsName) ? metricsName : DEFAULT_METRICS_NAME;
         }
 
-        public void setMetricName(String metricName) {
-            this.metricName = metricName;
+        public void setMetricsName(String metricsName) {
+            this.metricsName = metricsName;
         }
 
         public String getPath() {

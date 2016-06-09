@@ -5,6 +5,9 @@ charon:
     read: 2000
   retrying:
     max-attempts: 3
+  metrics:
+    enabled: true
+    reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
     on-non-http-error: true

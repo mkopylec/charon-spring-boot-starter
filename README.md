@@ -13,6 +13,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - highly configurable and extensible
 - NIO support based on [Netty](http://netty.io/)
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
+- metrics support based on [Metrics](http://metrics.dropwizard.io/)
 - customizable proxy mappings
 - customizable load balancer
 - resilient to destination hosts changes during runtime
