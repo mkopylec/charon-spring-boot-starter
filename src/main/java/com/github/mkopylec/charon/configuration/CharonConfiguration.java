@@ -13,6 +13,7 @@ import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
+import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.exceptions.CharonException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
+import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
@@ -78,12 +80,13 @@ public class CharonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetryOperations charonRetryOperations() {
+    public RetryOperations charonRetryOperations(@Qualifier("charonRetryListener") RetryListener listener) {
         Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(1);
         retryableExceptions.put(Exception.class, true);
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(charon.getRetrying().getMaxAttempts(), retryableExceptions);
         RetryTemplate retryTemplate = new RetryTemplate();
         retryTemplate.setRetryPolicy(retryPolicy);
+        retryTemplate.registerListener(listener);
         return retryTemplate;
     }
 
@@ -120,6 +123,12 @@ public class CharonConfiguration {
     @ConditionalOnMissingBean
     public MappingsCorrector charonMappingsCorrector() {
         return new MappingsCorrector();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RetryListener charonRetryListener() {
+        return new LoggingListener();
     }
 
     @PostConstruct

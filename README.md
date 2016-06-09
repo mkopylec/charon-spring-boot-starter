@@ -141,7 +141,7 @@ charon.mappings-update.interval-in-millis: <interval_in_milliseconds>
 ```
 
 ### Other tips
-- change the logging levels of `com.github.mkopylec.charon` and `org.springframework.retry` to DEBUG or TRACE to see what's going on under the hood
+- change the logging levels of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
