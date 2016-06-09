@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
@@ -42,6 +44,8 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected static final String X_FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
     protected static final String X_FORWARDED_HOST_HEADER = "X-Forwarded-Host";
     protected static final String X_FORWARDED_PORT_HEADER = "X-Forwarded-Port";
+    protected static final String THROUGHPUT_METRICS_NAME_SUFFIX = ".throughput";
+    protected static final String LATENCY_METRICS_NAME_SUFFIX = ".latency";
 
     private static final Logger log = getLogger(ReverseProxyFilter.class);
 
@@ -52,6 +56,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected final RequestDataExtractor extractor;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
+    protected final MetricRegistry metricRegistry;
 
     public ReverseProxyFilter(
             ServerProperties server,
@@ -60,7 +65,8 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer
+            LoadBalancer loadBalancer,
+            MetricRegistry metricRegistry
     ) {
         this.server = server;
         this.charon = charon;
@@ -69,6 +75,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         this.extractor = extractor;
         this.mappingsProvider = mappingsProvider;
         this.loadBalancer = loadBalancer;
+        this.metricRegistry = metricRegistry;
     }
 
     @Override
@@ -83,27 +90,27 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         HttpMethod method = extractor.extractHttpMethod(request);
 
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
-            URI url = resolveDestinationUrl(uri);
-            RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, url);
-            ResponseEntity<byte[]> result = sendRequest(requestEntity);
+            ForwardDestination destination = resolveForwardDestination(uri);
+            RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
+            ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
 
-            log.debug("Forwarding: {} {} -> {} {}", request.getMethod(), uri, url, result.getStatusCode().value());
+            log.debug("Forwarding: {} {} -> {} {}", request.getMethod(), uri, destination, result.getStatusCode().value());
 
             return result;
         });
         processResponse(response, responseEntity);
     }
 
-    protected URI resolveDestinationUrl(String uri) {
-        List<URI> urls = mappingsProvider.getMappings().stream()
+    protected ForwardDestination resolveForwardDestination(String uri) {
+        List<ForwardDestination> destinations = mappingsProvider.getMappings().stream()
                 .filter(mapping -> uri.startsWith(concatContextAndMappingPaths(mapping)))
-                .map(mapping -> createDestinationUrl(uri, mapping))
+                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getMetricName()))
                 .collect(toList());
-        if (isEmpty(urls)) {
+        if (isEmpty(destinations)) {
             throw new CharonException("No mapping found for HTTP request URI: " + uri);
         }
-        if (urls.size() == 1) {
-            return urls.get(0);
+        if (destinations.size() == 1) {
+            return destinations.get(0);
         }
         throw new CharonException("Multiple mapping paths found for HTTP request URI: " + uri);
     }
@@ -132,11 +139,16 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity) {
+    protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
+        //TODO Check if metrics are enabled
         ResponseEntity<byte[]> responseEntity;
+        metricRegistry.meter(mappingMetricsName + THROUGHPUT_METRICS_NAME_SUFFIX).mark();
+        Context context = metricRegistry.timer(mappingMetricsName + LATENCY_METRICS_NAME_SUFFIX).time();
         try {
             responseEntity = restOperations.exchange(requestEntity, byte[].class);
+            context.stop();
         } catch (HttpStatusCodeException e) {
+            context.stop();
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
@@ -163,6 +164,12 @@ public class CharonProperties {
 
     public static class Mapping {
 
+        public static final String DEFAULT_METRICS_NAME = "charon.metrics";
+
+        /**
+         * Mapping metrics name.
+         */
+        private String metricName = DEFAULT_METRICS_NAME;
         /**
          * Path for mapping incoming HTTP requests URIs.
          */
@@ -175,6 +182,14 @@ public class CharonProperties {
          * Flag for enabling and disabling mapped path stripping from forwarded request URI.
          */
         private boolean stripPath = true;
+
+        public String getMetricName() {
+            return isNotBlank(metricName) ? metricName : DEFAULT_METRICS_NAME;
+        }
+
+        public void setMetricName(String metricName) {
+            this.metricName = metricName;
+        }
 
         public String getPath() {
             return path;

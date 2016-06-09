@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import com.codahale.metrics.MetricRegistry;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
@@ -61,9 +62,12 @@ public class CharonConfiguration {
             @Qualifier("charonRetryOperations") RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer
+            LoadBalancer loadBalancer,
+            MetricRegistry metricRegistry
     ) {
-        return new ReverseProxyFilter(server, charon, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer);
+        return new ReverseProxyFilter(
+                server, charon, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer, metricRegistry
+        );
     }
 
     @Bean
@@ -126,6 +130,12 @@ public class CharonConfiguration {
     @ConditionalOnMissingBean
     public RetryListener charonRetryListener() {
         return new LoggingListener();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MetricRegistry charonMetricRegistry() {
+        return new MetricRegistry();
     }
 
     @PostConstruct
