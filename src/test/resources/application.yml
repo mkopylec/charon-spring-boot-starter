@@ -1,4 +1,4 @@
-reverse-proxy:
+charon:
   filter-order: 2147483647
   timeout:
     connect: 500
@@ -34,7 +34,7 @@ reverse-proxy:
       destinations: http://localhost:8080
 
 logging.level:
-  com.github.mkopylec.reverseproxy: trace
+  com.github.mkopylec.charon: trace
   org.eclipse.jetty: error
   org.springframework.retry: debug
 

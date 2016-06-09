@@ -82,14 +82,14 @@ uploadArchives {
                 authentication(userName: ossrhUsername, password: ossrhPassword)
             }
             pom.project {
-                name 'reCAPTCHA Spring Boot Starter'
+                name 'Charon Spring Boot Starter'
                 packaging 'jar'
-                description 'Spring Boot starter for reverse proxy.'
-                url 'https://github.com/mkopylec/reverse-proxy-spring-boot-starter'
+                description 'Reverse proxy implementation in form of Spring Boot starter.'
+                url 'https://github.com/mkopylec/charon-spring-boot-starter'
                 scm {
-                    connection 'scm:git:https://github.com/mkopylec/reverse-proxy-spring-boot-starter.git'
-                    developerConnection 'scm:git:https://github.com/mkopylec/reverse-proxy-spring-boot-starter.git'
-                    url 'https://github.com/mkopylec/reverse-proxy-spring-boot-starter'
+                    connection 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
+                    developerConnection 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
+                    url 'https://github.com/mkopylec/charon-spring-boot-starter'
                 }
                 licenses {
                     license {
