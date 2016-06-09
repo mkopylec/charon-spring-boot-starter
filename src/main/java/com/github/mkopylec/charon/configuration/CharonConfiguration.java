@@ -45,9 +45,6 @@ public class CharonConfiguration {
     protected CharonProperties charon;
     @Autowired
     protected ServerProperties server;
-    @Qualifier("charonTaskScheduler")
-    @Autowired(required = false)
-    protected TaskScheduler scheduler;
 
     @Bean
     public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MappingsProvider mappingsProvider) {
@@ -98,7 +95,7 @@ public class CharonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
+    public MappingsProvider charonMappingsProvider(@Qualifier("charonTaskScheduler") TaskScheduler scheduler, MappingsCorrector mappingsCorrector) {
         return new ConfigurationMappingsProvider(scheduler, charon, mappingsCorrector);
     }
 
