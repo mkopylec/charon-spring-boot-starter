@@ -61,7 +61,7 @@ Also note that the `charon.mappings` property's value is a list, therefore more 
 ## Advanced usage
 Charon can be configured in many ways. This can be done via configuration properties in _application.yml_ file or by creating Spring beans.
 
-### Mapped path stripping
+### Mappings
 By default the mapped path is stripped from the forward request URL.
 To preserve the mapped path in the URL set an appropriate configuration property:
 
@@ -72,16 +72,6 @@ charon.mappings:
         strip-path: false
 ```
 
-### Retrying
-By default there are maximum 3 tries to forward request. The next try is triggered when a non-HTTP error occurs.
-This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
-To change the maximum number of attempts set an appropriate configuration property:
-
-```yaml
-charon.retrying.max-attempts: <number_of_tries>
-```
-
-### Mappings provider
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
 This can done by creating a Spring bean of type `MappingsProvider`:
 
@@ -100,6 +90,15 @@ public class CustomMappingsProvider extends MappingsProvider {
 		...
 	}
 }
+```
+
+### Retrying
+By default there are maximum 3 tries to forward request. The next try is triggered when a non-HTTP error occurs.
+This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
+To change the maximum number of attempts set an appropriate configuration property:
+
+```yaml
+charon.retrying.max-attempts: <number_of_tries>
 ```
 
 ### Load balancer
@@ -141,6 +140,34 @@ To change the interval of updates set an appropriate configuration property:
 charon.mappings-update.interval-in-millis: <interval_in_milliseconds>
 ```
 
+### Metrics
+Collecting performance metrics is disabled by default.
+To turn them on set an appropriate configuration property:
+
+```yaml
+charon.metrics.enabled: true
+```
+
+The default metrics reporter logs results every 60 seconds.
+The interval can be changed by setting an appropriate configuration property:
+
+```yaml
+charon.metrics.reporting-interval-in-seconds: <interval_in_seconds>
+```
+
+Custom metrics reporter can be created by creating a Spring bean of `ScheduledReporter`:
+
+```java
+@Component
+public class CustomMetricsReporter extends ScheduledReporter {
+
+     @Autowired
+     public TestMetricsReporter(MetricRegistry registry) {
+          super(registry, ...);
+     }
+}
+```
+
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
@@ -150,6 +177,7 @@ charon.mappings-update.interval-in-millis: <interval_in_milliseconds>
 - to turn off automatic mappings updates set the interval to 0
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
+- do not start a custom metrics reporter, it will be done automatically
 
 ## Configuration properties list
 
@@ -161,6 +189,9 @@ charon:
         read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
+    metrics:
+        enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
+        reporting-interval-in-seconds: 60 # Metrics reporting interval in seconds.
     mappings-update:
         enabled: false # Flag for enabling and disabling mappings updates.
         on-non-http-error: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
