@@ -160,7 +160,7 @@ The default metrics reporter logs results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
 ```yaml
-charon.metrics.reporting-interval-in-seconds: <interval_in_seconds>
+charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seconds>
 ```
 
 By default metrics are reported under common name which is `CharonProperties.Mapping.DEFAULT_METRICS_NAME`.
