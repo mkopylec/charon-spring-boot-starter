@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.3.0'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.3.1'
 }
 ```
 
