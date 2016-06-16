@@ -2,6 +2,8 @@ package com.github.mkopylec.charon.application;
 
 import java.util.SortedMap;
 
+import javax.annotation.PostConstruct;
+
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
@@ -32,10 +34,15 @@ public class TestMetricsReporter extends ScheduledReporter {
 
     @Override
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
-        metricsCaptured = true;
+        metricsCaptured = timers.containsKey("charon");
     }
 
     public boolean isMetricsCaptured() {
         return metricsCaptured;
+    }
+
+    @PostConstruct
+    private void startCapturingMetrics() {
+        start(1, SECONDS);
     }
 }

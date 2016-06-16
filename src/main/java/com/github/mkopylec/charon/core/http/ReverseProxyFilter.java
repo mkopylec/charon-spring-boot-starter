@@ -140,7 +140,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
         ResponseEntity<byte[]> responseEntity;
         Context context = null;
-        if (metricRegistry != null) {
+        if (charon.getMetrics().isEnabled()) {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
         try {

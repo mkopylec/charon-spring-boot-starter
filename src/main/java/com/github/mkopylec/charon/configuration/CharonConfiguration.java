@@ -7,8 +7,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
-import com.codahale.metrics.ScheduledReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
@@ -18,6 +16,8 @@ import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.exceptions.CharonException;
+import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
+import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,15 +46,16 @@ import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
+@EnableMetrics
 @EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
-public class CharonConfiguration {
+public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Autowired
     protected CharonProperties charon;
     @Autowired
     protected ServerProperties server;
     @Autowired
-    protected Reporter metricsReporter;
+    protected MetricRegistry registry;
 
     @Bean
     public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MappingsProvider mappingsProvider) {
@@ -141,29 +142,6 @@ public class CharonConfiguration {
         return new LoggingListener();
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    public MetricRegistry charonMetricRegistry() {
-        if (charon.getMetrics().isEnabled()) {
-            return new MetricRegistry();
-        }
-        return null;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public Reporter charonMetricsReporter(MetricRegistry registry) {
-        if (charon.getMetrics().isEnabled()) {
-            return forRegistry(registry)
-                    .convertDurationsTo(MILLISECONDS)
-                    .convertRatesTo(SECONDS)
-                    .withLoggingLevel(TRACE)
-                    .outputTo(getLogger(ReverseProxyFilter.class))
-                    .build();
-        }
-        return null;
-    }
-
     @PostConstruct
     protected void checkConfiguration() {
         int connectTimeout = charon.getTimeout().getConnect();
@@ -184,8 +162,14 @@ public class CharonConfiguration {
                 throw new CharonException("Invalid mappings update interval value: " + mappingsUpdateInterval);
             }
         }
-        if (metricsReporter != null && ScheduledReporter.class.isAssignableFrom(metricsReporter.getClass())) {
-            ((ScheduledReporter) metricsReporter).start(charon.getMetrics().getReportingIntervalInSeconds(), SECONDS);
+        if (shouldCreateDefaultMetricsReporter()) {
+            registerReporter(forRegistry(registry)
+                    .convertDurationsTo(MILLISECONDS)
+                    .convertRatesTo(SECONDS)
+                    .withLoggingLevel(TRACE)
+                    .outputTo(getLogger(ReverseProxyFilter.class))
+                    .build()
+            ).start(charon.getMetrics().getLoggingReporterReportingIntervalInSeconds(), SECONDS);
         }
     }
 
@@ -193,5 +177,9 @@ public class CharonConfiguration {
         return mappingsProvider.getMappings().stream()
                 .map(mapping -> appendIfMissing(mapping.getPath(), "/*"))
                 .collect(toSet());
+    }
+
+    protected boolean shouldCreateDefaultMetricsReporter() {
+        return charon.getMetrics().isEnabled() && charon.getMetrics().isLoggingReporterEnabled();
     }
 }

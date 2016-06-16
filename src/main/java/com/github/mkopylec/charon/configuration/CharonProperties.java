@@ -141,9 +141,13 @@ public class CharonProperties {
          */
         private boolean enabled = false;
         /**
-         * Metrics reporting interval in seconds.
+         * Flag for enabling and disabling reporting metrics via application logger.
          */
-        private int reportingIntervalInSeconds = 60;
+        private boolean loggingReporterEnabled = false;
+        /**
+         * Metrics reporting via logger interval in seconds.
+         */
+        private int loggingReporterReportingIntervalInSeconds = 60;
 
         public boolean isEnabled() {
             return enabled;
@@ -153,12 +157,20 @@ public class CharonProperties {
             this.enabled = enabled;
         }
 
-        public int getReportingIntervalInSeconds() {
-            return reportingIntervalInSeconds;
+        public boolean isLoggingReporterEnabled() {
+            return loggingReporterEnabled;
         }
 
-        public void setReportingIntervalInSeconds(int reportingIntervalInSeconds) {
-            this.reportingIntervalInSeconds = reportingIntervalInSeconds;
+        public void setLoggingReporterEnabled(boolean loggingReporterEnabled) {
+            this.loggingReporterEnabled = loggingReporterEnabled;
+        }
+
+        public int getLoggingReporterReportingIntervalInSeconds() {
+            return loggingReporterReportingIntervalInSeconds;
+        }
+
+        public void setLoggingReporterReportingIntervalInSeconds(int loggingReporterReportingIntervalInSeconds) {
+            this.loggingReporterReportingIntervalInSeconds = loggingReporterReportingIntervalInSeconds;
         }
     }
 
@@ -204,7 +216,7 @@ public class CharonProperties {
 
     public static class Mapping {
 
-        public static final String DEFAULT_METRICS_NAME = "charon.metrics";
+        public static final String DEFAULT_METRICS_NAME = "charon";
 
         /**
          * Mapping metrics name.

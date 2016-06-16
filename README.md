@@ -148,6 +148,14 @@ To turn them on set an appropriate configuration property:
 charon.metrics.enabled: true
 ```
 
+To report collected metrics a `Reporter` is needed.
+Charon includes the default metrics reporter but it is disabled by default, because usually the project registers its own metrics reporters.
+To enable it set an appropriate configuration property:
+
+```yaml
+charon.metrics.logging-reporter-enabled: true
+```
+
 The default metrics reporter logs results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
@@ -155,17 +163,14 @@ The interval can be changed by setting an appropriate configuration property:
 charon.metrics.reporting-interval-in-seconds: <interval_in_seconds>
 ```
 
-Custom metrics reporter can be created by creating a Spring bean of type `ScheduledReporter`:
+By default metrics are reported under common name which is `CharonProperties.Mapping.DEFAULT_METRICS_NAME`.
+A different name can be specified for each mapping by setting an appropriate configuration property:
 
-```java
-@Component
-public class CustomMetricsReporter extends ScheduledReporter {
-
-     @Autowired
-     public TestMetricsReporter(MetricRegistry registry) {
-          super(registry, ...);
-     }
-}
+```yaml
+charon.mappings:
+    -
+        ...
+        metrics-name: <mapping_metrics_name>
 ```
 
 ### Other tips
@@ -177,7 +182,6 @@ public class CustomMetricsReporter extends ScheduledReporter {
 - to turn off automatic mappings updates set the interval to 0
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
-- do not start a custom metrics reporter, it will be done automatically
 
 ## Configuration properties list
 
@@ -191,7 +195,8 @@ charon:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
-        reporting-interval-in-seconds: 60 # Metrics reporting interval in seconds.
+        logging-reporter-enabled: false # Flag for enabling and disabling reporting metrics via application logger.
+        logging-reporter-reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
         enabled: false # Flag for enabling and disabling mappings updates.
         on-non-http-error: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
