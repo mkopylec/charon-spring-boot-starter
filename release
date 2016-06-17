@@ -1,0 +1,12 @@
+while getopts v: opts; do
+   case ${opts} in
+      v) VERSION=${OPTARG} ;;
+   esac
+done
+
+if [ -z "$VERSION" ]; then
+    echo "Set release version using -v option"
+    exit 1
+else
+    ./gradlew clean test release -Prelease.forceVersion=$VERSION && ./gradlew uploadArchives -PsignArtifacts
+fi
