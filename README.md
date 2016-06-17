@@ -84,8 +84,8 @@ This can done by creating a Spring bean of type `MappingsProvider`:
 public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public CustomMappingsProvider(TaskScheduler scheduler, CharonProperties charon, MappingsCorrector mappingsCorrector) {
-		super(scheduler, charon, mappingsCorrector);
+	public CustomMappingsProvider(CharonProperties charon, MappingsCorrector mappingsCorrector) {
+		super(charon, mappingsCorrector);
 	}
 
 	@Override
