@@ -34,7 +34,9 @@ public class TestMetricsReporter extends ScheduledReporter {
 
     @Override
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
-        metricsCaptured = timers.containsKey("charon");
+        if (!timers.isEmpty()) {
+            metricsCaptured = timers.firstKey().startsWith("charon.");
+        }
     }
 
     public boolean isMetricsCaptured() {

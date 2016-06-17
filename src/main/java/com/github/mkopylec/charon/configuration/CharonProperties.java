@@ -7,7 +7,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
@@ -120,6 +119,8 @@ public class CharonProperties {
 
     public static class Retrying {
 
+        public static final String MAPPING_NAME_RETRY_ATTRIBUTE = "mapping-name";
+
         /**
          * Maximum number of HTTP request forward tries.
          */
@@ -141,6 +142,10 @@ public class CharonProperties {
          */
         private boolean enabled = false;
         /**
+         * Global metrics names prefix.
+         */
+        private String namesPrefix = "charon";
+        /**
          * Flag for enabling and disabling reporting metrics via application logger.
          */
         private boolean loggingReporterEnabled = false;
@@ -155,6 +160,14 @@ public class CharonProperties {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+
+        public String getNamesPrefix() {
+            return namesPrefix;
+        }
+
+        public void setNamesPrefix(String namesPrefix) {
+            this.namesPrefix = namesPrefix;
         }
 
         public boolean isLoggingReporterEnabled() {
@@ -216,12 +229,10 @@ public class CharonProperties {
 
     public static class Mapping {
 
-        public static final String DEFAULT_METRICS_NAME = "charon";
-
         /**
-         * Mapping metrics name.
+         * Name of the mapping.
          */
-        private String metricsName = DEFAULT_METRICS_NAME;
+        private String name;
         /**
          * Path for mapping incoming HTTP requests URIs.
          */
@@ -235,12 +246,12 @@ public class CharonProperties {
          */
         private boolean stripPath = true;
 
-        public String getMetricsName() {
-            return isNotBlank(metricsName) ? metricsName : DEFAULT_METRICS_NAME;
+        public String getName() {
+            return name;
         }
 
-        public void setMetricsName(String metricsName) {
-            this.metricsName = metricsName;
+        public void setName(String name) {
+            this.name = name;
         }
 
         public String getPath() {
@@ -270,6 +281,7 @@ public class CharonProperties {
         @Override
         public String toString() {
             return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
+                    .append("name", name)
                     .append("path", path)
                     .append("destinations", destinations)
                     .append("stripPath", stripPath)

@@ -29,8 +29,15 @@ public class MappingsCorrector {
     }
 
     protected void correctMapping(Mapping mapping) {
+        correctName(mapping);
         correctDestinations(mapping);
         correctPath(mapping);
+    }
+
+    protected void correctName(Mapping mapping) {
+        if (isBlank(mapping.getName())) {
+            throw new CharonException("Empty name for mapping " + mapping);
+        }
     }
 
     protected void correctDestinations(Mapping mapping) {

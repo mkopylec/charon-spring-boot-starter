@@ -49,6 +49,7 @@ Configure proxy mappings in _application.yml_ file:
 ```yaml
 charon.mappings:
     -
+        name: sample mapping
         path: /some/path
         destinations: http://firsthost:8080, http://secondhost:8081
 ```
@@ -62,6 +63,8 @@ Also note that the `charon.mappings` property's value is a list, therefore more 
 Charon can be configured in many ways. This can be done via configuration properties in _application.yml_ file or by creating Spring beans.
 
 ### Mappings
+Mappings define how Charon will forward incoming HTTP requests.
+Every mapping must be named.
 By default the mapped path is stripped from the forward request URL.
 To preserve the mapped path in the URL set an appropriate configuration property:
 
@@ -163,16 +166,6 @@ The interval can be changed by setting an appropriate configuration property:
 charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seconds>
 ```
 
-By default metrics are reported under common name which is `CharonProperties.Mapping.DEFAULT_METRICS_NAME`.
-A different name can be specified for each mapping by setting an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-        metrics-name: <mapping_metrics_name>
-```
-
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
@@ -195,6 +188,7 @@ charon:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
+        names-prefix: charon # Global metrics names prefix.
         logging-reporter-enabled: false # Flag for enabling and disabling reporting metrics via application logger.
         logging-reporter-reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
@@ -203,6 +197,7 @@ charon:
         interval-in-millis: 30000 # Interval in milliseconds between automatic mappings updates.
     mappings:
         -
+            name: # Name of the mapping.
             path: / # Path for mapping incoming HTTP requests URIs.
             destinations: # List of destination hosts where HTTP requests will be forwarded.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.

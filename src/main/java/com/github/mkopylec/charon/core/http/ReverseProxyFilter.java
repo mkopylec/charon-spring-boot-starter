@@ -30,6 +30,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import static com.codahale.metrics.MetricRegistry.name;
+import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.utils.UriCorrector.correctUri;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
@@ -89,6 +91,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
             ForwardDestination destination = resolveForwardDestination(uri);
+            context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
             RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
             ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
 
@@ -102,7 +105,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected ForwardDestination resolveForwardDestination(String uri) {
         List<ForwardDestination> destinations = mappingsProvider.getMappings().stream()
                 .filter(mapping -> uri.startsWith(concatContextAndMappingPaths(mapping)))
-                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getMetricsName()))
+                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getName(), resolveMetricsName(mapping)))
                 .collect(toList());
         if (isEmpty(destinations)) {
             throw new CharonException("No mapping found for HTTP request URI: " + uri);
@@ -172,6 +175,10 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                 throw new CharonException("Error extracting body of HTTP response with status: " + responseEntity.getStatusCode(), e);
             }
         }
+    }
+
+    protected String resolveMetricsName(Mapping mapping) {
+        return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
     }
 
     protected String concatContextAndMappingPaths(Mapping mapping) {
