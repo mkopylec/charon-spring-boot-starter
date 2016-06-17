@@ -32,8 +32,6 @@ import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -109,25 +107,14 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public MappingsProvider charonMappingsProvider(@Qualifier("charonTaskScheduler") TaskScheduler scheduler, MappingsCorrector mappingsCorrector) {
-        return new ConfigurationMappingsProvider(scheduler, charon, mappingsCorrector);
+    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
+        return new ConfigurationMappingsProvider(charon, mappingsCorrector);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public LoadBalancer charonLoadBalancer() {
         return new RandomLoadBalancer();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public TaskScheduler charonTaskScheduler() {
-        if (charon.getMappingsUpdate().isEnabled()) {
-            ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-            scheduler.setPoolSize(2);
-            return scheduler;
-        }
-        return null;
     }
 
     @Bean
@@ -155,12 +142,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         int maxAttempts = charon.getRetrying().getMaxAttempts();
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to send request value: " + maxAttempts);
-        }
-        if (charon.getMappingsUpdate().isEnabled()) {
-            int mappingsUpdateInterval = charon.getMappingsUpdate().getIntervalInMillis();
-            if (mappingsUpdateInterval < 0) {
-                throw new CharonException("Invalid mappings update interval value: " + mappingsUpdateInterval);
-            }
         }
         if (shouldCreateDefaultMetricsReporter()) {
             registerReporter(forRegistry(registry)

@@ -155,7 +155,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
         } catch (Exception e) {
-            if (shouldUpdateMappingsAfterError()) {
+            if (charon.getMappingsUpdate().isEnabled()) {
                 mappingsProvider.updateMappings();
             }
             throw e;
@@ -183,10 +183,6 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
     protected String concatContextAndMappingPaths(Mapping mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
-    }
-
-    protected boolean shouldUpdateMappingsAfterError() {
-        return charon.getMappingsUpdate().isEnabled() && charon.getMappingsUpdate().isOnNonHttpError();
     }
 
     protected void stopTimerContext(Context context) {

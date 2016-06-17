@@ -190,17 +190,9 @@ public class CharonProperties {
     public static class MappingsUpdate {
 
         /**
-         * Flag for enabling and disabling mappings updates.
-         */
-        private boolean enabled = false;
-        /**
          * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
          */
-        private boolean onNonHttpError = true;
-        /**
-         * Interval in milliseconds between automatic mappings updates.
-         */
-        private int intervalInMillis = 30000;
+        private boolean enabled = false;
 
         public boolean isEnabled() {
             return enabled;
@@ -208,22 +200,6 @@ public class CharonProperties {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-        }
-
-        public boolean isOnNonHttpError() {
-            return onNonHttpError;
-        }
-
-        public void setOnNonHttpError(boolean onNonHttpError) {
-            this.onNonHttpError = onNonHttpError;
-        }
-
-        public int getIntervalInMillis() {
-            return intervalInMillis;
-        }
-
-        public void setIntervalInMillis(int intervalInMillis) {
-            this.intervalInMillis = intervalInMillis;
         }
     }
 
