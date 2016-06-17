@@ -120,27 +120,13 @@ public class CustomLoadBalancer implements LoadBalancer {
 ```
 
 ### Mappings update
-Charon can be resilient to mappings changes during application runtime.
-To be so mappings updates need to be turned on.
-To turn them on set an appropriate configuration property:
-
-```yaml
-charon.mappings-update.enabled: true
-```
-
-When the updates are turned on, the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
+Charon is resilient to mappings changes during application runtime.
+By default the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
 This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
-This behaviour can be changed by setting an appropriate configuration property:
+Mapping updates can be turned off by setting an appropriate configuration property:
 
 ```yaml
-charon.mappings-update.on-non-http-error: false
-```
-
-Besides that, when the updates are turned on, the mappings are automatically updated every 30 seconds by default.
-To change the interval of updates set an appropriate configuration property:
-
-```yaml
-charon.mappings-update.interval-in-millis: <interval_in_milliseconds>
+charon.mappings-update.enabled: false
 ```
 
 ### Metrics
@@ -151,6 +137,7 @@ To turn them on set an appropriate configuration property:
 charon.metrics.enabled: true
 ```
 
+Charon collects metrics per mapping.
 To report collected metrics a `Reporter` is needed.
 Charon includes the default metrics reporter but it is disabled by default, because usually the project registers its own metrics reporters.
 To enable it set an appropriate configuration property:
@@ -172,7 +159,6 @@ charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seco
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
 - X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
-- to turn off automatic mappings updates set the interval to 0
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
 
@@ -192,9 +178,7 @@ charon:
         logging-reporter-enabled: false # Flag for enabling and disabling reporting metrics via application logger.
         logging-reporter-reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
-        enabled: false # Flag for enabling and disabling mappings updates.
-        on-non-http-error: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
-        interval-in-millis: 30000 # Interval in milliseconds between automatic mappings updates.
+        enabled: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
     mappings:
         -
             name: # Name of the mapping.
