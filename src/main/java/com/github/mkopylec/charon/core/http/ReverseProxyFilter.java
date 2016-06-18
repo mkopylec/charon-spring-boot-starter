@@ -91,6 +91,9 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
             ForwardDestination destination = resolveForwardDestination(uri);
+            if (destination == null) {
+                return null;
+            }
             context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
             RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
             ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
@@ -99,6 +102,9 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
             return result;
         });
+        if (responseEntity == null) {
+            filterChain.doFilter(request, response);
+        }
         processResponse(response, responseEntity);
     }
 
@@ -108,7 +114,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                 .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getName(), resolveMetricsName(mapping)))
                 .collect(toList());
         if (isEmpty(destinations)) {
-            throw new CharonException("No mapping found for HTTP request URI: " + uri);
+            return null;
         }
         if (destinations.size() == 1) {
             return destinations.get(0);

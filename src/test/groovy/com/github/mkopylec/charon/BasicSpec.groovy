@@ -2,6 +2,7 @@ package com.github.mkopylec.charon
 
 import com.github.mkopylec.charon.application.TestApplication
 import com.github.mkopylec.charon.configuration.CharonProperties
+import com.github.mkopylec.charon.configuration.CharonProperties.Mapping
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,12 +61,9 @@ abstract class BasicSpec extends Specification {
         }
     }
 
-    protected void updateMappingDestinations(String path, String... destinations) {
-        charon.mappings.each { mapping ->
-            if (mapping.path == path) {
-                mapping.destinations = destinations
-            }
-        }
+    protected void addMapping(String path, String... destinations) {
+        def mapping = new Mapping(name: 'new mapping', path: path, destinations: destinations)
+        charon.mappings.add(mapping)
     }
 
     protected String getContextPath() {

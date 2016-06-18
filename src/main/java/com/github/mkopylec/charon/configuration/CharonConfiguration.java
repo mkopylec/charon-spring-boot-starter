@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.configuration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -39,8 +38,6 @@ import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.StringUtils.appendIfMissing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
@@ -56,10 +53,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     protected MetricRegistry registry;
 
     @Bean
-    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MappingsProvider mappingsProvider) {
+    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter) {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(proxyFilter);
         registrationBean.setOrder(charon.getFilterOrder());
-        registrationBean.setUrlPatterns(getFilterUrlPatterns(mappingsProvider));
         return registrationBean;
     }
 
@@ -152,12 +148,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .build()
             ).start(charon.getMetrics().getLoggingReporterReportingIntervalInSeconds(), SECONDS);
         }
-    }
-
-    protected Set<String> getFilterUrlPatterns(MappingsProvider mappingsProvider) {
-        return mappingsProvider.getMappings().stream()
-                .map(mapping -> appendIfMissing(mapping.getPath(), "/*"))
-                .collect(toSet());
     }
 
     protected boolean shouldCreateDefaultMetricsReporter() {

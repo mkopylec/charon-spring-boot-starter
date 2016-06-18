@@ -133,12 +133,12 @@ class ProxyingRequestSpec extends BasicSpec {
                 .hasStatus(INTERNAL_SERVER_ERROR)
 
         when:
-        updateMappingDestinations('/uri/5', 'localhost:8080', 'localhost:8081')
-        sendRequest GET, '/uri/5/path/5'
+        addMapping('/uri/new', 'localhost:8080', 'localhost:8081')
+        sendRequest GET, '/uri/new/path/new'
 
         then:
         assertThat(localhost8080, localhost8081)
                 .haveReceivedRequest()
-                .withMethodAndUri(GET, '/path/5')
+                .withMethodAndUri(GET, '/path/new')
     }
 }
