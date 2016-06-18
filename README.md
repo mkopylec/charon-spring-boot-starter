@@ -154,6 +154,7 @@ charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seco
 ```
 
 ### Other tips
+- turn off mappings updates if custom mappings provider is not used
 - change the logging level of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
