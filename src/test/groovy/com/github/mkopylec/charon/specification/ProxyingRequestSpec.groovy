@@ -13,7 +13,7 @@ import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 
-class ProxyingRequestSpec extends BasicSpec {
+abstract class ProxyingRequestSpec extends BasicSpec {
 
     @Unroll
     def "Should proxy HTTP request preserving request method when method is #method"() {

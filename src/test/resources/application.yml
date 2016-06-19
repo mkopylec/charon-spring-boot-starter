@@ -46,6 +46,3 @@ charon:
 logging.level:
   com.github.mkopylec.charon: trace
   org.eclipse.jetty: error
-
-server:
-  context-path: /context
