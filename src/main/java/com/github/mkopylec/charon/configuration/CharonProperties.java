@@ -192,7 +192,7 @@ public class CharonProperties {
         /**
          * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
          */
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         public boolean isEnabled() {
             return enabled;
@@ -252,6 +252,15 @@ public class CharonProperties {
 
         public void setStripPath(boolean stripPath) {
             this.stripPath = stripPath;
+        }
+
+        public Mapping copy() {
+            Mapping clone = new Mapping();
+            clone.setName(name);
+            clone.setPath(path);
+            clone.setDestinations(destinations == null ? null : new ArrayList<>(destinations));
+            clone.setStripPath(stripPath);
+            return clone;
         }
 
         @Override

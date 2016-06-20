@@ -29,9 +29,10 @@ public abstract class MappingsProvider {
 
     @PostConstruct
     public synchronized void updateMappings() {
-        mappings = retrieveMappings();
-        mappingsCorrector.correct(mappings);
-        log.trace("Destination mappings updated to: {}", mappings);
+        List<Mapping> newMappings = retrieveMappings();
+        mappingsCorrector.correct(newMappings);
+        mappings = newMappings;
+        log.trace("Destination mappings updated to: {}", this.mappings);
     }
 
     protected abstract List<Mapping> retrieveMappings();

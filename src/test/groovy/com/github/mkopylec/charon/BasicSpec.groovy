@@ -61,9 +61,18 @@ abstract class BasicSpec extends Specification {
         }
     }
 
-    protected void addMapping(String path, String... destinations) {
-        def mapping = new Mapping(name: 'new mapping', path: path, destinations: destinations)
+    protected void addMapping(String name, String path, String... destinations) {
+        def mapping = new Mapping(name: name, path: path, destinations: destinations)
         charon.mappings.add(mapping)
+    }
+
+    protected void updateMapping(String name, String path, String... destinations) {
+        charon.mappings.each {
+            if (it.name == name) {
+                it.path = path
+                it.destinations = destinations
+            }
+        }
     }
 
     protected String getContextPath() {

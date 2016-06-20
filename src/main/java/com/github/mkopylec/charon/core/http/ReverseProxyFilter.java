@@ -35,6 +35,7 @@ import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying
 import static com.github.mkopylec.charon.utils.UriCorrector.correctUri;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -92,20 +93,25 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
             ForwardDestination destination = resolveForwardDestination(uri);
             if (destination == null) {
+                log.debug("Forwarding: {} {} -> no mapping found", request.getMethod(), uri);
                 return null;
             }
             context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
             RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
             ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
 
-            log.debug("Forwarding: {} {} -> {} {}", request.getMethod(), uri, destination, result.getStatusCode().value());
+            log.debug("Forwarding: {} {} -> {} {}", request.getMethod(), uri, destination.getUri(), result.getStatusCode().value());
 
             return result;
         });
         if (responseEntity == null) {
             filterChain.doFilter(request, response);
+            if (response.getStatus() == SC_NOT_FOUND) {
+                updateMappingsIfAllowed();
+            }
+        } else {
+            processResponse(response, responseEntity);
         }
-        processResponse(response, responseEntity);
     }
 
     protected ForwardDestination resolveForwardDestination(String uri) {
@@ -161,12 +167,16 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
         } catch (Exception e) {
-            if (charon.getMappingsUpdate().isEnabled()) {
-                mappingsProvider.updateMappings();
-            }
+            updateMappingsIfAllowed();
             throw e;
         }
         return responseEntity;
+    }
+
+    protected void updateMappingsIfAllowed() {
+        if (charon.getMappingsUpdate().isEnabled()) {
+            mappingsProvider.updateMappings();
+        }
     }
 
     protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {

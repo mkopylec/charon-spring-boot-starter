@@ -14,6 +14,12 @@ class ResponseAssert {
         this.actual = actual
     }
 
+    ResponseAssert bodyContains(String bodyPart) {
+        assert actual.body != null
+        assert actual.body.toString().contains(bodyPart)
+        return this
+    }
+
     ResponseAssert hasBody(String body) {
         assert actual.body == body
         return this

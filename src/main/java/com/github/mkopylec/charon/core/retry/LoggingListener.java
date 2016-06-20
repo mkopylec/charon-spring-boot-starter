@@ -15,16 +15,22 @@ public class LoggingListener extends RetryListenerSupport {
 
     @Override
     public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-        log.debug("Forwarding: Attempt {} to proxy '{}' has failed. {}",
-                context.getRetryCount() + 1, context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE), throwable.getMessage());
+        Object mappingName = context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE);
+        if (mappingName != null) {
+            log.debug("Forwarding: Attempt {} to proxy '{}' has failed. {}",
+                    context.getRetryCount() + 1, mappingName, throwable.getMessage());
+        }
     }
 
     @Override
     public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-        if (throwable != null) {
-            log.error("Forwarding: All {} attempts to proxy '{}' has failed.", context.getRetryCount(), context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE));
-        } else {
-            log.debug("Forwarding: Attempt {} to proxy '{}' has succeeded", context.getRetryCount() + 1, context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE));
+        Object mappingName = context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE);
+        if (mappingName != null) {
+            if (throwable != null) {
+                log.error("Forwarding: All {} attempts to proxy '{}' has failed.", context.getRetryCount(), mappingName);
+            } else {
+                log.debug("Forwarding: Attempt {} to proxy '{}' has succeeded", context.getRetryCount() + 1, mappingName);
+            }
         }
     }
 }
