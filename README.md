@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.1'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.2'
 }
 ```
 
@@ -120,13 +120,14 @@ public class CustomLoadBalancer implements LoadBalancer {
 ```
 
 ### Mappings update
-Charon is resilient to mappings changes during application runtime.
-By default the mappings are updated when a non-HTTP error occurs while forwarding a HTTP request.
+Charon can be resilient to mappings changes during application runtime.
+By default the mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
 This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
-Mapping updates can be turned off by setting an appropriate configuration property:
+The mappings can also be updated when a 404 HTTP response will be returned for a non-forwarded HTTP request.
+The mappings updates can be turned on by setting an appropriate configuration property:
 
 ```yaml
-charon.mappings-update.enabled: false
+charon.mappings-update.enabled: true
 ```
 
 ### Metrics
@@ -154,7 +155,7 @@ charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seco
 ```
 
 ### Other tips
-- turn off mappings updates if custom mappings provider is not used
+- there are no benefits in turning on the mappings updates if a custom mappings provider is not used
 - change the logging level of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
@@ -179,7 +180,7 @@ charon:
         logging-reporter-enabled: false # Flag for enabling and disabling reporting metrics via application logger.
         logging-reporter-reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
-        enabled: true # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
+        enabled: false # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
     mappings:
         -
             name: # Name of the mapping.
