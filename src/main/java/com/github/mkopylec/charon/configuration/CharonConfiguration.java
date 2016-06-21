@@ -1,10 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.codahale.metrics.MetricRegistry;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
@@ -17,7 +12,6 @@ import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,6 +27,10 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
@@ -50,7 +48,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Autowired
     protected ServerProperties server;
     @Autowired
-    protected MetricRegistry registry;
+    protected MetricRegistry metricRegistry;
 
     @Bean
     public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter) {
@@ -66,8 +64,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonRetryOperations") RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer,
-            MetricRegistry metricRegistry
+            LoadBalancer loadBalancer
     ) {
         return new ReverseProxyFilter(
                 server, charon, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer, metricRegistry
@@ -140,7 +137,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             throw new CharonException("Invalid max number of attempts to send request value: " + maxAttempts);
         }
         if (shouldCreateDefaultMetricsReporter()) {
-            registerReporter(forRegistry(registry)
+            registerReporter(forRegistry(metricRegistry)
                     .convertDurationsTo(MILLISECONDS)
                     .convertRatesTo(SECONDS)
                     .withLoggingLevel(TRACE)

@@ -130,4 +130,21 @@ class MappingsUpdatesSpec extends BasicSpec {
         where:
         path << [null, '', '  ']
     }
+
+    @DirtiesContext
+    def "Should fail to update destination mappings on non HTTP error while sending request to destination when new mappings have duplicated paths"() {
+        given:
+        addMapping('new proxy 6', '/uri/new/6', 'localhost:8080', 'localhost:8081')
+        addMapping('new proxy 7', '/uri/new/6', 'localhost:8080', 'localhost:8081')
+
+        when:
+        def response = sendRequest GET, '/uri/5/path/5'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+                .bodyContains('Duplicated destination paths in mappings')
+    }
 }
