@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -146,13 +145,9 @@ public class CharonProperties {
          */
         private String namesPrefix = "charon";
         /**
-         * Flag for enabling and disabling reporting metrics via application logger.
+         * Properties responsible for logging collected metrics.
          */
-        private boolean loggingReporterEnabled = false;
-        /**
-         * Metrics reporting via logger interval in seconds.
-         */
-        private int loggingReporterReportingIntervalInSeconds = 60;
+        private LoggingReporter loggingReporter = new LoggingReporter();
 
         public boolean isEnabled() {
             return enabled;
@@ -170,20 +165,40 @@ public class CharonProperties {
             this.namesPrefix = namesPrefix;
         }
 
-        public boolean isLoggingReporterEnabled() {
-            return loggingReporterEnabled;
+        public LoggingReporter getLoggingReporter() {
+            return loggingReporter;
         }
 
-        public void setLoggingReporterEnabled(boolean loggingReporterEnabled) {
-            this.loggingReporterEnabled = loggingReporterEnabled;
+        public void setLoggingReporter(LoggingReporter loggingReporter) {
+            this.loggingReporter = loggingReporter;
         }
 
-        public int getLoggingReporterReportingIntervalInSeconds() {
-            return loggingReporterReportingIntervalInSeconds;
-        }
+        public static class LoggingReporter {
 
-        public void setLoggingReporterReportingIntervalInSeconds(int loggingReporterReportingIntervalInSeconds) {
-            this.loggingReporterReportingIntervalInSeconds = loggingReporterReportingIntervalInSeconds;
+            /**
+             * Flag for enabling and disabling reporting metrics via application logger.
+             */
+            private boolean enabled = false;
+            /**
+             * Metrics reporting via logger interval in seconds.
+             */
+            private int reportingIntervalInSeconds = 60;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public int getReportingIntervalInSeconds() {
+                return reportingIntervalInSeconds;
+            }
+
+            public void setReportingIntervalInSeconds(int reportingIntervalInSeconds) {
+                this.reportingIntervalInSeconds = reportingIntervalInSeconds;
+            }
         }
     }
 

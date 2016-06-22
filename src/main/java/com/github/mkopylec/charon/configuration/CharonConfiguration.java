@@ -143,11 +143,11 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .withLoggingLevel(TRACE)
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
-            ).start(charon.getMetrics().getLoggingReporterReportingIntervalInSeconds(), SECONDS);
+            ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
         }
     }
 
     protected boolean shouldCreateDefaultMetricsReporter() {
-        return charon.getMetrics().isEnabled() && charon.getMetrics().isLoggingReporterEnabled();
+        return charon.getMetrics().isEnabled() && charon.getMetrics().getLoggingReporter().isEnabled();
     }
 }

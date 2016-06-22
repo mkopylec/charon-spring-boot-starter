@@ -8,9 +8,8 @@ charon:
   metrics:
     enabled: true
     names-prefix: charon
-    logging-reporter:
-      enabled: false
-      reporting-interval-in-seconds: 1
+    logging-reporter-enabled: false
+    logging-reporter-reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
   mappings:
