@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.2'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.3'
 }
 ```
 
@@ -144,14 +144,14 @@ Charon includes the default metrics reporter but it is disabled by default, beca
 To enable it set an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter-enabled: true
+charon.metrics.logging-reporter.enabled: true
 ```
 
 The default metrics reporter logs results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter-reporting-interval-in-seconds: <interval_in_seconds>
+charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seconds>
 ```
 
 ### Other tips
@@ -177,8 +177,9 @@ charon:
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
-        logging-reporter-enabled: false # Flag for enabling and disabling reporting metrics via application logger.
-        logging-reporter-reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
+        logging-reporter:
+            enabled: false # Flag for enabling and disabling reporting metrics via application logger.
+            reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
         enabled: false # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
     mappings:
