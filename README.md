@@ -78,7 +78,7 @@ charon.mappings:
 By default HTTP requests are forwarded synchronously.
 Forwarding process can also be asynchronous.
 In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
-To enable asynchronous forwarding an appropriate configuration property:
+To enable asynchronous forwarding set an appropriate configuration property:
 
 ```yaml
 charon.mappings:
