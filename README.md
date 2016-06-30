@@ -108,7 +108,7 @@ public class CustomMappingsProvider extends MappingsProvider {
 ```
 
 ### Retrying
-By default there is only a one attempt to forward request.
+By default there is only one attempt to forward request.
 To change the maximum number of attempts set an appropriate configuration property:
 
 ```yaml
