@@ -25,6 +25,7 @@ import static java.lang.String.valueOf;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpStatus.ACCEPTED;
 
 public class ReverseProxyFilter extends OncePerRequestFilter {
 
@@ -65,9 +66,16 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         HttpHeaders headers = extractor.extractHttpHeaders(request);
         addForwardHeaders(request, headers);
         HttpMethod method = extractor.extractHttpMethod(request);
-        ResponseEntity<byte[]> responseEntity = retryOperations.execute(
-                context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context)
-        );
+
+        ResponseEntity<byte[]> responseEntity;
+        if (isMappingAsynchronous(originUri)) {
+            taskExecutor.execute(() -> retryOperations.execute(
+                    context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context)
+            ));
+            responseEntity = new ResponseEntity<>(ACCEPTED);
+        } else {
+            responseEntity = retryOperations.execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context));
+        }
         if (responseEntity == null) {
             filterChain.doFilter(request, response);
             if (response.getStatus() == SC_NOT_FOUND) {

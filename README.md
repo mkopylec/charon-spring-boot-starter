@@ -75,17 +75,29 @@ charon.mappings:
         strip-path: false
 ```
 
+By default HTTP requests are forwarded synchronously.
+Forwarding process can also be asynchronous.
+In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
+To enable asynchronous forwarding an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+        asynchronous: true
+```
+
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
 This can done by creating a Spring bean of type `MappingsProvider`:
 
 ```java
 @Component
-@EnableConfigurationProperties(CharonProperties.class)
+@EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
 public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public CustomMappingsProvider(CharonProperties charon, MappingsCorrector mappingsCorrector) {
-		super(charon, mappingsCorrector);
+	public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+		super(server, charon, mappingsCorrector);
 	}
 
 	@Override
