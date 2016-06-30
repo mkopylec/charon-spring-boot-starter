@@ -1,10 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -123,7 +124,7 @@ public class CharonProperties {
         /**
          * Maximum number of HTTP request forward tries.
          */
-        private int maxAttempts = 3;
+        private int maxAttempts = 1;
 
         public int getMaxAttempts() {
             return maxAttempts;
