@@ -27,12 +27,18 @@ public abstract class MappingsProvider {
         return mappings;
     }
 
+    public void updateMappingsIfAllowed() {
+        if (charon.getMappingsUpdate().isEnabled()) {
+            updateMappings();
+        }
+    }
+
     @PostConstruct
-    public synchronized void updateMappings() {
+    protected synchronized void updateMappings() {
         List<Mapping> newMappings = retrieveMappings();
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
-        log.trace("Destination mappings updated to: {}", this.mappings);
+        log.trace("Destination mappings updated to: {}", mappings);
     }
 
     protected abstract List<Mapping> retrieveMappings();

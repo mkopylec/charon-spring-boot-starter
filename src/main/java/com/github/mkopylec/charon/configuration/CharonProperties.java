@@ -230,9 +230,13 @@ public class CharonProperties {
          */
         private String path = "/";
         /**
-         * List of destination hosts where HTTp requests will be forwarded.
+         * List of destination hosts where HTTP requests will be forwarded.
          */
         private List<String> destinations = new ArrayList<>();
+        /**
+         * Flag for enabling and disabling asynchronous HTTP request forwarding.
+         */
+        private boolean asynchronous = false;
         /**
          * Flag for enabling and disabling mapped path stripping from forwarded request URI.
          */
@@ -262,6 +266,14 @@ public class CharonProperties {
             this.destinations = destinations;
         }
 
+        public boolean isAsynchronous() {
+            return asynchronous;
+        }
+
+        public void setAsynchronous(boolean asynchronous) {
+            this.asynchronous = asynchronous;
+        }
+
         public boolean isStripPath() {
             return stripPath;
         }
@@ -275,6 +287,7 @@ public class CharonProperties {
             clone.setName(name);
             clone.setPath(path);
             clone.setDestinations(destinations == null ? null : new ArrayList<>(destinations));
+            clone.setAsynchronous(asynchronous);
             clone.setStripPath(stripPath);
             return clone;
         }
@@ -285,6 +298,7 @@ public class CharonProperties {
                     .append("name", name)
                     .append("path", path)
                     .append("destinations", destinations)
+                    .append("asynchronous", asynchronous)
                     .append("stripPath", stripPath)
                     .toString();
         }
