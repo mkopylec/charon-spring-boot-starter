@@ -117,7 +117,6 @@ charon.retrying.max-attempts: <number_of_tries>
 
 A next try is triggered when a non-HTTP error occurs.
 This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
-To change the maximum number of attempts set an appropriate configuration property:
 
 ### Load balancer
 The default load balancer randomly chooses a destination host from the available list.
