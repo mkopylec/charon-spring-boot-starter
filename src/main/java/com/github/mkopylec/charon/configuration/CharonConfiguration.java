@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import com.codahale.metrics.MetricRegistry;
+import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
@@ -41,6 +42,7 @@ import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
@@ -104,7 +106,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
-        return new ConfigurationMappingsProvider(charon, mappingsCorrector);
+        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector);
     }
 
     @Bean
@@ -122,7 +124,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public TaskExecutor charonTaskExecutor() {
-        return new ThreadPoolTaskExecutor();
+        if (isAsynchronousMappingPresent()) {
+            return new ThreadPoolTaskExecutor();
+        }
+        return null;
     }
 
     @Bean
@@ -168,5 +173,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     protected boolean shouldCreateDefaultMetricsReporter() {
         return charon.getMetrics().isEnabled() && charon.getMetrics().getLoggingReporter().isEnabled();
+    }
+
+    protected boolean isAsynchronousMappingPresent() {
+        return !charon.getMappings().stream()
+                .filter(Mapping::isAsynchronous)
+                .collect(toList())
+                .isEmpty();
     }
 }

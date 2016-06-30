@@ -2,11 +2,11 @@ package com.github.mkopylec.charon.core.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
+import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.exceptions.CharonException;
@@ -24,8 +24,6 @@ import org.springframework.web.client.RestOperations;
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.utils.UriCorrector.correctUri;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.ResponseEntity.status;
@@ -72,21 +70,15 @@ public class RequestForwarder {
         return result;
     }
 
-    protected ForwardDestination resolveForwardDestination(String uri) {
-        List<ForwardDestination> destinations = mappingsProvider.getMappings().stream()
-                .filter(mapping -> uri.startsWith(concatContextAndMappingPaths(mapping)))
-                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getName(), resolveMetricsName(mapping)))
-                .collect(toList());
-        if (isEmpty(destinations)) {
+    protected ForwardDestination resolveForwardDestination(String originUri) {
+        Mapping mapping = mappingsProvider.resolveMapping(originUri);
+        if (mapping == null) {
             return null;
         }
-        if (destinations.size() == 1) {
-            return destinations.get(0);
-        }
-        throw new CharonException("Multiple mapping paths found for HTTP request URI: " + uri);
+        return new ForwardDestination(createDestinationUrl(originUri, mapping), mapping.getName(), resolveMetricsName(mapping));
     }
 
-    protected URI createDestinationUrl(String uri, CharonProperties.Mapping mapping) {
+    protected URI createDestinationUrl(String uri, Mapping mapping) {
         if (mapping.isStripPath()) {
             uri = removeStart(uri, concatContextAndMappingPaths(mapping));
         }
@@ -100,7 +92,7 @@ public class RequestForwarder {
 
     protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
         ResponseEntity<byte[]> responseEntity;
-        Timer.Context context = null;
+        Context context = null;
         if (charon.getMetrics().isEnabled()) {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
@@ -119,17 +111,17 @@ public class RequestForwarder {
         return responseEntity;
     }
 
-    protected void stopTimerContext(Timer.Context context) {
+    protected void stopTimerContext(Context context) {
         if (context != null) {
             context.stop();
         }
     }
 
-    protected String resolveMetricsName(CharonProperties.Mapping mapping) {
+    protected String resolveMetricsName(Mapping mapping) {
         return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
     }
 
-    protected String concatContextAndMappingPaths(CharonProperties.Mapping mapping) {
+    protected String concatContextAndMappingPaths(Mapping mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
     }
 }

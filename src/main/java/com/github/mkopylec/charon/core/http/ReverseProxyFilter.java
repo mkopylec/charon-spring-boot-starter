@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
@@ -87,6 +88,11 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PROTO_HEADER, request.getScheme());
         headers.set(X_FORWARDED_HOST_HEADER, request.getServerName());
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
+    }
+
+    protected boolean isMappingAsynchronous(String originUri) {
+        Mapping mapping = mappingsProvider.resolveMapping(originUri);
+        return mapping != null && mapping.isAsynchronous();
     }
 
     protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {

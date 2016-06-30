@@ -5,12 +5,14 @@ import java.util.List;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+
 import static java.util.stream.Collectors.toList;
 
 public class ConfigurationMappingsProvider extends MappingsProvider {
 
-    public ConfigurationMappingsProvider(CharonProperties charon, MappingsCorrector mappingsCorrector) {
-        super(charon, mappingsCorrector);
+    public ConfigurationMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+        super(server, charon, mappingsCorrector);
     }
 
     @Override
