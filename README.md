@@ -135,7 +135,7 @@ public class CustomLoadBalancer implements LoadBalancer {
 
 ### Mappings update
 Charon can be resilient to mappings changes during application runtime.
-By default the mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
+The mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
 This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
 The mappings can also be updated when a 404 HTTP response will be returned for a non-forwarded HTTP request.
 The mappings updates can be turned on by setting an appropriate configuration property:
