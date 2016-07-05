@@ -167,6 +167,7 @@ charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seco
 - do not prepend server context path to mappings paths, it will be done automatically
 
 ## Configuration properties list
+The following list contains all available configuration properties with their default values.
 
 ```yaml
 charon:
