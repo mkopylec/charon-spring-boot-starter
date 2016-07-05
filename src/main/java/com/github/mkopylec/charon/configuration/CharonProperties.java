@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import static com.github.mkopylec.charon.configuration.CharonProperties.LoggingMode.SIMPLE;
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
@@ -36,6 +37,10 @@ public class CharonProperties {
      * Properties responsible for proxy mappings updates.
      */
     private MappingsUpdate mappingsUpdate = new MappingsUpdate();
+    /**
+     * Proxying process logging mode.
+     */
+    private LoggingMode loggingMode = SIMPLE;
     /**
      * List of proxy mappings.
      */
@@ -79,6 +84,14 @@ public class CharonProperties {
 
     public void setMappingsUpdate(MappingsUpdate mappingsUpdate) {
         this.mappingsUpdate = mappingsUpdate;
+    }
+
+    public LoggingMode getLoggingMode() {
+        return loggingMode;
+    }
+
+    public void setLoggingMode(LoggingMode loggingMode) {
+        this.loggingMode = loggingMode;
     }
 
     public List<Mapping> getMappings() {
@@ -217,6 +230,11 @@ public class CharonProperties {
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
         }
+    }
+
+    public enum LoggingMode {
+
+        SIMPLE, FULL;
     }
 
     public static class Mapping {

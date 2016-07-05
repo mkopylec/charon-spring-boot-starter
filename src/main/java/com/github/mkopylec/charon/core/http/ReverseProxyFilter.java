@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.core.logging.ProxyingProcessLogger;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
@@ -41,32 +42,34 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected final MappingsProvider mappingsProvider;
     protected final TaskExecutor taskExecutor;
     protected final RequestForwarder requestForwarder;
+    protected final ProxyingProcessLogger processLogger;
 
     public ReverseProxyFilter(
             RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             TaskExecutor taskExecutor,
-            RequestForwarder requestForwarder
+            RequestForwarder requestForwarder,
+            ProxyingProcessLogger processLogger
     ) {
         this.retryOperations = retryOperations;
         this.extractor = extractor;
         this.mappingsProvider = mappingsProvider;
         this.taskExecutor = taskExecutor;
         this.requestForwarder = requestForwarder;
+        this.processLogger = processLogger;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String originUri = extractor.extractUri(request);
-
-        log.trace("Incoming: {} {}", request.getMethod(), originUri);
-
         byte[] body = extractor.extractBody(request);
         HttpHeaders headers = extractor.extractHttpHeaders(request);
-        addForwardHeaders(request, headers);
         HttpMethod method = extractor.extractHttpMethod(request);
 
+        processLogger.logIncomingRequest(method, originUri, body, headers);
+
+        addForwardHeaders(request, headers);
         ResponseEntity<byte[]> responseEntity;
         if (isMappingAsynchronous(originUri)) {
             taskExecutor.execute(() -> retryOperations.execute(

@@ -12,10 +12,11 @@ import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
+import com.github.mkopylec.charon.core.logging.ProxyingProcessLogger;
+import com.github.mkopylec.charon.core.logging.RetryLoggingListener;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
-import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
@@ -71,9 +72,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
-            RequestForwarder requestForwarder
+            RequestForwarder requestForwarder,
+            ProxyingProcessLogger processLogger
     ) {
-        return new ReverseProxyFilter(retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder);
+        return new ReverseProxyFilter(retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, processLogger);
     }
 
     @Bean
@@ -135,15 +137,22 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     public RequestForwarder charonRequestForwarder(
             @Qualifier("charonRestOperations") RestOperations restOperations,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer
+            LoadBalancer loadBalancer,
+            ProxyingProcessLogger processLogger
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry);
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, processLogger);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public RetryListener charonRetryListener() {
-        return new LoggingListener();
+        return new RetryLoggingListener();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ProxyingProcessLogger charonProxyingProcessLogger() {
+        return new ProxyingProcessLogger(charon);
     }
 
     @PostConstruct
@@ -168,6 +177,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
             ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
+        }
+        if (charon.getLoggingMode() == null) {
+            throw new CharonException("Empty proxy activity logging mode");
         }
     }
 

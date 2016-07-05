@@ -8,6 +8,7 @@ import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
+import com.github.mkopylec.charon.core.logging.ProxyingProcessLogger;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class RequestForwarder {
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
+    protected final ProxyingProcessLogger processLogger;
 
     public RequestForwarder(
             ServerProperties server,
@@ -45,7 +47,8 @@ public class RequestForwarder {
             RestOperations restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            MetricRegistry metricRegistry
+            MetricRegistry metricRegistry,
+            ProxyingProcessLogger processLogger
     ) {
         this.server = server;
         this.charon = charon;
@@ -53,21 +56,22 @@ public class RequestForwarder {
         this.mappingsProvider = mappingsProvider;
         this.loadBalancer = loadBalancer;
         this.metricRegistry = metricRegistry;
+        this.processLogger = processLogger;
     }
 
     public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context) {
         ForwardDestination destination = resolveForwardDestination(originUri);
         if (destination == null) {
-            log.trace("Forwarding: {} {} -> no mapping found", method, originUri);
+            processLogger.logForwardingProcess(method, originUri, body, headers);
             return null;
         }
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
-        ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
+        ResponseEntity<byte[]> response = sendRequest(requestEntity, destination.getMappingMetricsName());
 
-        log.debug("Forwarding: {} {} -> {} {}", method, originUri, destination.getUri(), result.getStatusCode().value());
+        processLogger.logForwardingProcess(method, originUri, body, headers, destination, response);
 
-        return result;
+        return response;
     }
 
     protected ForwardDestination resolveForwardDestination(String originUri) {
