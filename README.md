@@ -88,7 +88,7 @@ charon.mappings:
 ```
 
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
-This can done by creating a Spring bean of type `MappingsProvider`:
+This can be done by creating a Spring bean of type `MappingsProvider`:
 
 ```java
 @Component
