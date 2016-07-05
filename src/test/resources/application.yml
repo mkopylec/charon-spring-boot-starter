@@ -43,6 +43,11 @@ charon:
       name: proxy 6
       path: /uri/6
       destinations: http://localhost:8080
+    -
+      name: proxy 7
+      path: /uri/7
+      destinations: http://localhost:8080, localhost:8081
+      asynchronous: true
 
 logging.level:
   com.github.mkopylec.charon: trace

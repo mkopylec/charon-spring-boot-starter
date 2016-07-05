@@ -75,17 +75,29 @@ charon.mappings:
         strip-path: false
 ```
 
+By default HTTP requests are forwarded synchronously.
+Forwarding process can also be asynchronous.
+In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
+To enable asynchronous forwarding set an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+        asynchronous: true
+```
+
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
 This can done by creating a Spring bean of type `MappingsProvider`:
 
 ```java
 @Component
-@EnableConfigurationProperties(CharonProperties.class)
+@EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
 public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public CustomMappingsProvider(CharonProperties charon, MappingsCorrector mappingsCorrector) {
-		super(charon, mappingsCorrector);
+	public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+		super(server, charon, mappingsCorrector);
 	}
 
 	@Override
@@ -123,7 +135,7 @@ public class CustomLoadBalancer implements LoadBalancer {
 
 ### Mappings update
 Charon can be resilient to mappings changes during application runtime.
-By default the mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
+The mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
 This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
 The mappings can also be updated when a 404 HTTP response will be returned for a non-forwarded HTTP request.
 The mappings updates can be turned on by setting an appropriate configuration property:
@@ -190,6 +202,7 @@ charon:
             name: # Name of the mapping.
             path: / # Path for mapping incoming HTTP requests URIs.
             destinations: # List of destination hosts where HTTP requests will be forwarded.
+            asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
 ```
 

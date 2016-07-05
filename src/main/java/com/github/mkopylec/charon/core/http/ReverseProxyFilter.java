@@ -1,8 +1,6 @@
 package com.github.mkopylec.charon.core.http;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,35 +9,23 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer.Context;
-import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
-import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 
-import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryOperations;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
-import static com.github.mkopylec.charon.utils.UriCorrector.correctUri;
 import static java.lang.String.valueOf;
-import static java.util.stream.Collectors.toList;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.ResponseEntity.status;
+import static org.springframework.http.HttpStatus.ACCEPTED;
 
 public class ReverseProxyFilter extends OncePerRequestFilter {
 
@@ -50,93 +36,53 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
     private static final Logger log = getLogger(ReverseProxyFilter.class);
 
-    protected final ServerProperties server;
-    protected final CharonProperties charon;
-    protected final RestOperations restOperations;
     protected final RetryOperations retryOperations;
     protected final RequestDataExtractor extractor;
     protected final MappingsProvider mappingsProvider;
-    protected final LoadBalancer loadBalancer;
-    protected final MetricRegistry metricRegistry;
+    protected final TaskExecutor taskExecutor;
+    protected final RequestForwarder requestForwarder;
 
     public ReverseProxyFilter(
-            ServerProperties server,
-            CharonProperties charon,
-            RestOperations restOperations,
             RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer,
-            MetricRegistry metricRegistry
+            TaskExecutor taskExecutor,
+            RequestForwarder requestForwarder
     ) {
-        this.server = server;
-        this.charon = charon;
-        this.restOperations = restOperations;
         this.retryOperations = retryOperations;
         this.extractor = extractor;
         this.mappingsProvider = mappingsProvider;
-        this.loadBalancer = loadBalancer;
-        this.metricRegistry = metricRegistry;
+        this.taskExecutor = taskExecutor;
+        this.requestForwarder = requestForwarder;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String uri = extractor.extractUri(request);
+        String originUri = extractor.extractUri(request);
 
-        log.trace("Incoming: {} {}", request.getMethod(), uri);
+        log.trace("Incoming: {} {}", request.getMethod(), originUri);
 
         byte[] body = extractor.extractBody(request);
         HttpHeaders headers = extractor.extractHttpHeaders(request);
         addForwardHeaders(request, headers);
         HttpMethod method = extractor.extractHttpMethod(request);
 
-        ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
-            ForwardDestination destination = resolveForwardDestination(uri);
-            if (destination == null) {
-                log.trace("Forwarding: {} {} -> no mapping found", request.getMethod(), uri);
-                return null;
-            }
-            context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
-            RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
-            ResponseEntity<byte[]> result = sendRequest(requestEntity, destination.getMappingMetricsName());
-
-            log.debug("Forwarding: {} {} -> {} {}", request.getMethod(), uri, destination.getUri(), result.getStatusCode().value());
-
-            return result;
-        });
+        ResponseEntity<byte[]> responseEntity;
+        if (isMappingAsynchronous(originUri)) {
+            taskExecutor.execute(() -> retryOperations.execute(
+                    context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context)
+            ));
+            responseEntity = new ResponseEntity<>(ACCEPTED);
+        } else {
+            responseEntity = retryOperations.execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context));
+        }
         if (responseEntity == null) {
             filterChain.doFilter(request, response);
             if (response.getStatus() == SC_NOT_FOUND) {
-                updateMappingsIfAllowed();
+                mappingsProvider.updateMappingsIfAllowed();
             }
         } else {
             processResponse(response, responseEntity);
-        }
-    }
-
-    protected ForwardDestination resolveForwardDestination(String uri) {
-        List<ForwardDestination> destinations = mappingsProvider.getMappings().stream()
-                .filter(mapping -> uri.startsWith(concatContextAndMappingPaths(mapping)))
-                .map(mapping -> new ForwardDestination(createDestinationUrl(uri, mapping), mapping.getName(), resolveMetricsName(mapping)))
-                .collect(toList());
-        if (isEmpty(destinations)) {
-            return null;
-        }
-        if (destinations.size() == 1) {
-            return destinations.get(0);
-        }
-        throw new CharonException("Multiple mapping paths found for HTTP request URI: " + uri);
-    }
-
-    protected URI createDestinationUrl(String uri, Mapping mapping) {
-        if (mapping.isStripPath()) {
-            uri = removeStart(uri, concatContextAndMappingPaths(mapping));
-        }
-        String host = loadBalancer.chooseDestination(mapping.getDestinations());
-        try {
-            return new URI(host + uri);
-        } catch (URISyntaxException e) {
-            throw new CharonException("Error creating destination URL from HTTP request URI: " + uri + " using mapping " + mapping, e);
         }
     }
 
@@ -152,31 +98,9 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
-        ResponseEntity<byte[]> responseEntity;
-        Context context = null;
-        if (charon.getMetrics().isEnabled()) {
-            context = metricRegistry.timer(mappingMetricsName).time();
-        }
-        try {
-            responseEntity = restOperations.exchange(requestEntity, byte[].class);
-            stopTimerContext(context);
-        } catch (HttpStatusCodeException e) {
-            stopTimerContext(context);
-            responseEntity = status(e.getStatusCode())
-                    .headers(e.getResponseHeaders())
-                    .body(e.getResponseBodyAsByteArray());
-        } catch (Exception e) {
-            updateMappingsIfAllowed();
-            throw e;
-        }
-        return responseEntity;
-    }
-
-    protected void updateMappingsIfAllowed() {
-        if (charon.getMappingsUpdate().isEnabled()) {
-            mappingsProvider.updateMappings();
-        }
+    protected boolean isMappingAsynchronous(String originUri) {
+        Mapping mapping = mappingsProvider.resolveMapping(originUri);
+        return mapping != null && mapping.isAsynchronous();
     }
 
     protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {
@@ -190,20 +114,6 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             } catch (IOException e) {
                 throw new CharonException("Error extracting body of HTTP response with status: " + responseEntity.getStatusCode(), e);
             }
-        }
-    }
-
-    protected String resolveMetricsName(Mapping mapping) {
-        return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
-    }
-
-    protected String concatContextAndMappingPaths(Mapping mapping) {
-        return correctUri(server.getContextPath()) + mapping.getPath();
-    }
-
-    protected void stopTimerContext(Context context) {
-        if (context != null) {
-            context.stop();
         }
     }
 }

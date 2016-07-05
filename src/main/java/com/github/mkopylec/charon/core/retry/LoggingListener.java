@@ -16,8 +16,7 @@ public class LoggingListener extends RetryListenerSupport {
     public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
         Object mappingName = context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE);
         if (mappingName != null) {
-            log.debug("Forwarding: Attempt {} to proxy '{}' mapping has failed. {}",
-                    context.getRetryCount() + 1, mappingName, throwable.getMessage());
+            log.debug("Forwarding: Attempt {} to proxy '{}' mapping has failed. {}", context.getRetryCount() + 1, mappingName, throwable.getMessage());
         }
     }
 

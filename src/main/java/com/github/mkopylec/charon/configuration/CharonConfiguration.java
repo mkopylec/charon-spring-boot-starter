@@ -1,9 +1,16 @@
 package com.github.mkopylec.charon.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import com.codahale.metrics.MetricRegistry;
+import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
+import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
@@ -12,6 +19,7 @@ import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -20,22 +28,21 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
@@ -60,15 +67,13 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public ReverseProxyFilter charonReverseProxyFilter(
-            @Qualifier("charonRestOperations") RestOperations restOperations,
             @Qualifier("charonRetryOperations") RetryOperations retryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer
+            @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
+            RequestForwarder requestForwarder
     ) {
-        return new ReverseProxyFilter(
-                server, charon, restOperations, retryOperations, extractor, mappingsProvider, loadBalancer, metricRegistry
-        );
+        return new ReverseProxyFilter(retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder);
     }
 
     @Bean
@@ -101,7 +106,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
-        return new ConfigurationMappingsProvider(charon, mappingsCorrector);
+        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector);
     }
 
     @Bean
@@ -114,6 +119,25 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @ConditionalOnMissingBean
     public MappingsCorrector charonMappingsCorrector() {
         return new MappingsCorrector();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TaskExecutor charonTaskExecutor() {
+        if (isAsynchronousMappingPresent()) {
+            return new ThreadPoolTaskExecutor();
+        }
+        return null;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RequestForwarder charonRequestForwarder(
+            @Qualifier("charonRestOperations") RestOperations restOperations,
+            MappingsProvider mappingsProvider,
+            LoadBalancer loadBalancer
+    ) {
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry);
     }
 
     @Bean
@@ -149,5 +173,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     protected boolean shouldCreateDefaultMetricsReporter() {
         return charon.getMetrics().isEnabled() && charon.getMetrics().getLoggingReporter().isEnabled();
+    }
+
+    protected boolean isAsynchronousMappingPresent() {
+        return !charon.getMappings().stream()
+                .filter(Mapping::isAsynchronous)
+                .collect(toList())
+                .isEmpty();
     }
 }
