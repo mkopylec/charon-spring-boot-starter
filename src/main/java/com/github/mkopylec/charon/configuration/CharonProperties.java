@@ -123,7 +123,7 @@ public class CharonProperties {
         /**
          * Maximum number of HTTP request forward tries.
          */
-        private int maxAttempts = 3;
+        private int maxAttempts = 1;
 
         public int getMaxAttempts() {
             return maxAttempts;

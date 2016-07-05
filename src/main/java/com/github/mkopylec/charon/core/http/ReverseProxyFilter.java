@@ -83,7 +83,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = extractor.extractUri(request);
 
-        log.debug("Incoming: {} {}", request.getMethod(), uri);
+        log.trace("Incoming: {} {}", request.getMethod(), uri);
 
         byte[] body = extractor.extractBody(request);
         HttpHeaders headers = extractor.extractHttpHeaders(request);
@@ -93,7 +93,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         ResponseEntity<byte[]> responseEntity = retryOperations.execute(context -> {
             ForwardDestination destination = resolveForwardDestination(uri);
             if (destination == null) {
-                log.debug("Forwarding: {} {} -> no mapping found", request.getMethod(), uri);
+                log.trace("Forwarding: {} {} -> no mapping found", request.getMethod(), uri);
                 return null;
             }
             context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
