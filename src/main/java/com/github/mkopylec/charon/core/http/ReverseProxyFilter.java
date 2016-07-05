@@ -60,7 +60,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String originUri = extractor.extractUri(request);
 
-        log.debug("Incoming: {} {}", request.getMethod(), originUri);
+        log.trace("Incoming: {} {}", request.getMethod(), originUri);
 
         byte[] body = extractor.extractBody(request);
         HttpHeaders headers = extractor.extractHttpHeaders(request);

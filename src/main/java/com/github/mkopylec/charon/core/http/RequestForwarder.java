@@ -58,7 +58,7 @@ public class RequestForwarder {
     public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context) {
         ForwardDestination destination = resolveForwardDestination(originUri);
         if (destination == null) {
-            log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
+            log.trace("Forwarding: {} {} -> no mapping found", method, originUri);
             return null;
         }
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
