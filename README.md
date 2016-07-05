@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.3'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.4.4'
 }
 ```
 
@@ -96,13 +96,15 @@ public class CustomMappingsProvider extends MappingsProvider {
 ```
 
 ### Retrying
-By default there are maximum 3 tries to forward request. The next try is triggered when a non-HTTP error occurs.
-This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
+By default there is only one attempt to forward request.
 To change the maximum number of attempts set an appropriate configuration property:
 
 ```yaml
 charon.retrying.max-attempts: <number_of_tries>
 ```
+
+A next try is triggered when a non-HTTP error occurs.
+This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
 
 ### Load balancer
 The default load balancer randomly chooses a destination host from the available list.
@@ -173,7 +175,7 @@ charon:
         connect: 500 # Connect timeout for HTTP requests forwarding.
         read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
-        max-attempts: 3 # Maximum number of HTTP request forward tries.
+        max-attempts: 1 # Maximum number of HTTP request forward tries.
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
