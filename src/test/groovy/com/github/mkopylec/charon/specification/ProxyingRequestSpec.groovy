@@ -121,4 +121,16 @@ abstract class ProxyingRequestSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
     }
+
+    def "Should proxy HTTP request when asynchronous mode is enabled"() {
+        when:
+        sendRequest GET, '/uri/7/path/7'
+        sleep(200)
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, '/path/7')
+                .withoutBody()
+    }
 }

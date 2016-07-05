@@ -6,6 +6,7 @@ import spock.lang.Unroll
 import static com.github.mkopylec.charon.application.TestController.SAMPLE_MESSAGE
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
+import static org.springframework.http.HttpStatus.ACCEPTED
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.FOUND
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
@@ -107,5 +108,15 @@ class ProxyingResponseSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
                 .hasBody(SAMPLE_MESSAGE);
+    }
+
+    def "Should get non-proxied HTTP response with 202 (accepted) HTTP status when asynchronous mode is enabled"() {
+        when:
+        def response = sendRequest(GET, '/uri/7/path/7')
+
+        then:
+        assertThat(response)
+                .hasStatus(ACCEPTED)
+                .hasNoBody()
     }
 }
