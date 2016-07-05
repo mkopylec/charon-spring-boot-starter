@@ -202,7 +202,7 @@ charon:
             name: # Name of the mapping.
             path: / # Path for mapping incoming HTTP requests URIs.
             destinations: # List of destination hosts where HTTP requests will be forwarded.
-			asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
+            asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
 ```
 
