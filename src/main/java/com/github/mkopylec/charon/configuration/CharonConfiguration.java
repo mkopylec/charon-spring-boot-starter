@@ -158,7 +158,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         }
         int maxAttempts = charon.getRetrying().getMaxAttempts();
         if (maxAttempts < 1) {
-            throw new CharonException("Invalid max number of attempts to send request value: " + maxAttempts);
+            throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);
         }
         if (shouldCreateDefaultMetricsReporter()) {
             registerReporter(forRegistry(metricRegistry)
