@@ -144,6 +144,8 @@ The mappings updates can be turned on by setting an appropriate configuration pr
 charon.mappings-update.enabled: true
 ```
 
+Mappings can be updated at anytime by injecting a `MappingsProvider` bean and invoking `MappingsProvider.updateMappings` method.
+
 ### Metrics
 Collecting performance metrics is disabled by default.
 To turn them on set an appropriate configuration property:
