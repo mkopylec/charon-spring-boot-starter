@@ -35,4 +35,9 @@ class TraceAssert {
         assert !actual.isForwardCompleteCaptured()
         return this
     }
+
+    TraceAssert hasUnchangeableTraceId() {
+        assert actual.hasUnchangeableTraceId()
+        return this
+    }
 }

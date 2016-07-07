@@ -8,7 +8,7 @@ import org.springframework.test.annotation.DirtiesContext
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 
-class TraceSpec extends BasicSpec {
+class TracingSpec extends BasicSpec {
 
     @Autowired
     private TestTraceInterceptor traceInterceptor
@@ -23,6 +23,7 @@ class TraceSpec extends BasicSpec {
                 .hasCapturedReceivedRequest()
                 .hasCapturedForwardStartWithMapping()
                 .hasCapturedForwardCompletion()
+                .hasUnchangeableTraceId()
     }
 
     @DirtiesContext
@@ -35,5 +36,6 @@ class TraceSpec extends BasicSpec {
                 .hasCapturedReceivedRequest()
                 .hasCapturedForwardStartWithNoMapping()
                 .hasNotCapturedForwardCompletion()
+                .hasUnchangeableTraceId()
     }
 }
