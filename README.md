@@ -183,8 +183,8 @@ charon.tracing.enabled: true
 Every trace collects information at three checkpoints:
 
 - request received - captures an incoming HTTP request
-- forward start - captures a HTTP request that will be sent to the destination host
-- forward complete - captures a HTTP response received from the destination host
+- forward start - captures an HTTP request that will be sent to the destination host
+- forward complete - captures an HTTP response received from the destination host
 
 In each checkpoint a trace ID and current HTTP data are captured.
 A trace ID remains the same throughout the whole proxying process of a single HTTP request, therefore trace checkpoints can be joined by trace IDs value.
