@@ -1,13 +1,15 @@
 package com.github.mkopylec.charon.core.mappings;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;

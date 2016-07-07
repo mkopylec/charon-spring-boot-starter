@@ -170,9 +170,52 @@ The interval can be changed by setting an appropriate configuration property:
 charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seconds>
 ```
 
+### Tracing
+
+Charon can trace a proxying process.
+Tracing allows applications to collect detailed information about Charons activity.
+To enable it set an appropriate configuration property:
+
+```yaml
+charon.tracing.enabled: true
+```
+
+Every trace collects information at three checkpoints:
+
+- request received - captures an incoming HTTP request
+- forward start - captures a HTTP request that will be sent to the destination host
+- forward complete - captures a HTTP response received from the destination host
+
+In each checkpoint a trace ID and current HTTP data are captured.
+A trace ID remains the same throughout the whole proxying process of a single HTTP request, therefore trace checkpoints can be joined by trace IDs value.
+By default, when tracing is enabled, Charon logs captured information.
+To change this behaviour create a Spring bean of type `TraceInterceptor`:
+
+```java
+@Component
+public class CustomTraceInterceptor extends TraceInterceptor {
+
+    @Override
+    protected void onRequestReceived(String traceId, IncomingRequest request) {
+        ...
+    }
+
+    @Override
+    protected void onForwardStart(String traceId, ForwardRequest request) {
+        ...
+    }
+
+    @Override
+    protected void onForwardComplete(String traceId, ReceivedResponse response) {
+        ...
+    }
+}
+```
+
 ### Other tips
 - there are no benefits in turning on the mappings updates if a custom mappings provider is not used
-- change the logging level of `com.github.mkopylec.charon` to DEBUG or TRACE to see what's going on under the hood
+- change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
+- tracing logs have INFO level
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended

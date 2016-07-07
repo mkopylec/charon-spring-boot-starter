@@ -13,7 +13,7 @@ charon:
       reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
-  trace:
+  tracing:
     enabled: true
   mappings:
     -

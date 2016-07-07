@@ -1,13 +1,15 @@
 package com.github.mkopylec.charon.core.http;
 
-import com.github.mkopylec.charon.exceptions.CharonException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.github.mkopylec.charon.exceptions.CharonException;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import static java.util.Collections.list;
 import static org.apache.commons.io.IOUtils.toByteArray;

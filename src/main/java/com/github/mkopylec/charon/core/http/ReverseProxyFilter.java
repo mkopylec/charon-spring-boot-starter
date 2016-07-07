@@ -1,25 +1,27 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
-import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
+import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
+
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static java.lang.String.valueOf;
@@ -43,7 +45,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected final MappingsProvider mappingsProvider;
     protected final TaskExecutor taskExecutor;
     protected final RequestForwarder requestForwarder;
-    protected final LoggingTraceInterceptor traceInterceptor;
+    protected final TraceInterceptor traceInterceptor;
 
     public ReverseProxyFilter(
             CharonProperties charon,
@@ -52,7 +54,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             MappingsProvider mappingsProvider,
             TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
-            LoggingTraceInterceptor traceInterceptor
+            TraceInterceptor traceInterceptor
     ) {
         this.charon = charon;
         this.retryOperations = retryOperations;
@@ -66,7 +68,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.initTraceId());
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.initTraceId());
             String originUri = extractor.extractUri(request);
 
             log.debug("Incoming: {} {}", request.getMethod(), originUri);
@@ -74,7 +76,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             byte[] body = extractor.extractBody(request);
             HttpHeaders headers = extractor.extractHttpHeaders(request);
             HttpMethod method = extractor.extractHttpMethod(request);
-            runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, body, headers));
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, body, headers));
             addForwardHeaders(request, headers);
             ResponseEntity<byte[]> responseEntity;
             if (isMappingAsynchronous(originUri)) {
@@ -94,7 +96,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                 processResponse(response, responseEntity);
             }
         } finally {
-            runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.cleanTraceId());
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.cleanTraceId());
         }
     }
 

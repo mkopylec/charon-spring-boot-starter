@@ -9,7 +9,7 @@ import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
-import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
+import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 
@@ -40,7 +40,7 @@ public class RequestForwarder {
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
-    protected final LoggingTraceInterceptor traceInterceptor;
+    protected final TraceInterceptor traceInterceptor;
 
     public RequestForwarder(
             ServerProperties server,
@@ -49,7 +49,7 @@ public class RequestForwarder {
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
-            LoggingTraceInterceptor traceInterceptor
+            TraceInterceptor traceInterceptor
     ) {
         this.server = server;
         this.charon = charon;
@@ -63,11 +63,11 @@ public class RequestForwarder {
     public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context) {
         ForwardDestination destination = resolveForwardDestination(originUri);
         if (destination == null) {
-            runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onForwardStart(null, method, originUri, body, headers));
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(null, method, originUri, body, headers));
             log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
             return null;
         } else {
-            runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onForwardStart(destination.getMappingName(), method, originUri, body, headers));
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(destination.getMappingName(), method, originUri, body, headers));
         }
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
@@ -75,7 +75,7 @@ public class RequestForwarder {
 
         log.info("Forwarding: {} {} -> {} {}", method, originUri, destination.getUri(), response.getStatusCode().value());
 
-        runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onForwardComplete(response.getStatusCode(), response.getBody(), response.getHeaders()));
+        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardComplete(response.getStatusCode(), response.getBody(), response.getHeaders()));
 
         return response;
     }

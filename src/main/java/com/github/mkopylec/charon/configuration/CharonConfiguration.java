@@ -1,5 +1,10 @@
 package com.github.mkopylec.charon.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import com.codahale.metrics.MetricRegistry;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
@@ -12,9 +17,11 @@ import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
+import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,10 +39,6 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
@@ -71,7 +74,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
-            LoggingTraceInterceptor traceInterceptor
+            TraceInterceptor traceInterceptor
     ) {
         return new ReverseProxyFilter(charon, retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
@@ -136,9 +139,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonRestOperations") RestOperations restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            LoggingTraceInterceptor processLogger
+            TraceInterceptor traceInterceptor
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, processLogger);
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
     }
 
     @Bean
@@ -149,8 +152,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public LoggingTraceInterceptor charonTraceInterceptor() {
-        if (charon.getTrace().isEnabled()) {
+    public TraceInterceptor charonTraceInterceptor() {
+        if (charon.getTracing().isEnabled()) {
             return new LoggingTraceInterceptor();
         }
         return null;

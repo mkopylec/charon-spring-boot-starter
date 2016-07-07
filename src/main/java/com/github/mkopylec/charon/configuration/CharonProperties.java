@@ -1,10 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -36,9 +37,9 @@ public class CharonProperties {
      */
     private MappingsUpdate mappingsUpdate = new MappingsUpdate();
     /**
-     * Properties responsible for tracing HTTP requests forwarding.
+     * Properties responsible for tracing HTTP requests proxying processes.
      */
-    private Trace trace = new Trace();
+    private Tracing tracing = new Tracing();
     /**
      * List of proxy mappings.
      */
@@ -84,12 +85,12 @@ public class CharonProperties {
         this.mappingsUpdate = mappingsUpdate;
     }
 
-    public Trace getTrace() {
-        return trace;
+    public Tracing getTracing() {
+        return tracing;
     }
 
-    public void setTrace(Trace trace) {
-        this.trace = trace;
+    public void setTracing(Tracing tracing) {
+        this.tracing = tracing;
     }
 
     public List<Mapping> getMappings() {
@@ -230,10 +231,10 @@ public class CharonProperties {
         }
     }
 
-    public static class Trace {
+    public static class Tracing {
 
         /**
-         * Flag for enabling and disabling tracing HTTP requests forwarding.
+         * Flag for enabling and disabling tracing HTTP requests proxying processes.
          */
         private boolean enabled = false;
 

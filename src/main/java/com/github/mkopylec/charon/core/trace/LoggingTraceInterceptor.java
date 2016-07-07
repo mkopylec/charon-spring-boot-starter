@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.core.trace;
 
 import org.slf4j.Logger;
 
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class LoggingTraceInterceptor extends TraceInterceptor {
@@ -18,7 +19,7 @@ public class LoggingTraceInterceptor extends TraceInterceptor {
     @Override
     protected void onForwardStart(String traceId, ForwardRequest request) {
         log.info("\n  Trace ID: {}\n  Forward HTTP request details:\n    - mapping name: {}\n    - method: {}\n    - uri: {}\n    - body: {}\n    - headers: {}",
-                traceId, request.getMappingName(), request.getMethod(), request.getUri(), request.getBody(), request.getHeaders()
+                traceId, trimToEmpty(request.getMappingName()), request.getMethod(), request.getUri(), request.getBody(), request.getHeaders()
         );
     }
 

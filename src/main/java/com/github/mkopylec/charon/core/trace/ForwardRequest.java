@@ -1,13 +1,11 @@
 package com.github.mkopylec.charon.core.trace;
 
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-
 public class ForwardRequest extends IncomingRequest {
 
     protected String mappingName;
 
     public String getMappingName() {
-        return trimToEmpty(mappingName);
+        return mappingName;
     }
 
     @SuppressWarnings("unchecked")
