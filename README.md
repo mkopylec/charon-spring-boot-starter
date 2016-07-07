@@ -188,7 +188,7 @@ Every trace collects information at three checkpoints:
 
 In each checkpoint a trace ID and current HTTP data are captured.
 A trace ID remains the same throughout the whole proxying process of a single HTTP request, therefore trace checkpoints can be joined by trace IDs value.
-By default, when tracing is enabled, Charon logs captured information.
+By default, when tracing is enabled, Charon logs the captured information.
 To change this behaviour create a Spring bean of type `TraceInterceptor`:
 
 ```java
