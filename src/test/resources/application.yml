@@ -14,7 +14,7 @@ charon:
   mappings-update:
     enabled: true
   tracing:
-    enabled: true
+    enabled: false
   mappings:
     -
       name: proxy 1

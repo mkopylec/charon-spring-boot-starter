@@ -4,10 +4,12 @@ import com.github.mkopylec.charon.BasicSpec
 import com.github.mkopylec.charon.application.TestTraceInterceptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.TestPropertySource
 
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 
+@TestPropertySource(properties = ['charon.tracing.enabled: true'])
 class TracingSpec extends BasicSpec {
 
     @Autowired
