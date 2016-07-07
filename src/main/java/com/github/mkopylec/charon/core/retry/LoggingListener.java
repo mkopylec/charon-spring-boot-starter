@@ -1,7 +1,6 @@
-package com.github.mkopylec.charon.core.logging;
+package com.github.mkopylec.charon.core.retry;
 
 import org.slf4j.Logger;
-
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.listener.RetryListenerSupport;
@@ -9,9 +8,9 @@ import org.springframework.retry.listener.RetryListenerSupport;
 import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class RetryLoggingListener extends RetryListenerSupport {
+public class LoggingListener extends RetryListenerSupport {
 
-    private static final Logger log = getLogger(RetryLoggingListener.class);
+    private static final Logger log = getLogger(LoggingListener.class);
 
     @Override
     public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {

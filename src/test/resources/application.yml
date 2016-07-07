@@ -13,7 +13,8 @@ charon:
       reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
-  logging-mode: FULL
+  trace:
+    enabled: true
   mappings:
     -
       name: proxy 1

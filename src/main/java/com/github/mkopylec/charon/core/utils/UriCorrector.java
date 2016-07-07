@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.utils;
+package com.github.mkopylec.charon.core.utils;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;

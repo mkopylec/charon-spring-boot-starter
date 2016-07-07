@@ -1,13 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import static com.github.mkopylec.charon.configuration.CharonProperties.LoggingMode.SIMPLE;
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
@@ -38,9 +36,9 @@ public class CharonProperties {
      */
     private MappingsUpdate mappingsUpdate = new MappingsUpdate();
     /**
-     * Proxying process logging mode.
+     * Properties responsible for tracing HTTP requests forwarding.
      */
-    private LoggingMode loggingMode = SIMPLE;
+    private Trace trace = new Trace();
     /**
      * List of proxy mappings.
      */
@@ -86,12 +84,12 @@ public class CharonProperties {
         this.mappingsUpdate = mappingsUpdate;
     }
 
-    public LoggingMode getLoggingMode() {
-        return loggingMode;
+    public Trace getTrace() {
+        return trace;
     }
 
-    public void setLoggingMode(LoggingMode loggingMode) {
-        this.loggingMode = loggingMode;
+    public void setTrace(Trace trace) {
+        this.trace = trace;
     }
 
     public List<Mapping> getMappings() {
@@ -232,9 +230,20 @@ public class CharonProperties {
         }
     }
 
-    public enum LoggingMode {
+    public static class Trace {
 
-        SIMPLE, FULL;
+        /**
+         * Flag for enabling and disabling tracing HTTP requests forwarding.
+         */
+        private boolean enabled = false;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
     }
 
     public static class Mapping {

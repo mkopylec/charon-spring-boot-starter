@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.core.mappings;
 
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
-
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 

@@ -1,10 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.codahale.metrics.MetricRegistry;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
@@ -12,15 +7,14 @@ import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
-import com.github.mkopylec.charon.core.logging.ProxyingProcessLogger;
-import com.github.mkopylec.charon.core.logging.RetryLoggingListener;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
+import com.github.mkopylec.charon.core.retry.LoggingListener;
+import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -38,6 +32,10 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
@@ -73,9 +71,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
-            ProxyingProcessLogger processLogger
+            LoggingTraceInterceptor traceInterceptor
     ) {
-        return new ReverseProxyFilter(retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, processLogger);
+        return new ReverseProxyFilter(charon, retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
 
     @Bean
@@ -138,7 +136,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonRestOperations") RestOperations restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            ProxyingProcessLogger processLogger
+            LoggingTraceInterceptor processLogger
     ) {
         return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, processLogger);
     }
@@ -146,13 +144,16 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public RetryListener charonRetryListener() {
-        return new RetryLoggingListener();
+        return new LoggingListener();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ProxyingProcessLogger charonProxyingProcessLogger() {
-        return new ProxyingProcessLogger(charon);
+    public LoggingTraceInterceptor charonTraceInterceptor() {
+        if (charon.getTrace().isEnabled()) {
+            return new LoggingTraceInterceptor();
+        }
+        return null;
     }
 
     @PostConstruct
@@ -177,9 +178,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
             ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
-        }
-        if (charon.getLoggingMode() == null) {
-            throw new CharonException("Empty proxy activity logging mode");
         }
     }
 
