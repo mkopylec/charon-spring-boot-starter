@@ -9,7 +9,7 @@ import org.springframework.test.context.TestPropertySource
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 
-@TestPropertySource(properties = ['charon.tracing.enabled: true'])
+@TestPropertySource(properties = ['test.trace-interceptor-enabled: true'])
 class TracingSpec extends BasicSpec {
 
     @Autowired

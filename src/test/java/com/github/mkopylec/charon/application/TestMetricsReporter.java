@@ -13,6 +13,7 @@ import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Timer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import static com.codahale.metrics.MetricFilter.ALL;
@@ -23,6 +24,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * This class in not thread safe.
  */
 @Component
+@ConditionalOnProperty("test.metrics-reporter-enabled")
 public class TestMetricsReporter extends ScheduledReporter {
 
     private boolean metricsCaptured = false;

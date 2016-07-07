@@ -5,6 +5,7 @@ import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -14,6 +15,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * This class in not thread safe.
  */
 @Component
+@ConditionalOnProperty("test.trace-interceptor-enabled")
 public class TestTraceInterceptor extends TraceInterceptor {
 
     private boolean requestReceivedCaptured = false;

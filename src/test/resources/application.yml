@@ -9,12 +9,12 @@ charon:
     enabled: true
     names-prefix: charon
     logging-reporter:
-      enabled: false
+      enabled: true
       reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
   tracing:
-    enabled: false
+    enabled: true
   mappings:
     -
       name: proxy 1
@@ -50,6 +50,10 @@ charon:
       path: /uri/7
       destinations: http://localhost:8080, localhost:8081
       asynchronous: true
+
+test:
+  metrics-reporter-enabled: false
+  trace-interceptor-enabled: false
 
 logging.level:
   com.github.mkopylec.charon: trace
