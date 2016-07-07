@@ -13,6 +13,8 @@ charon:
       reporting-interval-in-seconds: 1
   mappings-update:
     enabled: true
+  tracing:
+    enabled: false
   mappings:
     -
       name: proxy 1

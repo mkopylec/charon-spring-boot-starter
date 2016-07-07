@@ -11,7 +11,8 @@ import org.slf4j.Logger;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
-import static com.github.mkopylec.charon.utils.UriCorrector.correctUri;
+import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
+import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -45,9 +46,7 @@ public abstract class MappingsProvider {
     }
 
     public void updateMappingsIfAllowed() {
-        if (charon.getMappingsUpdate().isEnabled()) {
-            updateMappings();
-        }
+        runIfTrue(charon.getMappingsUpdate().isEnabled(), this::updateMappings);
     }
 
     @PostConstruct
@@ -55,7 +54,7 @@ public abstract class MappingsProvider {
         List<Mapping> newMappings = retrieveMappings();
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
-        log.trace("Destination mappings updated to: {}", mappings);
+        log.info("Destination mappings updated to: {}", mappings);
     }
 
     protected String concatContextAndMappingPaths(Mapping mapping) {

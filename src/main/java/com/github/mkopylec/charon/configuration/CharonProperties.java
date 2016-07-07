@@ -37,6 +37,10 @@ public class CharonProperties {
      */
     private MappingsUpdate mappingsUpdate = new MappingsUpdate();
     /**
+     * Properties responsible for tracing HTTP requests proxying processes.
+     */
+    private Tracing tracing = new Tracing();
+    /**
      * List of proxy mappings.
      */
     private List<Mapping> mappings = new ArrayList<>();
@@ -79,6 +83,14 @@ public class CharonProperties {
 
     public void setMappingsUpdate(MappingsUpdate mappingsUpdate) {
         this.mappingsUpdate = mappingsUpdate;
+    }
+
+    public Tracing getTracing() {
+        return tracing;
+    }
+
+    public void setTracing(Tracing tracing) {
+        this.tracing = tracing;
     }
 
     public List<Mapping> getMappings() {
@@ -207,6 +219,22 @@ public class CharonProperties {
 
         /**
          * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
+         */
+        private boolean enabled = false;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+    }
+
+    public static class Tracing {
+
+        /**
+         * Flag for enabling and disabling tracing HTTP requests proxying processes.
          */
         private boolean enabled = false;
 

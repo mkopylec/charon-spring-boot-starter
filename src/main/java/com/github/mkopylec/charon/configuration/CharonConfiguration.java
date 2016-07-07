@@ -16,6 +16,8 @@ import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.retry.LoggingListener;
+import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
+import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
@@ -71,9 +73,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
-            RequestForwarder requestForwarder
+            RequestForwarder requestForwarder,
+            TraceInterceptor traceInterceptor
     ) {
-        return new ReverseProxyFilter(retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder);
+        return new ReverseProxyFilter(charon, retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
 
     @Bean
@@ -135,15 +138,25 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     public RequestForwarder charonRequestForwarder(
             @Qualifier("charonRestOperations") RestOperations restOperations,
             MappingsProvider mappingsProvider,
-            LoadBalancer loadBalancer
+            LoadBalancer loadBalancer,
+            TraceInterceptor traceInterceptor
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry);
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public RetryListener charonRetryListener() {
         return new LoggingListener();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TraceInterceptor charonTraceInterceptor() {
+        if (charon.getTracing().isEnabled()) {
+            return new LoggingTraceInterceptor();
+        }
+        return null;
     }
 
     @PostConstruct

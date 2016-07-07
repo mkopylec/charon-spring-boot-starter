@@ -112,7 +112,7 @@ class ProxyingResponseSpec extends BasicSpec {
 
     def "Should get non-proxied HTTP response with 202 (accepted) HTTP status when asynchronous mode is enabled"() {
         when:
-        def response = sendRequest(GET, '/uri/7/path/7')
+        def response = sendRequest GET, '/uri/7/path/7'
 
         then:
         assertThat(response)
