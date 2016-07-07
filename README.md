@@ -242,6 +242,8 @@ charon:
             reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     mappings-update:
         enabled: false # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
+    tracing:
+        enabled: true # Flag for enabling and disabling tracing HTTP requests proxying processes.
     mappings:
         -
             name: # Name of the mapping.
