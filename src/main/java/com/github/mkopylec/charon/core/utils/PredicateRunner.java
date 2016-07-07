@@ -7,11 +7,4 @@ public class PredicateRunner {
             operation.run();
         }
     }
-
-//    public static <T> T runIfTrue(boolean condition, Supplier<T> operation) {
-//        if (condition) {
-//            return operation.get();
-//        }
-//        return null;
-//    }
 }

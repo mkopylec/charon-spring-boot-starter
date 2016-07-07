@@ -1,5 +1,8 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
@@ -9,6 +12,7 @@ import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
+
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,9 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -71,9 +72,10 @@ public class RequestForwarder {
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
         ResponseEntity<byte[]> response = sendRequest(requestEntity, destination.getMappingMetricsName());
-        runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onForwardComplete(response.getStatusCode(), response.getBody(), response.getHeaders()));
 
         log.info("Forwarding: {} {} -> {} {}", method, originUri, destination.getUri(), response.getStatusCode().value());
+
+        runIfTrue(charon.getTrace().isEnabled(), () -> traceInterceptor.onForwardComplete(response.getStatusCode(), response.getBody(), response.getHeaders()));
 
         return response;
     }
