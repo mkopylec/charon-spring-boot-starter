@@ -145,7 +145,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public RetryListener charonRetryListener(TraceInterceptor traceInterceptor) {
-        return new LoggingListener(traceInterceptor);
+        return new LoggingListener(charon, traceInterceptor);
     }
 
     @Bean
