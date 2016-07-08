@@ -1,6 +1,6 @@
 # Charon Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/charon-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/charon-spring-boot-starter)
-[![Coverage Status](https://coveralls.io/repos/mkopylec/charon-spring-boot-starter/badge.svg?branch=master&service=github)](https://coveralls.io/github/mkopylec/charon-spring-boot-starter?branch=master)
+[![Coverage Status](https://coveralls.io/repos/mkopylec/charon-spring-boot-starter/badge.svg?branch=master&service=github&dummy=1)](https://coveralls.io/github/mkopylec/charon-spring-boot-starter?branch=master&dummy=1)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter)
 
 Charon is a **reverse proxy** implementation.
