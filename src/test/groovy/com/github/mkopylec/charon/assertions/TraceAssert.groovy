@@ -26,6 +26,16 @@ class TraceAssert {
         return this
     }
 
+    TraceAssert hasCapturedForwardError() {
+        assert actual.isForwardErrorCaptured()
+        return this
+    }
+
+    TraceAssert hasNotCapturedForwardError() {
+        assert !actual.isForwardErrorCaptured()
+        return this
+    }
+
     TraceAssert hasCapturedForwardCompletion() {
         assert actual.isForwardCompleteCaptured()
         return this
