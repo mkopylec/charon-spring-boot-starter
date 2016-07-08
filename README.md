@@ -180,7 +180,7 @@ To enable it set an appropriate configuration property:
 charon.tracing.enabled: true
 ```
 
-Every trace collects information at three checkpoints:
+Every trace collects information at four checkpoints:
 
 - request received - captures an incoming HTTP request
 - forward start - captures an HTTP request that will be sent to the destination host
