@@ -4,7 +4,6 @@ import com.github.mkopylec.charon.core.trace.ForwardRequest;
 import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +20,7 @@ public class TestTraceInterceptor extends TraceInterceptor {
     private boolean requestReceivedCaptured = false;
     private boolean forwardStartWithMappingCaptured = false;
     private boolean forwardStartWithNoMappingCaptured = false;
+    private boolean forwardErrorCaptured = false;
     private boolean forwardCompleteCaptured = false;
     private boolean hasUnchangeableTraceId = false;
     private String traceId = EMPTY;
@@ -40,6 +40,12 @@ public class TestTraceInterceptor extends TraceInterceptor {
     }
 
     @Override
+    protected void onForwardError(String traceId, Throwable error) {
+        hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
+        forwardErrorCaptured = true;
+    }
+
+    @Override
     protected void onForwardComplete(String traceId, ReceivedResponse response) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
         forwardCompleteCaptured = true;
@@ -55,6 +61,10 @@ public class TestTraceInterceptor extends TraceInterceptor {
 
     public boolean isForwardStartWithNoMappingCaptured() {
         return forwardStartWithNoMappingCaptured;
+    }
+
+    public boolean isForwardErrorCaptured() {
+        return forwardErrorCaptured;
     }
 
     public boolean isForwardCompleteCaptured() {

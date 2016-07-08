@@ -24,6 +24,7 @@ class TracingSpec extends BasicSpec {
         assertThat(traceInterceptor)
                 .hasCapturedReceivedRequest()
                 .hasCapturedForwardStartWithMapping()
+                .hasNotCapturedForwardError()
                 .hasCapturedForwardCompletion()
                 .hasUnchangeableTraceId()
     }
@@ -37,6 +38,21 @@ class TracingSpec extends BasicSpec {
         assertThat(traceInterceptor)
                 .hasCapturedReceivedRequest()
                 .hasCapturedForwardStartWithNoMapping()
+                .hasNotCapturedForwardError()
+                .hasNotCapturedForwardCompletion()
+                .hasUnchangeableTraceId()
+    }
+
+    @DirtiesContext
+    def "Should capture trace while proxying HTTP request when an error occurs"() {
+        when:
+        sendRequest GET, '/uri/5/path/5'
+
+        then:
+        assertThat(traceInterceptor)
+                .hasCapturedReceivedRequest()
+                .hasCapturedForwardStartWithMapping()
+                .hasCapturedForwardError()
                 .hasNotCapturedForwardCompletion()
                 .hasUnchangeableTraceId()
     }

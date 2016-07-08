@@ -24,6 +24,13 @@ public class LoggingTraceInterceptor extends TraceInterceptor {
     }
 
     @Override
+    protected void onForwardError(String traceId, Throwable error) {
+        log.error("\n  Trace ID: {}\n  Forward error details:\n    - message: {}\n    - stack trace: ",
+                traceId, error.getMessage(), error
+        );
+    }
+
+    @Override
     protected void onForwardComplete(String traceId, ReceivedResponse response) {
         log.info("\n  Trace ID: {}\n  Received forward HTTP response details:\n    - status: {}\n    - body: {}\n    - headers: {}",
                 traceId, response.getStatus(), response.getBody(), response.getHeaders()

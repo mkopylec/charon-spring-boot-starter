@@ -33,6 +33,10 @@ public abstract class TraceInterceptor {
         onForwardStart(traceId.get(), request);
     }
 
+    public void onForwardError(Throwable error) {
+        onForwardError(traceId.get(), error);
+    }
+
     public void onForwardComplete(HttpStatus status, byte[] body, HttpHeaders headers) {
         ReceivedResponse response = new ReceivedResponse()
                 .setStatus(status)
@@ -48,6 +52,8 @@ public abstract class TraceInterceptor {
     protected abstract void onRequestReceived(String traceId, IncomingRequest request);
 
     protected abstract void onForwardStart(String traceId, ForwardRequest request);
+
+    protected abstract void onForwardError(String traceId, Throwable error);
 
     protected abstract void onForwardComplete(String traceId, ReceivedResponse response);
 }

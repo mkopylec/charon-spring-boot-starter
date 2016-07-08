@@ -1,10 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.codahale.metrics.MetricRegistry;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
@@ -21,7 +16,6 @@ import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -39,6 +33,10 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
@@ -146,8 +144,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public RetryListener charonRetryListener() {
-        return new LoggingListener();
+    public RetryListener charonRetryListener(TraceInterceptor traceInterceptor) {
+        return new LoggingListener(traceInterceptor);
     }
 
     @Bean
