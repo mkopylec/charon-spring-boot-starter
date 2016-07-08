@@ -184,6 +184,7 @@ Every trace collects information at three checkpoints:
 
 - request received - captures an incoming HTTP request
 - forward start - captures an HTTP request that will be sent to the destination host
+- forward error - captures an exception thrown while sending an HTTP request to destination host
 - forward complete - captures an HTTP response received from the destination host
 
 In each checkpoint a trace ID and current HTTP data are captured.
@@ -206,6 +207,11 @@ public class CustomTraceInterceptor extends TraceInterceptor {
     }
 
     @Override
+    protected void onForwardError(String traceId, Throwable error) {
+        ...
+    }
+
+    @Override
     protected void onForwardComplete(String traceId, ReceivedResponse response) {
         ...
     }
@@ -215,7 +221,7 @@ public class CustomTraceInterceptor extends TraceInterceptor {
 ### Other tips
 - there are no benefits in turning on the mappings updates if a custom mappings provider is not used
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
-- tracing logs have INFO level
+- tracing logs have INFO and ERROR level
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
