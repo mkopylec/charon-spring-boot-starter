@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.6.1'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.7.0'
 }
 ```
 
@@ -109,14 +109,23 @@ public class CustomMappingsProvider extends MappingsProvider {
 
 ### Retrying
 By default there is only one attempt to forward request.
+Forward request retrying can be enabled for each mapping by setting an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+        retryable: true
+```
+
+A next try is triggered when a non-HTTP error occurs.
+This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
+If retrying is enabled there are maximum three attempts to forward request.
 To change the maximum number of attempts set an appropriate configuration property:
 
 ```yaml
 charon.retrying.max-attempts: <number_of_tries>
 ```
-
-A next try is triggered when a non-HTTP error occurs.
-This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
 
 ### Load balancer
 The default load balancer randomly chooses a destination host from the available list.
@@ -239,7 +248,7 @@ charon:
         connect: 500 # Connect timeout for HTTP requests forwarding.
         read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
-        max-attempts: 1 # Maximum number of HTTP request forward tries.
+        max-attempts: 3 # Maximum number of HTTP request forward tries.
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
@@ -257,6 +266,7 @@ charon:
             destinations: # List of destination hosts where HTTP requests will be forwarded.
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
+            retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
 ```
 
 ## Examples
