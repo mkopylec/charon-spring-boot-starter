@@ -1,27 +1,25 @@
 package com.github.mkopylec.charon.core.http;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
-
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryOperations;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static java.lang.String.valueOf;
@@ -41,6 +39,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
     protected final CharonProperties charon;
     protected final RetryOperations retryOperations;
+    protected final RetryOperations defaultRetryOperations;
     protected final RequestDataExtractor extractor;
     protected final MappingsProvider mappingsProvider;
     protected final TaskExecutor taskExecutor;
@@ -50,6 +49,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     public ReverseProxyFilter(
             CharonProperties charon,
             RetryOperations retryOperations,
+            RetryOperations defaultRetryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             TaskExecutor taskExecutor,
@@ -58,6 +58,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     ) {
         this.charon = charon;
         this.retryOperations = retryOperations;
+        this.defaultRetryOperations = defaultRetryOperations;
         this.extractor = extractor;
         this.mappingsProvider = mappingsProvider;
         this.taskExecutor = taskExecutor;
@@ -79,13 +80,14 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, body, headers));
             addForwardHeaders(request, headers);
             ResponseEntity<byte[]> responseEntity;
-            if (isMappingAsynchronous(originUri)) {
-                taskExecutor.execute(() -> retryOperations.execute(
+            Mapping mapping = mappingsProvider.resolveMapping(originUri);
+            if (isMappingAsynchronous(mapping)) {
+                taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
                         context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context)
                 ));
                 responseEntity = new ResponseEntity<>(ACCEPTED);
             } else {
-                responseEntity = retryOperations.execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context));
+                responseEntity = resolveRetryOperations(mapping).execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context));
             }
             if (responseEntity == null) {
                 filterChain.doFilter(request, response);
@@ -112,9 +114,12 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected boolean isMappingAsynchronous(String originUri) {
-        Mapping mapping = mappingsProvider.resolveMapping(originUri);
+    protected boolean isMappingAsynchronous(Mapping mapping) {
         return mapping != null && mapping.isAsynchronous();
+    }
+
+    protected RetryOperations resolveRetryOperations(Mapping mapping) {
+        return mapping != null && mapping.isRetryable() ? retryOperations : defaultRetryOperations;
     }
 
     protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {

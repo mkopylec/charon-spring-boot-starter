@@ -68,13 +68,14 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @ConditionalOnMissingBean
     public ReverseProxyFilter charonReverseProxyFilter(
             @Qualifier("charonRetryOperations") RetryOperations retryOperations,
+            @Qualifier("charonDefaultRetryOperations") RetryOperations defaultRetryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
             TraceInterceptor traceInterceptor
     ) {
-        return new ReverseProxyFilter(charon, retryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
+        return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
 
     @Bean
@@ -87,15 +88,15 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "charonRetryOperations")
     public RetryOperations charonRetryOperations(@Qualifier("charonRetryListener") RetryListener listener) {
-        Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(1);
-        retryableExceptions.put(Exception.class, true);
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(charon.getRetrying().getMaxAttempts(), retryableExceptions);
-        RetryTemplate retryTemplate = new RetryTemplate();
-        retryTemplate.setRetryPolicy(retryPolicy);
-        retryTemplate.registerListener(listener);
-        return retryTemplate;
+        return createRetryOperations(listener, charon.getRetrying().getMaxAttempts());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "charonDefaultRetryOperations")
+    public RetryOperations charonDefaultRetryOperations(@Qualifier("charonRetryListener") RetryListener listener) {
+        return createRetryOperations(listener, 1);
     }
 
     @Bean
@@ -180,6 +181,16 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .build()
             ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
         }
+    }
+
+    protected RetryOperations createRetryOperations(RetryListener listener, int maxAttempts) {
+        Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(1);
+        retryableExceptions.put(Exception.class, true);
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(maxAttempts, retryableExceptions);
+        RetryTemplate retryTemplate = new RetryTemplate();
+        retryTemplate.setRetryPolicy(retryPolicy);
+        retryTemplate.registerListener(listener);
+        return retryTemplate;
     }
 
     protected boolean shouldCreateDefaultMetricsReporter() {

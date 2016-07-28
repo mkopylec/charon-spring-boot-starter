@@ -41,6 +41,7 @@ charon:
       name: proxy 5
       path: /uri/5
       destinations: http://nonexistinghost:8080
+      retryable: true
     -
       name: proxy 6
       path: /uri/6
