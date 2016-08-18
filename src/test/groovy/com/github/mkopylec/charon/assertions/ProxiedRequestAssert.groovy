@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.assertions
 
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder
-import com.github.tomakehurst.wiremock.client.UrlMatchingStrategy
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
+import com.github.tomakehurst.wiremock.matching.UrlPattern
 import com.github.tomakehurst.wiremock.client.VerificationException
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.springframework.http.HttpMethod
 
-import static com.github.tomakehurst.wiremock.client.RequestPatternBuilder.allRequests
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
@@ -85,24 +85,24 @@ class ProxiedRequestAssert {
         }
     }
 
-    private static RequestPatternBuilder requestedFor(HttpMethod method, UrlMatchingStrategy urlMatchingStrategy) {
+    private static RequestPatternBuilder requestedFor(HttpMethod method, UrlPattern urlPattern) {
         switch (method) {
             case DELETE:
-                return deleteRequestedFor(urlMatchingStrategy)
+                return deleteRequestedFor(urlPattern)
             case POST:
-                return postRequestedFor(urlMatchingStrategy)
+                return postRequestedFor(urlPattern)
             case GET:
-                return getRequestedFor(urlMatchingStrategy)
+                return getRequestedFor(urlPattern)
             case PUT:
-                return putRequestedFor(urlMatchingStrategy)
+                return putRequestedFor(urlPattern)
             case OPTIONS:
-                return optionsRequestedFor(urlMatchingStrategy)
+                return optionsRequestedFor(urlPattern)
             case TRACE:
-                return traceRequestedFor(urlMatchingStrategy)
+                return traceRequestedFor(urlPattern)
             case HEAD:
-                return headRequestedFor(urlMatchingStrategy)
+                return headRequestedFor(urlPattern)
             case PATCH:
-                return patchRequestedFor(urlMatchingStrategy)
+                return patchRequestedFor(urlPattern)
             default:
                 throw new RuntimeException("Invalid HTTP method: $method")
         }

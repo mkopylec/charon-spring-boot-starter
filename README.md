@@ -25,7 +25,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.7.0'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:1.8.0'
 }
 ```
 
@@ -183,7 +183,7 @@ To enable it set an appropriate configuration property:
 charon.tracing.enabled: true
 ```
 
-Every trace collects information at four checkpoints:
+Every trace collects information at five checkpoints:
 
 - request received - captures an incoming HTTP request
 - no mapping found - captures an incoming HTTP request that will not be forwarded to any destination host
