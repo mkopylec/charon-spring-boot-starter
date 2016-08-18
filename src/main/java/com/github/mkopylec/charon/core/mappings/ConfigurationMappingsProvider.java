@@ -24,6 +24,7 @@ public class ConfigurationMappingsProvider extends MappingsProvider {
     protected List<Mapping> retrieveMappings() {
         return charon.getMappings().stream()
                 .map(Mapping::copy)
+                .sorted((o1, o2) -> o2.getPath().compareTo(o1.getPath()))
                 .collect(toList());
     }
 }

@@ -31,6 +31,7 @@ charon:
       name: proxy 3.2
       path: /uri/3/path
       destinations: http://localhost:8080
+      strip-path: false
     -
       name: proxy 4
       path: /uri/4
@@ -49,6 +50,14 @@ charon:
       path: /uri/7
       destinations: http://localhost:8080, localhost:8081
       asynchronous: true
+    -
+      name: proxy with multiple mappings 2
+      path: /uri/8/a
+      destinations: http://localhost:8080, localhost:8081
+    -
+      name: proxy with multiple mappings
+      path: /uri/8
+      destinations: http://localhost:8080, localhost:8081
 
 test:
   metrics-reporter-enabled: false
