@@ -14,9 +14,8 @@ This tool tries to get the best of them joining their features into a one Spring
 - NIO support based on [Netty](http://netty.io/)
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
 - metrics support based on [Metrics](http://metrics.dropwizard.io/)
-- customizable proxy mappings
+- customizable proxy mappings changeable at runtime
 - customizable load balancer
-- resilient to destination hosts changes during runtime
 - forward HTTP headers support
 
 ## Installing
@@ -99,6 +98,11 @@ public class CustomMappingsProvider extends MappingsProvider {
 	public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
 		super(server, charon, mappingsCorrector);
 	}
+	
+	@Override
+    protected boolean shouldUpdateMappings(HttpServletRequest request) {
+        ...
+    }
 
 	@Override
 	protected List<Mapping> retrieveMappings() {
@@ -106,6 +110,9 @@ public class CustomMappingsProvider extends MappingsProvider {
 	}
 }
 ```
+
+Using custom `MappingsProvider` the mappings are populated during application startup using `retrieveMappings` method.
+The mappings are also updated during application runtime every time the `shouldUpdateMappings` method returns `true`.
 
 ### Retrying
 By default there is only one attempt to forward request.
@@ -141,19 +148,6 @@ public class CustomLoadBalancer implements LoadBalancer {
 	}
 }
 ```
-
-### Mappings update
-Charon can be resilient to mappings changes during application runtime.
-The mappings can be updated when a non-HTTP error occurs while forwarding a HTTP request.
-This means that the 4xx and 5xx responses from destination hosts will not trigger the mappings update.
-The mappings can also be updated when a 404 HTTP response will be returned for a non-forwarded HTTP request.
-The mappings updates can be turned on by setting an appropriate configuration property:
-
-```yaml
-charon.mappings-update.enabled: true
-```
-
-Mappings can also be updated at anytime by injecting a `MappingsProvider` Spring bean and invoking `MappingsProvider.updateMappingsIfAllowed()` method.
 
 ### Metrics
 Collecting performance metrics is disabled by default.
@@ -192,6 +186,7 @@ charon.tracing.enabled: true
 Every trace collects information at four checkpoints:
 
 - request received - captures an incoming HTTP request
+- no mapping found - captures an incoming HTTP request that will not be forwarded to any destination host
 - forward start - captures an HTTP request that will be sent to the destination host
 - forward error - captures an exception thrown while sending an HTTP request to destination host
 - forward complete - captures an HTTP response received from the destination host
@@ -207,6 +202,11 @@ public class CustomTraceInterceptor extends TraceInterceptor {
 
     @Override
     protected void onRequestReceived(String traceId, IncomingRequest request) {
+        ...
+    }
+    
+    @Override
+    protected void onNoMappingFound(String traceId, IncomingRequest request) {
         ...
     }
 
@@ -228,7 +228,6 @@ public class CustomTraceInterceptor extends TraceInterceptor {
 ```
 
 ### Other tips
-- there are no benefits in turning on the mappings updates if a custom mappings provider is not used
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
 - check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
@@ -255,8 +254,6 @@ charon:
         logging-reporter:
             enabled: false # Flag for enabling and disabling reporting metrics via application logger.
             reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
-    mappings-update:
-        enabled: false # Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
     tracing:
         enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
     mappings:

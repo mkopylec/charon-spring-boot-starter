@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static java.lang.String.valueOf;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.ACCEPTED;
@@ -74,29 +73,33 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
             log.debug("Incoming: {} {}", request.getMethod(), originUri);
 
-            byte[] body = extractor.extractBody(request);
             HttpHeaders headers = extractor.extractHttpHeaders(request);
             HttpMethod method = extractor.extractHttpMethod(request);
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, body, headers));
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, headers));
+
+            Mapping mapping = mappingsProvider.resolveMapping(originUri, request);
+            if (mapping == null) {
+                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(method, originUri, headers));
+
+                log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
+
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            byte[] body = extractor.extractBody(request);
             addForwardHeaders(request, headers);
+
             ResponseEntity<byte[]> responseEntity;
-            Mapping mapping = mappingsProvider.resolveMapping(originUri);
-            if (isMappingAsynchronous(mapping)) {
+            if (mapping.isAsynchronous()) {
                 taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
-                        context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context)
+                        context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context, mapping)
                 ));
                 responseEntity = new ResponseEntity<>(ACCEPTED);
             } else {
-                responseEntity = resolveRetryOperations(mapping).execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context));
+                responseEntity = resolveRetryOperations(mapping).execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context, mapping));
             }
-            if (responseEntity == null) {
-                filterChain.doFilter(request, response);
-                if (response.getStatus() == SC_NOT_FOUND) {
-                    mappingsProvider.updateMappingsIfAllowed();
-                }
-            } else {
-                processResponse(response, responseEntity);
-            }
+            processResponse(response, responseEntity);
         } finally {
             runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.cleanTraceId());
         }

@@ -18,8 +18,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class TestTraceInterceptor extends TraceInterceptor {
 
     private boolean requestReceivedCaptured = false;
-    private boolean forwardStartWithMappingCaptured = false;
-    private boolean forwardStartWithNoMappingCaptured = false;
+    private boolean forwardStartCaptured = false;
+    private boolean noMappingFoundCaptured = false;
     private boolean forwardErrorCaptured = false;
     private boolean forwardCompleteCaptured = false;
     private boolean hasUnchangeableTraceId = false;
@@ -33,10 +33,15 @@ public class TestTraceInterceptor extends TraceInterceptor {
     }
 
     @Override
+    protected void onNoMappingFound(String traceId, IncomingRequest request) {
+        hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
+        noMappingFoundCaptured = true;
+    }
+
+    @Override
     protected void onForwardStart(String traceId, ForwardRequest request) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
-        forwardStartWithMappingCaptured = request.getMappingName() != null;
-        forwardStartWithNoMappingCaptured = request.getMappingName() == null;
+        forwardStartCaptured = true;
     }
 
     @Override
@@ -55,12 +60,12 @@ public class TestTraceInterceptor extends TraceInterceptor {
         return requestReceivedCaptured;
     }
 
-    public boolean isForwardStartWithMappingCaptured() {
-        return forwardStartWithMappingCaptured;
+    public boolean isForwardStartCaptured() {
+        return forwardStartCaptured;
     }
 
-    public boolean isForwardStartWithNoMappingCaptured() {
-        return forwardStartWithNoMappingCaptured;
+    public boolean isNoMappingFoundCaptured() {
+        return noMappingFoundCaptured;
     }
 
     public boolean isForwardErrorCaptured() {

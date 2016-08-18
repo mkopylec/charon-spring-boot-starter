@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -30,7 +30,10 @@ public abstract class MappingsProvider {
         this.mappingsCorrector = mappingsCorrector;
     }
 
-    public Mapping resolveMapping(String originUri) {
+    public Mapping resolveMapping(String originUri, HttpServletRequest request) {
+        if (shouldUpdateMappings(request)) {
+            updateMappings();
+        }
         List<Mapping> resolvedMappings = mappings.stream()
                 .filter(mapping -> originUri.startsWith(concatContextAndMappingPaths(mapping)))
                 .collect(toList());
@@ -41,10 +44,6 @@ public abstract class MappingsProvider {
             return resolvedMappings.get(0);
         }
         throw new CharonException("Multiple mapping paths found for HTTP request URI: " + originUri);
-    }
-
-    public void updateMappingsIfAllowed() {
-        runIfTrue(charon.getMappingsUpdate().isEnabled(), () -> updateMappings());
     }
 
     @PostConstruct
@@ -58,6 +57,8 @@ public abstract class MappingsProvider {
     protected String concatContextAndMappingPaths(Mapping mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
     }
+
+    protected abstract boolean shouldUpdateMappings(HttpServletRequest request);
 
     protected abstract List<Mapping> retrieveMappings();
 }

@@ -16,13 +16,13 @@ class TraceAssert {
         return this
     }
 
-    TraceAssert hasCapturedForwardStartWithMapping() {
-        assert actual.isForwardStartWithMappingCaptured()
+    TraceAssert hasCapturedForwardStart() {
+        assert actual.isForwardStartCaptured()
         return this
     }
 
-    TraceAssert hasCapturedForwardStartWithNoMapping() {
-        assert actual.isForwardStartWithNoMappingCaptured()
+    TraceAssert hasCapturedNoMappingFound() {
+        assert actual.isNoMappingFoundCaptured()
         return this
     }
 

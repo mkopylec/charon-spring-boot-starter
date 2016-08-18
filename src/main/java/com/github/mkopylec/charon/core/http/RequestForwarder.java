@@ -59,15 +59,9 @@ public class RequestForwarder {
         this.traceInterceptor = traceInterceptor;
     }
 
-    public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context) {
-        ForwardDestination destination = resolveForwardDestination(originUri);
-        if (destination == null) {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(null, method, originUri, body, headers));
-            log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
-            return null;
-        } else {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(destination.getMappingName(), method, destination.getUri().toString(), body, headers));
-        }
+    public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context, Mapping mapping) {
+        ForwardDestination destination = resolveForwardDestination(originUri, mapping);
+        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(destination.getMappingName(), method, destination.getUri().toString(), body, headers));
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
         ResponseEntity<byte[]> response = sendRequest(requestEntity, destination.getMappingMetricsName());
@@ -79,11 +73,7 @@ public class RequestForwarder {
         return response;
     }
 
-    protected ForwardDestination resolveForwardDestination(String originUri) {
-        Mapping mapping = mappingsProvider.resolveMapping(originUri);
-        if (mapping == null) {
-            return null;
-        }
+    protected ForwardDestination resolveForwardDestination(String originUri, Mapping mapping) {
         return new ForwardDestination(createDestinationUrl(originUri, mapping), mapping.getName(), resolveMetricsName(mapping));
     }
 
@@ -113,9 +103,6 @@ public class RequestForwarder {
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
-        } catch (Exception e) {
-            mappingsProvider.updateMappingsIfAllowed();
-            throw e;
         }
         return responseEntity;
     }

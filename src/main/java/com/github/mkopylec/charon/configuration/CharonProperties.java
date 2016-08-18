@@ -32,10 +32,6 @@ public class CharonProperties {
      */
     private Metrics metrics = new Metrics();
     /**
-     * Properties responsible for proxy mappings updates.
-     */
-    private MappingsUpdate mappingsUpdate = new MappingsUpdate();
-    /**
      * Properties responsible for tracing HTTP requests proxying processes.
      */
     private Tracing tracing = new Tracing();
@@ -74,14 +70,6 @@ public class CharonProperties {
 
     public void setMetrics(Metrics metrics) {
         this.metrics = metrics;
-    }
-
-    public MappingsUpdate getMappingsUpdate() {
-        return mappingsUpdate;
-    }
-
-    public void setMappingsUpdate(MappingsUpdate mappingsUpdate) {
-        this.mappingsUpdate = mappingsUpdate;
     }
 
     public Tracing getTracing() {
@@ -211,22 +199,6 @@ public class CharonProperties {
             public void setReportingIntervalInSeconds(int reportingIntervalInSeconds) {
                 this.reportingIntervalInSeconds = reportingIntervalInSeconds;
             }
-        }
-    }
-
-    public static class MappingsUpdate {
-
-        /**
-         * Flag for enabling and disabling triggering mappings updates on non-HTTP errors occurred during HTTP requests forwarding.
-         */
-        private boolean enabled = false;
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
         }
     }
 

@@ -14,22 +14,29 @@ public abstract class TraceInterceptor {
         traceId.set(randomUUID().toString());
     }
 
-    public void onRequestReceived(HttpMethod method, String uri, byte[] body, HttpHeaders headers) {
-        IncomingRequest request = new IncomingRequest()
-                .setMethod(method)
-                .setUri(uri)
-                .setBody(body)
-                .setHeaders(headers);
+    public void onRequestReceived(HttpMethod method, String uri, HttpHeaders headers) {
+        IncomingRequest request = new IncomingRequest();
+        request.setMethod(method);
+        request.setUri(uri);
+        request.setHeaders(headers);
         onRequestReceived(traceId.get(), request);
     }
 
+    public void onNoMappingFound(HttpMethod method, String uri, HttpHeaders headers) {
+        IncomingRequest request = new IncomingRequest();
+        request.setMethod(method);
+        request.setUri(uri);
+        request.setHeaders(headers);
+        onNoMappingFound(traceId.get(), request);
+    }
+
     public void onForwardStart(String mappingName, HttpMethod method, String uri, byte[] body, HttpHeaders headers) {
-        ForwardRequest request = new ForwardRequest()
-                .setMappingName(mappingName)
-                .setMethod(method)
-                .setUri(uri)
-                .setBody(body)
-                .setHeaders(headers);
+        ForwardRequest request = new ForwardRequest();
+        request.setMappingName(mappingName);
+        request.setMethod(method);
+        request.setUri(uri);
+        request.setBody(body);
+        request.setHeaders(headers);
         onForwardStart(traceId.get(), request);
     }
 
@@ -38,10 +45,10 @@ public abstract class TraceInterceptor {
     }
 
     public void onForwardComplete(HttpStatus status, byte[] body, HttpHeaders headers) {
-        ReceivedResponse response = new ReceivedResponse()
-                .setStatus(status)
-                .setBody(body)
-                .setHeaders(headers);
+        ReceivedResponse response = new ReceivedResponse();
+        response.setStatus(status);
+        response.setBody(body);
+        response.setHeaders(headers);
         onForwardComplete(traceId.get(), response);
     }
 
@@ -50,6 +57,8 @@ public abstract class TraceInterceptor {
     }
 
     protected abstract void onRequestReceived(String traceId, IncomingRequest request);
+
+    protected abstract void onNoMappingFound(String traceId, IncomingRequest request);
 
     protected abstract void onForwardStart(String traceId, ForwardRequest request);
 

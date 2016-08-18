@@ -1,9 +1,5 @@
 package com.github.mkopylec.charon.application;
 
-import java.util.SortedMap;
-
-import javax.annotation.PostConstruct;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
@@ -11,10 +7,12 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Timer;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.SortedMap;
 
 import static com.codahale.metrics.MetricFilter.ALL;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
