@@ -11,8 +11,6 @@ charon:
     logging-reporter:
       enabled: true
       reporting-interval-in-seconds: 1
-  mappings-update:
-    enabled: true
   tracing:
     enabled: true
   mappings:

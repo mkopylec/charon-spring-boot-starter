@@ -23,7 +23,7 @@ class TracingSpec extends BasicSpec {
         then:
         assertThat(traceInterceptor)
                 .hasCapturedReceivedRequest()
-                .hasCapturedForwardStartWithMapping()
+                .hasCapturedForwardStart()
                 .hasNotCapturedForwardError()
                 .hasCapturedForwardCompletion()
                 .hasUnchangeableTraceId()
@@ -37,7 +37,7 @@ class TracingSpec extends BasicSpec {
         then:
         assertThat(traceInterceptor)
                 .hasCapturedReceivedRequest()
-                .hasCapturedForwardStartWithNoMapping()
+                .hasCapturedNoMappingFound()
                 .hasNotCapturedForwardError()
                 .hasNotCapturedForwardCompletion()
                 .hasUnchangeableTraceId()
@@ -51,7 +51,7 @@ class TracingSpec extends BasicSpec {
         then:
         assertThat(traceInterceptor)
                 .hasCapturedReceivedRequest()
-                .hasCapturedForwardStartWithMapping()
+                .hasCapturedForwardStart()
                 .hasCapturedForwardError()
                 .hasNotCapturedForwardCompletion()
                 .hasUnchangeableTraceId()

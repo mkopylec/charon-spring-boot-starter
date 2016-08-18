@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.assertions
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 
-import static com.github.tomakehurst.wiremock.client.RequestPatternBuilder.allRequests
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests
 
 class DestinationAssert {
 

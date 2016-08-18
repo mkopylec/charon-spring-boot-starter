@@ -1,0 +1,24 @@
+package com.github.mkopylec.charon.application;
+
+import com.github.mkopylec.charon.configuration.CharonProperties;
+import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
+import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
+
+@Component
+public class TestMappingsProvider extends ConfigurationMappingsProvider {
+
+    @Autowired
+    public TestMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+        super(server, charon, mappingsCorrector);
+    }
+
+    @Override
+    protected boolean shouldUpdateMappings(HttpServletRequest request) {
+        return true;
+    }
+}

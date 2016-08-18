@@ -11,19 +11,15 @@ public class IncomingRequest extends HttpEntity {
         return method;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends IncomingRequest> T setMethod(HttpMethod method) {
+    public void setMethod(HttpMethod method) {
         this.method = method;
-        return (T) this;
     }
 
     public String getUri() {
         return uri;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends IncomingRequest> T setUri(String uri) {
+    public void setUri(String uri) {
         this.uri = uri;
-        return (T) this;
     }
 }
