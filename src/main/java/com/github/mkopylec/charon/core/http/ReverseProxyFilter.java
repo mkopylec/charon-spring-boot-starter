@@ -117,10 +117,6 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected boolean isMappingAsynchronous(Mapping mapping) {
-        return mapping != null && mapping.isAsynchronous();
-    }
-
     protected RetryOperations resolveRetryOperations(Mapping mapping) {
         return mapping != null && mapping.isRetryable() ? retryOperations : defaultRetryOperations;
     }
