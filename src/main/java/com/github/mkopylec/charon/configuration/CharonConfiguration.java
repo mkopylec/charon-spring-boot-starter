@@ -36,10 +36,12 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static com.codahale.metrics.Slf4jReporter.forRegistry;
+import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
@@ -90,13 +92,13 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean(name = "charonRetryOperations")
     public RetryOperations charonRetryOperations(@Qualifier("charonRetryListener") RetryListener listener) {
-        return createRetryOperations(listener, charon.getRetrying().getMaxAttempts());
+        return createRetryOperations(listener, charon.getRetrying().getMaxAttempts(), charon.getRetrying().getRetryOn().getExceptions());
     }
 
     @Bean
     @ConditionalOnMissingBean(name = "charonDefaultRetryOperations")
     public RetryOperations charonDefaultRetryOperations(@Qualifier("charonRetryListener") RetryListener listener) {
-        return createRetryOperations(listener, 1);
+        return createRetryOperations(listener, 1, emptyList());
     }
 
     @Bean
@@ -183,9 +185,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         }
     }
 
-    protected RetryOperations createRetryOperations(RetryListener listener, int maxAttempts) {
-        Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(1);
-        retryableExceptions.put(Exception.class, true);
+    protected RetryOperations createRetryOperations(RetryListener listener, int maxAttempts, List<Class<? extends Throwable>> retryableErrors) {
+        Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(retryableErrors.size());
+        retryableErrors.forEach(error -> retryableExceptions.put(error, true));
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(maxAttempts, retryableExceptions);
         RetryTemplate retryTemplate = new RetryTemplate();
         retryTemplate.setRetryPolicy(retryPolicy);

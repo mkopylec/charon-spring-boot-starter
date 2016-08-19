@@ -5,6 +5,10 @@ charon:
     read: 2000
   retrying:
     max-attempts: 3
+    retry-on:
+      client-http-error: false
+      server-http-error: false
+      exceptions: java.nio.channels.UnresolvedAddressException
   metrics:
     enabled: true
     names-prefix: charon
@@ -18,6 +22,7 @@ charon:
       name: proxy 1
       path: /uri/1
       destinations: http://localhost:8080, localhost:8081
+      retryable: true
     -
       name: proxy 2
       path: /uri/2

@@ -25,6 +25,11 @@ class ResponseAssert {
         return this
     }
 
+    ResponseAssert hasBody() {
+        assert actual.body != null
+        return this
+    }
+
     ResponseAssert hasNoBody() {
         assert isEmpty(actual.body as CharSequence)
         return this
