@@ -25,7 +25,7 @@ public class MappingsCorrector {
             if (numberOfPaths < mappings.size()) {
                 throw new CharonException("Duplicated destination paths in mappings");
             }
-            mappings.sort((o1, o2) -> o2.getPath().compareTo(o1.getPath()));
+            mappings.sort((mapping1, mapping2) -> mapping2.getPath().compareTo(mapping1.getPath()));
         }
     }
 
