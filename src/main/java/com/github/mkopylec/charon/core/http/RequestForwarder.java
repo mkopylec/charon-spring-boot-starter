@@ -103,6 +103,9 @@ public class RequestForwarder {
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
+        } catch (Throwable e) {
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardError(e));
+            throw e;
         }
         return responseEntity;
     }
