@@ -41,10 +41,6 @@ charon:
       destinations: http://nonexistinghost:8080
       retryable: true
     -
-      name: proxy 6
-      path: /uri/6
-      destinations: http://localhost:8080
-    -
       name: proxy 7
       path: /uri/7
       destinations: http://localhost:8080, localhost:8081
@@ -53,6 +49,7 @@ charon:
 test:
   metrics-reporter-enabled: false
   trace-interceptor-enabled: false
+  mappings-provider-enabled: false
 
 logging.level:
   com.github.mkopylec.charon: trace
