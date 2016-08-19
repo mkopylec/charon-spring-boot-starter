@@ -165,7 +165,7 @@ public class CharonProperties {
             /**
              * Comma-separated list of exceptions that triggers HTTP request forward retries.
              */
-            private String exceptions;
+            private String exceptions = "java.lang.Exception";
             private List<Class<? extends Throwable>> retryableExceptions = new ArrayList<>();
 
             public boolean isClientHttpError() {

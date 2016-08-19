@@ -125,8 +125,26 @@ charon.mappings:
         retryable: true
 ```
 
-A next try is triggered when a non-HTTP error occurs.
-This means that the 4xx and 5xx responses from destination hosts will not trigger a next try.
+By default a next try is triggered by any `Exception` that occurs during proxying process and also by 5xx HTTP responses from destination hosts.
+To change the retryable exceptions set an appropriate configuration property:
+
+```yaml
+charon.retrying.retry-on.exceptions: <comma-separated list fo exceptions>
+```
+
+To disable retrying on 5xx HTTP responses set an appropriate configuration property:
+
+```yaml
+charon.retrying.retry-on.server-http-error: false
+```
+
+Retrying on 4xx HTTP responses from destination hosts is disabled by default.
+To turn it on set an appropriate configuration property:
+
+```yaml
+charon.retrying.retry-on.client-http-error: true
+```
+
 If retrying is enabled there are maximum three attempts to forward request.
 To change the maximum number of attempts set an appropriate configuration property:
 
@@ -248,6 +266,10 @@ charon:
         read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
+        retry-on:
+            client-http-error: false # Flag for enabling and disabling triggering HTTP requests forward retries on 4xx HTTP responses from destination.
+            server-http-error: true # Flag for enabling and disabling triggering HTTP requests forward retries on 5xx HTTP responses from destination.
+            exceptions: java.lang.Exception # Comma-separated list of exceptions that triggers HTTP request forward retries.
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
