@@ -99,6 +99,10 @@ public class RequestForwarder {
             responseEntity = restOperations.exchange(requestEntity, byte[].class);
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
+            if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
+                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardError(e));
+                throw e;
+            }
             stopTimerContext(context);
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
