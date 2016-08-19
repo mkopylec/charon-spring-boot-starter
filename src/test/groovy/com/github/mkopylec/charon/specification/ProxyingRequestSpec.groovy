@@ -51,6 +51,10 @@ abstract class ProxyingRequestSpec extends BasicSpec {
         '/uri/1/path/1?param1=1&param2'  | '/path/1?param1=1&param2'
         '/uri/1/path/1/'                 | '/path/1/'
         '/uri/1/path/1/?param1=1&param2' | '/path/1/?param1=1&param2'
+        '/uri/8'                         | '/'
+        '/uri/8/a'                       | '/'
+        '/uri/8/a/b'                     | '/b'
+        '/uri/8/c'                       | '/c'
     }
 
     @Unroll
@@ -100,15 +104,15 @@ abstract class ProxyingRequestSpec extends BasicSpec {
                 .withoutBody()
     }
 
-    def "Should fail to proxy HTTP request when there are multiple mappings for request URI"() {
+    def "Should proxy HTTP request without stripping mapped path when path stripping is disabled and multiple paths found"() {
         when:
-        def response = sendRequest GET, '/uri/3/path/3'
+            sendRequest GET, '/uri/3/path/3'
 
         then:
-        assertThat(localhost8080, localhost8081)
-                .haveReceivedNoRequest()
-        assertThat(response)
-                .hasStatus(INTERNAL_SERVER_ERROR)
+            assertThat(localhost8080, localhost8081)
+                    .haveReceivedRequest()
+                    .withMethodAndUri(GET, "$contextPath/uri/3/path/3")
+                    .withoutBody()
     }
 
     def "Should fail to proxy HTTP request when destination URL cannot be created"() {

@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.core.mappings;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
-import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
@@ -40,10 +39,7 @@ public abstract class MappingsProvider {
         if (isEmpty(resolvedMappings)) {
             return null;
         }
-        if (resolvedMappings.size() == 1) {
-            return resolvedMappings.get(0);
-        }
-        throw new CharonException("Multiple mapping paths found for HTTP request URI: " + originUri);
+        return resolvedMappings.get(0);
     }
 
     @PostConstruct
