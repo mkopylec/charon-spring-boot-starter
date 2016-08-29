@@ -67,42 +67,31 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.initTraceId());
-            String originUri = extractor.extractUri(request);
+        String originUri = extractor.extractUri(request);
 
-            log.debug("Incoming: {} {}", request.getMethod(), originUri);
+        log.debug("Incoming: {} {}", request.getMethod(), originUri);
 
-            HttpHeaders headers = extractor.extractHttpHeaders(request);
-            HttpMethod method = extractor.extractHttpMethod(request);
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(method, originUri, headers));
+        HttpHeaders headers = extractor.extractHttpHeaders(request);
+        HttpMethod method = extractor.extractHttpMethod(request);
 
-            Mapping mapping = mappingsProvider.resolveMapping(originUri, request);
-            if (mapping == null) {
-                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(method, originUri, headers));
+        String traceId = charon.getTracing().isEnabled() ? traceInterceptor.generateTraceId() : null;
+        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(traceId, method, originUri, headers));
 
-                log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
+        Mapping mapping = mappingsProvider.resolveMapping(originUri, request);
+        if (mapping == null) {
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(traceId, method, originUri, headers));
 
-                filterChain.doFilter(request, response);
-                return;
-            }
+            log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
 
-            byte[] body = extractor.extractBody(request);
-            addForwardHeaders(request, headers);
-
-            ResponseEntity<byte[]> responseEntity;
-            if (mapping.isAsynchronous()) {
-                taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
-                        context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context, mapping)
-                ));
-                responseEntity = new ResponseEntity<>(ACCEPTED);
-            } else {
-                responseEntity = resolveRetryOperations(mapping).execute(context -> requestForwarder.forwardHttpRequest(body, headers, method, originUri, context, mapping));
-            }
-            processResponse(response, responseEntity);
-        } finally {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.cleanTraceId());
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        byte[] body = extractor.extractBody(request);
+        addForwardHeaders(request, headers);
+
+        RequestData dataToForward = new RequestData(method, originUri, headers, body);
+        forwardToDestination(response, traceId, mapping, dataToForward);
     }
 
     protected void addForwardHeaders(HttpServletRequest request, HttpHeaders headers) {
@@ -115,6 +104,19 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PROTO_HEADER, request.getScheme());
         headers.set(X_FORWARDED_HOST_HEADER, request.getServerName());
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
+    }
+
+    protected void forwardToDestination(HttpServletResponse response, String traceId, Mapping mapping, RequestData dataToForward) {
+        ResponseEntity<byte[]> responseEntity;
+        if (mapping.isAsynchronous()) {
+            taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
+                    context -> requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping)
+            ));
+            responseEntity = new ResponseEntity<>(ACCEPTED);
+        } else {
+            responseEntity = resolveRetryOperations(mapping).execute(context -> requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping));
+        }
+        processResponse(response, responseEntity);
     }
 
     protected RetryOperations resolveRetryOperations(Mapping mapping) {

@@ -106,13 +106,13 @@ abstract class ProxyingRequestSpec extends BasicSpec {
 
     def "Should proxy HTTP request without stripping mapped path when path stripping is disabled and multiple paths found"() {
         when:
-            sendRequest GET, '/uri/3/path/3'
+        sendRequest GET, '/uri/3/path/3'
 
         then:
-            assertThat(localhost8080, localhost8081)
-                    .haveReceivedRequest()
-                    .withMethodAndUri(GET, "$contextPath/uri/3/path/3")
-                    .withoutBody()
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, "$contextPath/uri/3/path/3")
+                .withoutBody()
     }
 
     def "Should fail to proxy HTTP request when destination URL cannot be created"() {
@@ -129,7 +129,7 @@ abstract class ProxyingRequestSpec extends BasicSpec {
     def "Should proxy HTTP request when asynchronous mode is enabled"() {
         when:
         sendRequest GET, '/uri/7/path/7'
-        sleep(200)
+        sleep(300)
 
         then:
         assertThat(localhost8080, localhost8081)

@@ -10,8 +10,6 @@ import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
@@ -59,16 +57,20 @@ public class RequestForwarder {
         this.traceInterceptor = traceInterceptor;
     }
 
-    public ResponseEntity<byte[]> forwardHttpRequest(byte[] body, HttpHeaders headers, HttpMethod method, String originUri, RetryContext context, Mapping mapping) {
-        ForwardDestination destination = resolveForwardDestination(originUri, mapping);
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(destination.getMappingName(), method, destination.getUri().toString(), body, headers));
+    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, Mapping mapping) {
+        ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
+        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(
+                traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders())
+        );
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
-        RequestEntity<byte[]> requestEntity = new RequestEntity<>(body, headers, method, destination.getUri());
-        ResponseEntity<byte[]> response = sendRequest(requestEntity, destination.getMappingMetricsName());
+        RequestEntity<byte[]> requestEntity = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
+        ResponseEntity<byte[]> response = sendRequest(traceId, requestEntity, destination.getMappingMetricsName());
 
-        log.info("Forwarding: {} {} -> {} {}", method, originUri, destination.getUri(), response.getStatusCode().value());
+        log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatusCode().value());
 
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardComplete(response.getStatusCode(), response.getBody(), response.getHeaders()));
+        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardComplete(
+                traceId, response.getStatusCode(), response.getBody(), response.getHeaders())
+        );
 
         return response;
     }
@@ -89,7 +91,7 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseEntity<byte[]> sendRequest(RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
+    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
         ResponseEntity<byte[]> responseEntity;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
@@ -100,7 +102,7 @@ public class RequestForwarder {
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
             if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
-                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardError(e));
+                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
                 throw e;
             }
             stopTimerContext(context);
@@ -108,7 +110,7 @@ public class RequestForwarder {
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
         } catch (Throwable e) {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardError(e));
+            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
             throw e;
         }
         return responseEntity;

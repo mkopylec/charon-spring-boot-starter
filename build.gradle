@@ -39,7 +39,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '1.4.0.RELEASE', optional
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.0.RELEASE'
-    testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.0-groovy-2.4'
+    testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.1-groovy-2.4-rc-2'
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.1.11'
 }
 

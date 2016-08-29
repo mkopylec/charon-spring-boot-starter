@@ -8,14 +8,12 @@ import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext
-import org.springframework.boot.test.SpringApplicationContextLoader
-import org.springframework.boot.test.WebIntegrationTest
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
@@ -26,11 +24,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import static org.apache.commons.lang3.StringUtils.EMPTY
 import static org.apache.commons.lang3.StringUtils.trimToEmpty
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.status
 
-@WebIntegrationTest(randomPort = true)
-@ContextConfiguration(loader = SpringApplicationContextLoader, classes = TestApplication)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestApplication)
 abstract class BasicSpec extends Specification {
 
     @Rule
@@ -64,15 +62,6 @@ abstract class BasicSpec extends Specification {
     protected void addMapping(String name, String path, String... destinations) {
         def mapping = new Mapping(name: name, path: path, destinations: destinations)
         charon.mappings.add(mapping)
-    }
-
-    protected void updateMapping(String name, String path, String... destinations) {
-        charon.mappings.each {
-            if (it.name == name) {
-                it.path = path
-                it.destinations = destinations
-            }
-        }
     }
 
     protected String getContextPath() {
