@@ -17,6 +17,11 @@ charon:
       reporting-interval-in-seconds: 1
   tracing:
     enabled: true
+  asynchronous-forwarding-thread-pool:
+    queue-capacity: 1
+    size:
+      initial: 1
+      maximum: 5
   mappings:
     -
       name: proxy 1

@@ -74,18 +74,6 @@ charon.mappings:
         strip-path: false
 ```
 
-By default HTTP requests are forwarded synchronously.
-Forwarding process can also be asynchronous.
-In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
-To enable asynchronous forwarding set an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-        asynchronous: true
-```
-
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
 This can be done by creating a Spring bean of type `MappingsProvider`:
 
@@ -192,7 +180,6 @@ charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seco
 ```
 
 ### Tracing
-
 Charon can trace a proxying process.
 Tracing allows applications to collect detailed information about Charons activity.
 To enable it set an appropriate configuration property:
@@ -245,6 +232,22 @@ public class CustomTraceInterceptor extends TraceInterceptor {
 }
 ```
 
+### Asynchronous forwarding
+By default HTTP requests are forwarded synchronously.
+Forwarding process can also be asynchronous.
+In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
+To enable asynchronous forwarding set an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+        asynchronous: true
+```
+
+For asynchronous forwarding a thread pool executor is used.
+Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
+
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
@@ -279,6 +282,11 @@ charon:
             reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
     tracing:
         enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
+    asynchronous-forwarding-thread-pool:
+        queue-capacity: 50 # Thread pool executor queue capacity.
+        size:
+            initial: 5 # Thread pool executor initial number of threads.
+            maximum: 30 # Thread pool executor maximum number of threads.
     mappings:
         -
             name: # Name of the mapping.

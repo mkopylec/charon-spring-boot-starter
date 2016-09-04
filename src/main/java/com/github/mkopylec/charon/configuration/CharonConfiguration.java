@@ -129,7 +129,11 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @ConditionalOnMissingBean
     public TaskExecutor charonTaskExecutor() {
         if (isAsynchronousMappingPresent()) {
-            return new ThreadPoolTaskExecutor();
+            ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+            taskExecutor.setQueueCapacity(charon.getAsynchronousForwardingThreadPool().getQueueCapacity());
+            taskExecutor.setCorePoolSize(charon.getAsynchronousForwardingThreadPool().getSize().getInitial());
+            taskExecutor.setMaxPoolSize(charon.getAsynchronousForwardingThreadPool().getSize().getMaximum());
+            return taskExecutor;
         }
         return null;
     }
@@ -173,6 +177,21 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         int maxAttempts = charon.getRetrying().getMaxAttempts();
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);
+        }
+        int queueCapacity = charon.getAsynchronousForwardingThreadPool().getQueueCapacity();
+        if (queueCapacity < 0) {
+            throw new CharonException("Invalid thread pool executor queue capacity value: " + queueCapacity);
+        }
+        int initialSize = charon.getAsynchronousForwardingThreadPool().getSize().getInitial();
+        if (initialSize < 0) {
+            throw new CharonException("Invalid thread pool executor initial size value: " + initialSize);
+        }
+        int maximumSize = charon.getAsynchronousForwardingThreadPool().getSize().getMaximum();
+        if (maximumSize < 1) {
+            throw new CharonException("Invalid thread pool executor maximum size value: " + maximumSize);
+        }
+        if (initialSize > maximumSize) {
+            throw new CharonException("Initial size of thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
         }
         if (shouldCreateDefaultMetricsReporter()) {
             registerReporter(forRegistry(metricRegistry)

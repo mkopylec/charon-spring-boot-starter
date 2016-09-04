@@ -43,6 +43,10 @@ public class CharonProperties {
      */
     private Tracing tracing = new Tracing();
     /**
+     * Properties responsible for asynchronous HTTP requests forwarding.
+     */
+    private AsynchronousForwardingThreadPool asynchronousForwardingThreadPool = new AsynchronousForwardingThreadPool();
+    /**
      * List of proxy mappings.
      */
     private List<Mapping> mappings = new ArrayList<>();
@@ -85,6 +89,14 @@ public class CharonProperties {
 
     public void setTracing(Tracing tracing) {
         this.tracing = tracing;
+    }
+
+    public AsynchronousForwardingThreadPool getAsynchronousForwardingThreadPool() {
+        return asynchronousForwardingThreadPool;
+    }
+
+    public void setAsynchronousForwardingThreadPool(AsynchronousForwardingThreadPool asynchronousForwardingThreadPool) {
+        this.asynchronousForwardingThreadPool = asynchronousForwardingThreadPool;
     }
 
     public List<Mapping> getMappings() {
@@ -296,6 +308,62 @@ public class CharonProperties {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+    }
+
+    public static class AsynchronousForwardingThreadPool {
+
+        /**
+         * Thread pool executor queue capacity.
+         */
+        private int queueCapacity = 50;
+        /**
+         * Properties responsible for number of threads in thread pool executor.
+         */
+        private Size size = new Size();
+
+        public int getQueueCapacity() {
+            return queueCapacity;
+        }
+
+        public void setQueueCapacity(int queueCapacity) {
+            this.queueCapacity = queueCapacity;
+        }
+
+        public Size getSize() {
+            return size;
+        }
+
+        public void setSize(Size size) {
+            this.size = size;
+        }
+
+        public static class Size {
+
+            /**
+             * Thread pool executor initial number of threads.
+             */
+            private int initial = 5;
+            /**
+             * Thread pool executor maximum number of threads.
+             */
+            private int maximum = 30;
+
+            public int getInitial() {
+                return initial;
+            }
+
+            public void setInitial(int initial) {
+                this.initial = initial;
+            }
+
+            public int getMaximum() {
+                return maximum;
+            }
+
+            public void setMaximum(int maximum) {
+                this.maximum = maximum;
+            }
         }
     }
 
