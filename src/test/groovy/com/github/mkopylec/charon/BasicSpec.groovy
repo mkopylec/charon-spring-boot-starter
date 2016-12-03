@@ -55,7 +55,7 @@ abstract class BasicSpec extends Specification {
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
-                    .body(e.responseBodyAsString);
+                    .body(e.responseBodyAsString)
         }
     }
 

@@ -12,9 +12,15 @@ charon:
   metrics:
     enabled: true
     names-prefix: charon
-    logging-reporter:
-      enabled: true
-      reporting-interval-in-seconds: 1
+    reporting:
+      logger:
+        enabled: true
+        interval-in-seconds: 1
+      graphite:
+        enabled: false
+        interval-in-seconds: 1
+        hostname: localhost
+        port: 2003
   tracing:
     enabled: true
   asynchronous-forwarding-thread-pool:

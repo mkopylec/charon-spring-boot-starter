@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.configuration;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -29,26 +30,32 @@ public class CharonProperties {
     /**
      * Properties responsible for timeouts while forwarding HTTP requests.
      */
+    @NestedConfigurationProperty
     private Timeout timeout = new Timeout();
     /**
      * Properties responsible for retrying of HTTP requests forwarding.
      */
+    @NestedConfigurationProperty
     private Retrying retrying = new Retrying();
     /**
      * Properties responsible for collecting metrics during HTTP requests forwarding.
      */
+    @NestedConfigurationProperty
     private Metrics metrics = new Metrics();
     /**
      * Properties responsible for tracing HTTP requests proxying processes.
      */
+    @NestedConfigurationProperty
     private Tracing tracing = new Tracing();
     /**
      * Properties responsible for asynchronous HTTP requests forwarding.
      */
+    @NestedConfigurationProperty
     private AsynchronousForwardingThreadPool asynchronousForwardingThreadPool = new AsynchronousForwardingThreadPool();
     /**
      * List of proxy mappings.
      */
+    @NestedConfigurationProperty
     private List<Mapping> mappings = new ArrayList<>();
 
     public int getFilterOrder() {
@@ -146,6 +153,7 @@ public class CharonProperties {
         /**
          * Properties responsible for triggering HTTP requests forward retries.
          */
+        @NestedConfigurationProperty
         private RetryOn retryOn = new RetryOn();
 
         public int getMaxAttempts() {
@@ -238,9 +246,10 @@ public class CharonProperties {
          */
         private String namesPrefix = "charon";
         /**
-         * Properties responsible for logging collected metrics.
+         * Properties responsible for reporting collected metrics.
          */
-        private LoggingReporter loggingReporter = new LoggingReporter();
+        @NestedConfigurationProperty
+        private Reporting reporting = new Reporting();
 
         public boolean isEnabled() {
             return enabled;
@@ -258,39 +267,121 @@ public class CharonProperties {
             this.namesPrefix = namesPrefix;
         }
 
-        public LoggingReporter getLoggingReporter() {
-            return loggingReporter;
+        public Reporting getReporting() {
+            return reporting;
         }
 
-        public void setLoggingReporter(LoggingReporter loggingReporter) {
-            this.loggingReporter = loggingReporter;
+        public void setReporting(Reporting reporting) {
+            this.reporting = reporting;
         }
 
-        public static class LoggingReporter {
+        public static class Reporting {
 
             /**
-             * Flag for enabling and disabling reporting metrics via application logger.
+             * Properties responsible for reporting collected metrics to application logger.
              */
-            private boolean enabled = false;
+            @NestedConfigurationProperty
+            private Logger logger = new Logger();
             /**
-             * Metrics reporting via logger interval in seconds.
+             * Properties responsible for reporting collected metrics to Graphite server.
              */
-            private int reportingIntervalInSeconds = 60;
+            @NestedConfigurationProperty
+            private Graphite graphite = new Graphite();
 
-            public boolean isEnabled() {
-                return enabled;
+            public Logger getLogger() {
+                return logger;
             }
 
-            public void setEnabled(boolean enabled) {
-                this.enabled = enabled;
+            public void setLogger(Logger logger) {
+                this.logger = logger;
             }
 
-            public int getReportingIntervalInSeconds() {
-                return reportingIntervalInSeconds;
+            public Graphite getGraphite() {
+                return graphite;
             }
 
-            public void setReportingIntervalInSeconds(int reportingIntervalInSeconds) {
-                this.reportingIntervalInSeconds = reportingIntervalInSeconds;
+            public void setGraphite(Graphite graphite) {
+                this.graphite = graphite;
+            }
+
+            public static class Logger {
+
+                /**
+                 * Flag for enabling and disabling reporting metrics to application logger.
+                 */
+                private boolean enabled = false;
+                /**
+                 * Metrics reporting interval in seconds.
+                 */
+                private int intervalInSeconds = 60;
+
+                public boolean isEnabled() {
+                    return enabled;
+                }
+
+                public void setEnabled(boolean enabled) {
+                    this.enabled = enabled;
+                }
+
+                public int getIntervalInSeconds() {
+                    return intervalInSeconds;
+                }
+
+                public void setIntervalInSeconds(int intervalInSeconds) {
+                    this.intervalInSeconds = intervalInSeconds;
+                }
+            }
+
+            public static class Graphite {
+
+                /**
+                 * Flag for enabling and disabling reporting metrics to Graphite server.
+                 */
+                private boolean enabled = false;
+                /**
+                 * Metrics reporting interval in seconds.
+                 */
+                private int intervalInSeconds = 60;
+                /**
+                 * Graphite server hostname.
+                 */
+                private String hostname;
+                /**
+                 * Graphite server port.
+                 */
+                private int port = 2003;
+
+                public boolean isEnabled() {
+                    return enabled;
+                }
+
+                public void setEnabled(boolean enabled) {
+                    this.enabled = enabled;
+                }
+
+                public int getIntervalInSeconds() {
+                    return intervalInSeconds;
+                }
+
+                public void setIntervalInSeconds(int intervalInSeconds) {
+                    this.intervalInSeconds = intervalInSeconds;
+                }
+
+                public String getHostname() {
+                    return hostname;
+                }
+
+                public void setHostname(String hostname) {
+                    this.hostname = hostname;
+                }
+
+                public int getPort() {
+                    return port;
+                }
+
+                public void setPort(int port) {
+                    this.port = port;
+                }
             }
         }
     }
@@ -320,6 +411,7 @@ public class CharonProperties {
         /**
          * Properties responsible for number of threads in thread pool executor.
          */
+        @NestedConfigurationProperty
         private Size size = new Size();
 
         public int getQueueCapacity() {

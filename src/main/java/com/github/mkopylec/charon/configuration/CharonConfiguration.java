@@ -1,6 +1,9 @@
 package com.github.mkopylec.charon.configuration;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
@@ -40,11 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
-import static com.codahale.metrics.Slf4jReporter.forRegistry;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
@@ -178,6 +181,22 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);
         }
+        int loggerMetricsInterval = charon.getMetrics().getReporting().getLogger().getIntervalInSeconds();
+        if (loggerMetricsInterval < 1) {
+            throw new CharonException("Invalid interval of reporting metrics to application logger value: " + loggerMetricsInterval);
+        }
+        int graphiteMetricsInterval = charon.getMetrics().getReporting().getGraphite().getIntervalInSeconds();
+        if (graphiteMetricsInterval < 1) {
+            throw new CharonException("Invalid interval of reporting metrics to Graphite server value: " + graphiteMetricsInterval);
+        }
+        int graphitePort = charon.getMetrics().getReporting().getGraphite().getPort();
+        if (graphitePort < 1) {
+            throw new CharonException("Invalid Graphite server port value: " + graphitePort);
+        }
+        String graphiteHostname = charon.getMetrics().getReporting().getGraphite().getHostname();
+        if (isBlank(graphiteHostname) && shouldCreateGraphieMetricsReporter()) {
+            throw new CharonException("Invalid Graphite server hostname value: " + graphiteHostname);
+        }
         int queueCapacity = charon.getAsynchronousForwardingThreadPool().getQueueCapacity();
         if (queueCapacity < 0) {
             throw new CharonException("Invalid thread pool executor queue capacity value: " + queueCapacity);
@@ -193,14 +212,22 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         if (initialSize > maximumSize) {
             throw new CharonException("Initial size of thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
         }
-        if (shouldCreateDefaultMetricsReporter()) {
-            registerReporter(forRegistry(metricRegistry)
+        if (shouldCreateLoggingMetricsReporter()) {
+            registerReporter(Slf4jReporter.forRegistry(metricRegistry)
                     .convertDurationsTo(MILLISECONDS)
                     .convertRatesTo(SECONDS)
                     .withLoggingLevel(TRACE)
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
-            ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
+            ).start(loggerMetricsInterval, SECONDS);
+        }
+        if (shouldCreateGraphieMetricsReporter()) {
+            Graphite graphite = new Graphite(graphiteHostname, graphitePort);
+            registerReporter(GraphiteReporter.forRegistry(metricRegistry)
+                    .convertDurationsTo(MILLISECONDS)
+                    .convertRatesTo(SECONDS)
+                    .build(graphite)
+            ).start(graphiteMetricsInterval, SECONDS);
         }
     }
 
@@ -214,8 +241,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         return retryTemplate;
     }
 
-    protected boolean shouldCreateDefaultMetricsReporter() {
-        return charon.getMetrics().isEnabled() && charon.getMetrics().getLoggingReporter().isEnabled();
+    protected boolean shouldCreateLoggingMetricsReporter() {
+        return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getLogger().isEnabled();
+    }
+
+    protected boolean shouldCreateGraphieMetricsReporter() {
+        return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getGraphite().isEnabled();
     }
 
     protected boolean isAsynchronousMappingPresent() {
