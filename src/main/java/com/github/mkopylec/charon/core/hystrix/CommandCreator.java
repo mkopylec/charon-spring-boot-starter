@@ -43,8 +43,8 @@ public class CommandCreator {
 
     protected HystrixThreadPoolProperties.Setter configureThreadPool() {
         return HystrixThreadPoolProperties.defaultSetter()
-                .withCoreSize(charon.getHystrix().getNumberOfThreads())
-                .withMaxQueueSize(charon.getHystrix().getQueueCapacity());
+                .withCoreSize(charon.getHystrix().getThreadPool().getCoreSize())
+                .withMaxQueueSize(charon.getHystrix().getThreadPool().getMaximumQueueSize());
     }
 
     protected HystrixCommandProperties.Setter configureCommand() {

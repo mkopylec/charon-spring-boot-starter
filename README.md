@@ -14,9 +14,15 @@ This tool tries to get the best of them joining their features into a one Spring
 - NIO support based on [Netty](http://netty.io/)
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
 - metrics support based on [Metrics](http://metrics.dropwizard.io/)
+- circuit breaker support based on [Hystrix](https://github.com/Netflix/Hystrix/wiki)
 - customizable proxy mappings changeable at runtime
 - customizable load balancer
 - forward HTTP headers support
+
+## Migrating from 1.x.x to 2.x.x
+
+- remove `@EnableCharon` annotation
+- correct `charon.mertics` properties in the _application.yml_ file if collecting metrics is enabled
 
 ## Installing
 
@@ -25,15 +31,14 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.10.0'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:2.0.0'
 }
 ```
 
 ## Basic usage
-Add `@EnableCharon` to a Spring Boot web application:
+Create a Spring Boot web application:
 
 ```java
-@EnableCharon
 @SpringBootApplication
 public class Application {
 
@@ -164,19 +169,30 @@ charon.metrics.enabled: true
 ```
 
 Charon collects metrics per mapping.
-To report collected metrics a `Reporter` is needed.
-Charon includes the default metrics reporter but it is disabled by default, because usually the project registers its own metrics reporters.
-To enable it set an appropriate configuration property:
+To report collected metrics a `com.codahale.metrics.Reporter` is needed.
+Charon includes two metrics reporters but they are disabled by default, because usually the project registers its own metrics reporters.
+To enable a reporter which logs collected metrics set an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter.enabled: true
+charon.metrics.reporting.logger.enabled: true
 ```
 
-The default metrics reporter logs results every 60 seconds.
+To enable a reporter which sends collected metrics to a [Graphite](https://graphiteapp.org/) host set an appropriate configuration properties:
+
+```yaml
+charon.metrics.reporting.graphite:
+    enabled: true
+    hostname: <graphite_hostname>
+    port: <graphite_port>
+```
+
+The default metrics reporters raport results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seconds>
+charon.metrics.reporting:
+    logger.interval-in-seconds: <interval_in_seconds>
+    graphie.interval-in-seconds: <interval_in_seconds>
 ```
 
 ### Tracing
@@ -248,6 +264,24 @@ charon.mappings:
 For asynchronous forwarding a thread pool executor is used.
 Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
 
+### Hystrix
+By default [Hystrix](https://github.com/Netflix/Hystrix/wiki) support is turned off.
+To enable it set an appropriate configuration property:
+
+```yaml
+charon.hystrix.enabled: true
+```
+
+Hystrix thread pool can be configured appropriate configuration properties:
+
+```yaml
+charon.hystrix.thread-pool:
+    maximum-queue-size: <maximum_queue_size>
+    core-size: <core_size>
+```
+For more info about queue size see [here](https://github.com/Netflix/Hystrix/wiki/Configuration#maxQueueSize)
+For more info about core size see [here](https://github.com/Netflix/Hystrix/wiki/Configuration#coreSize)
+
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
@@ -280,6 +314,15 @@ charon:
         logging-reporter:
             enabled: false # Flag for enabling and disabling reporting metrics via application logger.
             reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
+        reporting:
+            logger:
+                enabled: false # Flag for enabling and disabling reporting metrics to application logger.
+                interval-in-seconds: 60 # Metrics reporting interval in seconds.
+            graphite:
+                enabled: false # Flag for enabling and disabling reporting metrics to Graphite server.
+                interval-in-seconds: 60 # Metrics reporting interval in seconds.
+                hostname: # Graphite server hostname.
+                port: 2003 # Graphite server port.
     tracing:
         enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
     asynchronous-forwarding-thread-pool:
@@ -287,6 +330,11 @@ charon:
         size:
             initial: 5 # Thread pool executor initial number of threads.
             maximum: 30 # Thread pool executor maximum number of threads.
+    hystrix:
+        enabled: false # Flag for enabling and disabling Hystrix circuit breaker.
+        thread-pool:
+            maximum-queue-size: 50 # Maximum queue capacity, when it is reached a rejection will occur.
+            core-size: 10 # Number of threads in the pool.
     mappings:
         -
             name: # Name of the mapping.

@@ -482,13 +482,10 @@ public class CharonProperties {
          */
         private boolean enabled = false;
         /**
-         * Hystrix thread pool queue capacity.
+         * Properties responsible for hystrix thread pool.
          */
-        private int queueCapacity = 50;
-        /**
-         * Number of threads in Hystrix thread pool.
-         */
-        private int numberOfThreads = 10;
+        @NestedConfigurationProperty
+        private ThreadPool threadPool = new ThreadPool();
 
         public boolean isEnabled() {
             return enabled;
@@ -498,20 +495,40 @@ public class CharonProperties {
             this.enabled = enabled;
         }
 
-        public int getQueueCapacity() {
-            return queueCapacity;
+        public ThreadPool getThreadPool() {
+            return threadPool;
         }
 
-        public void setQueueCapacity(int queueCapacity) {
-            this.queueCapacity = queueCapacity;
+        public void setThreadPool(ThreadPool threadPool) {
+            this.threadPool = threadPool;
         }
 
-        public int getNumberOfThreads() {
-            return numberOfThreads;
-        }
+        public static class ThreadPool {
 
-        public void setNumberOfThreads(int numberOfThreads) {
-            this.numberOfThreads = numberOfThreads;
+            /**
+             * Maximum queue capacity, when it is reached a rejection will occur.
+             */
+            private int maximumQueueSize = 50;
+            /**
+             * Number of threads in the pool.
+             */
+            private int coreSize = 10;
+
+            public int getMaximumQueueSize() {
+                return maximumQueueSize;
+            }
+
+            public void setMaximumQueueSize(int maximumQueueSize) {
+                this.maximumQueueSize = maximumQueueSize;
+            }
+
+            public int getCoreSize() {
+                return coreSize;
+            }
+
+            public void setCoreSize(int coreSize) {
+                this.coreSize = coreSize;
+            }
         }
     }
 

@@ -30,8 +30,9 @@ charon:
       maximum: 5
   hystrix:
     enabled: false
-    queue-capacity: 2
-    number-of-threads: 2
+    thread-pool:
+      maximum-queue-size: 2
+      core-size: 2
   mappings:
     -
       name: proxy 1
