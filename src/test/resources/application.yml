@@ -1,8 +1,8 @@
 charon:
   filter-order: 2147483647
   timeout:
-    connect: 500
-    read: 2000
+    connect: 100
+    read: 500
   retrying:
     max-attempts: 3
     retry-on:
@@ -28,6 +28,10 @@ charon:
     size:
       initial: 1
       maximum: 5
+  hystrix:
+    enabled: false
+    queue-capacity: 2
+    number-of-threads: 2
   mappings:
     -
       name: proxy 1

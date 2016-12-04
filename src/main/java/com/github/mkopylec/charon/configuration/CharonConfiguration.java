@@ -10,6 +10,7 @@ import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
+import com.github.mkopylec.charon.core.hystrix.CommandCreator;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
@@ -147,9 +148,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonRestOperations") RestOperations restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            TraceInterceptor traceInterceptor
+            TraceInterceptor traceInterceptor,
+            CommandCreator commandCreator
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, commandCreator);
     }
 
     @Bean
@@ -165,6 +167,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             return new LoggingTraceInterceptor();
         }
         return null;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CommandCreator charonCommandCreator() {
+        return new CommandCreator(charon);
     }
 
     @PostConstruct

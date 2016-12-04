@@ -106,11 +106,18 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected void forwardToDestination(HttpServletResponse response, String traceId, Mapping mapping, RequestData dataToForward) {
+    protected void forwardToDestination(HttpServletResponse response, String traceId, Mapping mapping, RequestData dataToForward) throws ServletException {
         ResponseEntity<byte[]> responseEntity;
         if (mapping.isAsynchronous()) {
             taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
-                    context -> requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping)
+                    context -> {
+                        try {
+                            return requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping);
+                        } catch (Throwable e) {
+                            log.error("Error forwarding HTTP request asynchronously", e);
+                            return null;
+                        }
+                    }
             ));
             responseEntity = new ResponseEntity<>(ACCEPTED);
         } else {

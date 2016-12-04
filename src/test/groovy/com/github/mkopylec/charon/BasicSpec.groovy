@@ -72,6 +72,10 @@ abstract class BasicSpec extends Specification {
         return context.embeddedServletContainer.port
     }
 
+    protected void stubDestinationResponse(boolean timedOut) {
+        stubResponse(OK, [:], null, timedOut)
+    }
+
     protected void stubDestinationResponse(HttpStatus responseStatus) {
         stubResponse(responseStatus)
     }
@@ -92,12 +96,16 @@ abstract class BasicSpec extends Specification {
         stubResponse(responseStatus, [:], responseBody)
     }
 
-    private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null) {
+    private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null, boolean timedOut = false) {
+        def toLongProcessingTime = charon.timeout.connect + charon.timeout.read + 1000
         [localhost8080, localhost8081].each {
             def response = aResponse()
             responseHeaders.each { name, value -> response = response.withHeader(name, value) }
             if (responseBody) {
                 response = response.withBody(responseBody)
+            }
+            if (timedOut) {
+                response = response.withFixedDelay(toLongProcessingTime)
             }
             response = response.withStatus(responseStatus.value())
             it.stubFor(any(urlMatching('.*')).willReturn(response))

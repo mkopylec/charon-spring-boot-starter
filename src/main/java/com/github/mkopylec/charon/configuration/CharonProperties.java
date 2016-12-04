@@ -53,6 +53,11 @@ public class CharonProperties {
     @NestedConfigurationProperty
     private AsynchronousForwardingThreadPool asynchronousForwardingThreadPool = new AsynchronousForwardingThreadPool();
     /**
+     * Properties responsible for Hystrix circuit breaker.
+     */
+    @NestedConfigurationProperty
+    private Hystrix hystrix = new Hystrix();
+    /**
      * List of proxy mappings.
      */
     @NestedConfigurationProperty
@@ -106,6 +111,14 @@ public class CharonProperties {
         this.asynchronousForwardingThreadPool = asynchronousForwardingThreadPool;
     }
 
+    public Hystrix getHystrix() {
+        return hystrix;
+    }
+
+    public void setHystrix(Hystrix hystrix) {
+        this.hystrix = hystrix;
+    }
+
     public List<Mapping> getMappings() {
         return mappings;
     }
@@ -119,7 +132,7 @@ public class CharonProperties {
         /**
          * Connect timeout for HTTP requests forwarding.
          */
-        private int connect = 500;
+        private int connect = 200;
         /**
          * Read timeout for HTTP requests forwarding.
          */
@@ -456,6 +469,49 @@ public class CharonProperties {
             public void setMaximum(int maximum) {
                 this.maximum = maximum;
             }
+        }
+    }
+
+    public static class Hystrix {
+
+        public static final String HYSTRIX_GROUP_KEY = "charon";
+        public static final String HYSTRIX_THREAD_POOL_KEY = "charon-pool";
+
+        /**
+         * Flag for enabling and disabling Hystrix circuit breaker.
+         */
+        private boolean enabled = false;
+        /**
+         * Hystrix thread pool queue capacity.
+         */
+        private int queueCapacity = 50;
+        /**
+         * Number of threads in Hystrix thread pool.
+         */
+        private int numberOfThreads = 10;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getQueueCapacity() {
+            return queueCapacity;
+        }
+
+        public void setQueueCapacity(int queueCapacity) {
+            this.queueCapacity = queueCapacity;
+        }
+
+        public int getNumberOfThreads() {
+            return numberOfThreads;
+        }
+
+        public void setNumberOfThreads(int numberOfThreads) {
+            this.numberOfThreads = numberOfThreads;
         }
     }
 
