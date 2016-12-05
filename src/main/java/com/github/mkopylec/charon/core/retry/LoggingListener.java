@@ -7,7 +7,7 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
+import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class LoggingListener extends RetryListenerSupport {

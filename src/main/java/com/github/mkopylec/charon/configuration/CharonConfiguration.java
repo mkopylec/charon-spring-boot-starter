@@ -4,7 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
@@ -48,6 +47,7 @@ import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -86,7 +86,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public RestOperations charonRestOperations() {
+    public Map<String, RestOperations> charonRestOperations() {
+        charon.getMappings().stream()
+                .collect(toMap(MappingProperties::getName, this::createRestOperations));
         Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
         requestFactory.setConnectTimeout(charon.getTimeout().getConnect());
         requestFactory.setReadTimeout(charon.getTimeout().getRead());
@@ -145,7 +147,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public RequestForwarder charonRequestForwarder(
-            @Qualifier("charonRestOperations") RestOperations restOperations,
+            @Qualifier("charonRestOperations") Map<String, RestOperations> restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             TraceInterceptor traceInterceptor,
@@ -247,6 +249,13 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         }
     }
 
+    protected RestOperations createRestOperations(MappingProperties mapping) {
+        Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(mapping.getTimeout().getConnect());
+        requestFactory.setReadTimeout(mapping.getTimeout().getRead());
+        return new RestTemplate(requestFactory);
+    }
+
     protected RetryOperations createRetryOperations(RetryListener listener, int maxAttempts, List<Class<? extends Throwable>> retryableErrors) {
         Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>(retryableErrors.size());
         retryableErrors.forEach(error -> retryableExceptions.put(error, true));
@@ -267,7 +276,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     protected boolean isAsynchronousMappingPresent() {
         return !charon.getMappings().stream()
-                .filter(Mapping::isAsynchronous)
+                .filter(MappingProperties::isAsynchronous)
                 .collect(toList())
                 .isEmpty();
     }

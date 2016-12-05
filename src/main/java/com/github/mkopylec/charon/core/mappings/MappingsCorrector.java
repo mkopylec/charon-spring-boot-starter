@@ -1,6 +1,6 @@
 package com.github.mkopylec.charon.core.mappings;
 
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.exceptions.CharonException;
 
 import java.util.ArrayList;
@@ -15,11 +15,11 @@ import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 public class MappingsCorrector {
 
-    public void correct(List<Mapping> mappings) {
+    public void correct(List<MappingProperties> mappings) {
         if (isNotEmpty(mappings)) {
             mappings.forEach(this::correctMapping);
             int numberOfPaths = mappings.stream()
-                    .map(Mapping::getPath)
+                    .map(MappingProperties::getPath)
                     .collect(toSet())
                     .size();
             if (numberOfPaths < mappings.size()) {
@@ -29,19 +29,19 @@ public class MappingsCorrector {
         }
     }
 
-    protected void correctMapping(Mapping mapping) {
+    protected void correctMapping(MappingProperties mapping) {
         correctName(mapping);
         correctDestinations(mapping);
         correctPath(mapping);
     }
 
-    protected void correctName(Mapping mapping) {
+    protected void correctName(MappingProperties mapping) {
         if (isBlank(mapping.getName())) {
             throw new CharonException("Empty name for mapping " + mapping);
         }
     }
 
-    protected void correctDestinations(Mapping mapping) {
+    protected void correctDestinations(MappingProperties mapping) {
         if (isEmpty(mapping.getDestinations())) {
             throw new CharonException("No destination hosts for mapping " + mapping);
         }
@@ -59,7 +59,7 @@ public class MappingsCorrector {
         mapping.setDestinations(correctedHosts);
     }
 
-    protected void correctPath(Mapping mapping) {
+    protected void correctPath(MappingProperties mapping) {
         if (isBlank(mapping.getPath())) {
             throw new CharonException("No destination path for mapping " + mapping);
         }

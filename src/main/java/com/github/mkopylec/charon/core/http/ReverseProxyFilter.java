@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.core.http;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
@@ -77,7 +77,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         String traceId = charon.getTracing().isEnabled() ? traceInterceptor.generateTraceId() : null;
         runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(traceId, method, originUri, headers));
 
-        Mapping mapping = mappingsProvider.resolveMapping(originUri, request);
+        MappingProperties mapping = mappingsProvider.resolveMapping(originUri, request);
         if (mapping == null) {
             runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(traceId, method, originUri, headers));
 
@@ -106,7 +106,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected void forwardToDestination(HttpServletResponse response, String traceId, Mapping mapping, RequestData dataToForward) throws ServletException {
+    protected void forwardToDestination(HttpServletResponse response, String traceId, MappingProperties mapping, RequestData dataToForward) throws ServletException {
         ResponseEntity<byte[]> responseEntity;
         if (mapping.isAsynchronous()) {
             taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
@@ -126,7 +126,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         processResponse(response, responseEntity);
     }
 
-    protected RetryOperations resolveRetryOperations(Mapping mapping) {
+    protected RetryOperations resolveRetryOperations(MappingProperties mapping) {
         return mapping != null && mapping.isRetryable() ? retryOperations : defaultRetryOperations;
     }
 

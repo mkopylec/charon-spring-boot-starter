@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.function.Supplier;
 
-import static com.github.mkopylec.charon.configuration.CharonProperties.Hystrix.HYSTRIX_GROUP_KEY;
-import static com.github.mkopylec.charon.configuration.CharonProperties.Hystrix.HYSTRIX_THREAD_POOL_KEY;
+import static com.github.mkopylec.charon.configuration.HystrixProperties.HYSTRIX_GROUP_KEY;
+import static com.github.mkopylec.charon.configuration.HystrixProperties.HYSTRIX_THREAD_POOL_KEY;
 import static com.netflix.hystrix.HystrixCommand.Setter.withGroupKey;
 
 public class CommandCreator {

@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.core.mappings;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +21,9 @@ public class ConfigurationMappingsProvider extends MappingsProvider {
     }
 
     @Override
-    protected List<Mapping> retrieveMappings() {
+    protected List<MappingProperties> retrieveMappings() {
         return charon.getMappings().stream()
-                .map(Mapping::copy)
+                .map(MappingProperties::copy)
                 .collect(toList());
     }
 }

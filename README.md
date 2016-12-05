@@ -170,7 +170,7 @@ charon.metrics.enabled: true
 
 Charon collects metrics per mapping.
 To report collected metrics a `com.codahale.metrics.Reporter` is needed.
-Charon includes two metrics reporters but they are disabled by default, because usually the project registers its own metrics reporters.
+Charon includes two metrics reporters but they are disabled by default.
 To enable a reporter which logs collected metrics set an appropriate configuration property:
 
 ```yaml
@@ -186,7 +186,7 @@ charon.metrics.reporting.graphite:
     port: <graphite_port>
 ```
 
-The default metrics reporters raport results every 60 seconds.
+The default metrics reporters report results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
 ```yaml

@@ -2,7 +2,7 @@ package com.github.mkopylec.charon
 
 import com.github.mkopylec.charon.application.TestApplication
 import com.github.mkopylec.charon.configuration.CharonProperties
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping
+import com.github.mkopylec.charon.configuration.MappingProperties
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,7 +60,7 @@ abstract class BasicSpec extends Specification {
     }
 
     protected void addMapping(String name, String path, String... destinations) {
-        def mapping = new Mapping(name: name, path: path, destinations: destinations)
+        def mapping = new MappingProperties(name: name, path: path, destinations: destinations)
         charon.mappings.add(mapping)
     }
 

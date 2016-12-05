@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.core.http;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.hystrix.CommandCreator;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
@@ -23,7 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
+import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static org.apache.commons.lang3.StringUtils.removeStart;
@@ -63,7 +63,7 @@ public class RequestForwarder {
         this.commandCreator = commandCreator;
     }
 
-    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, Mapping mapping) throws ServletException {
+    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) throws ServletException {
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
         runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(
                 traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders())
@@ -81,11 +81,11 @@ public class RequestForwarder {
         return response;
     }
 
-    protected ForwardDestination resolveForwardDestination(String originUri, Mapping mapping) {
+    protected ForwardDestination resolveForwardDestination(String originUri, MappingProperties mapping) {
         return new ForwardDestination(createDestinationUrl(originUri, mapping), mapping.getName(), resolveMetricsName(mapping));
     }
 
-    protected URI createDestinationUrl(String uri, Mapping mapping) {
+    protected URI createDestinationUrl(String uri, MappingProperties mapping) {
         if (mapping.isStripPath()) {
             uri = removeStart(uri, concatContextAndMappingPaths(mapping));
         }
@@ -97,7 +97,7 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, Mapping mapping, String mappingMetricsName) throws ServletException {
+    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, MappingProperties mapping, String mappingMetricsName) throws ServletException {
         ResponseEntity<byte[]> responseEntity;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
@@ -123,7 +123,7 @@ public class RequestForwarder {
         return responseEntity;
     }
 
-    protected ResponseEntity<byte[]> getResponse(RequestEntity<byte[]> requestEntity, Mapping mapping) throws Throwable {
+    protected ResponseEntity<byte[]> getResponse(RequestEntity<byte[]> requestEntity, MappingProperties mapping) throws Throwable {
         try {
             return charon.getHystrix().isEnabled()
                     ? commandCreator.createHystrixCommand(mapping.getName(), () -> restOperations.exchange(requestEntity, byte[].class)).execute()
@@ -139,11 +139,11 @@ public class RequestForwarder {
         }
     }
 
-    protected String resolveMetricsName(Mapping mapping) {
+    protected String resolveMetricsName(MappingProperties mapping) {
         return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
     }
 
-    protected String concatContextAndMappingPaths(Mapping mapping) {
+    protected String concatContextAndMappingPaths(MappingProperties mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
     }
 }

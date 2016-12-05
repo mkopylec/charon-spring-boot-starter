@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.core.mappings;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
@@ -21,7 +21,7 @@ public abstract class MappingsProvider {
     protected final ServerProperties server;
     protected final CharonProperties charon;
     protected final MappingsCorrector mappingsCorrector;
-    protected List<Mapping> mappings;
+    protected List<MappingProperties> mappings;
 
     public MappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
         this.server = server;
@@ -29,11 +29,11 @@ public abstract class MappingsProvider {
         this.mappingsCorrector = mappingsCorrector;
     }
 
-    public Mapping resolveMapping(String originUri, HttpServletRequest request) {
+    public MappingProperties resolveMapping(String originUri, HttpServletRequest request) {
         if (shouldUpdateMappings(request)) {
             updateMappings();
         }
-        List<Mapping> resolvedMappings = mappings.stream()
+        List<MappingProperties> resolvedMappings = mappings.stream()
                 .filter(mapping -> originUri.startsWith(concatContextAndMappingPaths(mapping)))
                 .collect(toList());
         if (isEmpty(resolvedMappings)) {
@@ -44,17 +44,17 @@ public abstract class MappingsProvider {
 
     @PostConstruct
     protected synchronized void updateMappings() {
-        List<Mapping> newMappings = retrieveMappings();
+        List<MappingProperties> newMappings = retrieveMappings();
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
         log.info("Destination mappings updated to: {}", mappings);
     }
 
-    protected String concatContextAndMappingPaths(Mapping mapping) {
+    protected String concatContextAndMappingPaths(MappingProperties mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
     }
 
     protected abstract boolean shouldUpdateMappings(HttpServletRequest request);
 
-    protected abstract List<Mapping> retrieveMappings();
+    protected abstract List<MappingProperties> retrieveMappings();
 }
