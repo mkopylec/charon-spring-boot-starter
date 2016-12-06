@@ -1,6 +1,8 @@
 package com.github.mkopylec.charon.core.hystrix;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
+import com.github.mkopylec.charon.configuration.MappingProperties;
+import com.github.mkopylec.charon.configuration.MappingProperties.HystrixFallbackResponseProperties;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommand.Setter;
 import com.netflix.hystrix.HystrixCommandGroupKey;
@@ -15,6 +17,8 @@ import java.util.function.Supplier;
 import static com.github.mkopylec.charon.configuration.HystrixProperties.HYSTRIX_GROUP_KEY;
 import static com.github.mkopylec.charon.configuration.HystrixProperties.HYSTRIX_THREAD_POOL_KEY;
 import static com.netflix.hystrix.HystrixCommand.Setter.withGroupKey;
+import static org.springframework.http.MediaType.valueOf;
+import static org.springframework.http.ResponseEntity.status;
 
 public class CommandCreator {
 
@@ -26,9 +30,9 @@ public class CommandCreator {
         threadPoolConfiguration = configureThreadPool();
     }
 
-    public HystrixCommand<ResponseEntity<byte[]>> createHystrixCommand(String name, Supplier<ResponseEntity<byte[]>> requestSender) {
+    public HystrixCommand<ResponseEntity<byte[]>> createHystrixCommand(MappingProperties mapping, Supplier<ResponseEntity<byte[]>> requestSender) {
         Setter configuration = withGroupKey(HystrixCommandGroupKey.Factory.asKey(HYSTRIX_GROUP_KEY))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(name))
+                .andCommandKey(HystrixCommandKey.Factory.asKey(mapping.getName()))
                 .andCommandPropertiesDefaults(configureCommand())
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(HYSTRIX_THREAD_POOL_KEY))
                 .andThreadPoolPropertiesDefaults(threadPoolConfiguration);
@@ -37,6 +41,11 @@ public class CommandCreator {
             @Override
             protected ResponseEntity<byte[]> run() throws Exception {
                 return requestSender.get();
+            }
+
+            @Override
+            protected ResponseEntity<byte[]> getFallback() {
+                return createFallbackResponse(mapping);
             }
         };
     }
@@ -51,5 +60,12 @@ public class CommandCreator {
         return HystrixCommandProperties.defaultSetter()
                 .withCircuitBreakerEnabled(true)
                 .withExecutionTimeoutEnabled(false);
+    }
+
+    protected ResponseEntity<byte[]> createFallbackResponse(MappingProperties mapping) {
+        HystrixFallbackResponseProperties hystrixFallbackResponse = mapping.getHystrixFallbackResponse();
+        return status(hystrixFallbackResponse.getHttpStatus())
+                .contentType(valueOf(hystrixFallbackResponse.getContentType()))
+                .body(hystrixFallbackResponse.getBody().getBytes());
     }
 }

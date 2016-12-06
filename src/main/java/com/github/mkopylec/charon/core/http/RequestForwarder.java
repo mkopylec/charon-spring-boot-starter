@@ -21,6 +21,7 @@ import org.springframework.web.client.RestOperations;
 import javax.servlet.ServletException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -36,7 +37,7 @@ public class RequestForwarder {
 
     protected final ServerProperties server;
     protected final CharonProperties charon;
-    protected final RestOperations restOperations;
+    protected final Map<String, RestOperations> restOperations;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
@@ -46,7 +47,7 @@ public class RequestForwarder {
     public RequestForwarder(
             ServerProperties server,
             CharonProperties charon,
-            RestOperations restOperations,
+            Map<String, RestOperations> restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
@@ -124,10 +125,11 @@ public class RequestForwarder {
     }
 
     protected ResponseEntity<byte[]> getResponse(RequestEntity<byte[]> requestEntity, MappingProperties mapping) throws Throwable {
+        RestOperations rest = this.restOperations.get(mapping.getName());
         try {
             return charon.getHystrix().isEnabled()
-                    ? commandCreator.createHystrixCommand(mapping.getName(), () -> restOperations.exchange(requestEntity, byte[].class)).execute()
-                    : restOperations.exchange(requestEntity, byte[].class);
+                    ? commandCreator.createHystrixCommand(mapping, () -> rest.exchange(requestEntity, byte[].class)).execute()
+                    : rest.exchange(requestEntity, byte[].class);
         } catch (HystrixRuntimeException ex) {
             throw ex.getCause();
         }

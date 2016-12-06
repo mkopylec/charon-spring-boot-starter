@@ -87,12 +87,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public Map<String, RestOperations> charonRestOperations() {
-        charon.getMappings().stream()
-                .collect(toMap(MappingProperties::getName, this::createRestOperations));
-        Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(charon.getTimeout().getConnect());
-        requestFactory.setReadTimeout(charon.getTimeout().getRead());
-        return new RestTemplate(requestFactory);
+        return charon.getMappings().stream().collect(toMap(MappingProperties::getName, this::createRestOperations));
     }
 
     @Bean
@@ -179,14 +174,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @PostConstruct
     protected void checkConfiguration() {
-        int connectTimeout = charon.getTimeout().getConnect();
-        int readTimeout = charon.getTimeout().getRead();
-        if (connectTimeout < 0) {
-            throw new CharonException("Invalid connect timeout value: " + connectTimeout);
-        }
-        if (readTimeout < 0) {
-            throw new CharonException("Invalid read timeout value: " + readTimeout);
-        }
         int maxAttempts = charon.getRetrying().getMaxAttempts();
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);

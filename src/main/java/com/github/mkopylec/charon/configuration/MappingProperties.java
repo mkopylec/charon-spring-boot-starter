@@ -182,6 +182,10 @@ public class MappingProperties {
          * Body of Hystrix fallback HTTP response.
          */
         private String body;
+        /**
+         * Content type of Hystrix fallback HTTP response.
+         */
+        private String contentType;
 
         public int getHttpStatus() {
             return httpStatus;
@@ -199,11 +203,20 @@ public class MappingProperties {
             this.body = body;
         }
 
+        public String getContentType() {
+            return contentType;
+        }
+
+        public void setContentType(String contentType) {
+            this.contentType = contentType;
+        }
+
         @Override
         public String toString() {
             return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
                     .append("httpStatus", httpStatus)
                     .append("body", body)
+                    .append("contentType", contentType)
                     .toString();
         }
     }

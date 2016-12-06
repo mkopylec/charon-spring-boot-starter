@@ -33,6 +33,7 @@ public class MappingsCorrector {
         correctName(mapping);
         correctDestinations(mapping);
         correctPath(mapping);
+        correctTimeout(mapping);
     }
 
     protected void correctName(MappingProperties mapping) {
@@ -66,4 +67,16 @@ public class MappingsCorrector {
         String path = correctUri(mapping.getPath());
         mapping.setPath(path);
     }
+
+    protected void correctTimeout(MappingProperties mapping) {
+        int connectTimeout = mapping.getTimeout().getConnect();
+        if (connectTimeout < 0) {
+            throw new CharonException("Invalid connect timeout value: " + connectTimeout);
+        }
+        int readTimeout = mapping.getTimeout().getRead();
+        if (readTimeout < 0) {
+            throw new CharonException("Invalid read timeout value: " + readTimeout);
+        }
+    }
+    //TODO correct hystrix fallback repsonse
 }
