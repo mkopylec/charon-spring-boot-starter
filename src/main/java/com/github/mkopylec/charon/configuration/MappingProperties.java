@@ -39,11 +39,6 @@ public class MappingProperties {
      */
     @NestedConfigurationProperty
     private TimeoutProperties timeout = new TimeoutProperties();
-    /**
-     * Properties responsible for Hystrix fallback HTTP response.
-     */
-    @NestedConfigurationProperty
-    private HystrixFallbackResponseProperties hystrixFallbackResponse = new HystrixFallbackResponseProperties();
 
     public String getName() {
         return name;
@@ -101,14 +96,6 @@ public class MappingProperties {
         this.timeout = timeout;
     }
 
-    public HystrixFallbackResponseProperties getHystrixFallbackResponse() {
-        return hystrixFallbackResponse;
-    }
-
-    public void setHystrixFallbackResponse(HystrixFallbackResponseProperties hystrixFallbackResponse) {
-        this.hystrixFallbackResponse = hystrixFallbackResponse;
-    }
-
     public MappingProperties copy() {
         MappingProperties clone = new MappingProperties();
         clone.setName(name);
@@ -118,7 +105,6 @@ public class MappingProperties {
         clone.setStripPath(stripPath);
         clone.setRetryable(retryable);
         clone.setTimeout(timeout);
-        clone.setHystrixFallbackResponse(hystrixFallbackResponse);
         return clone;
     }
 
@@ -132,7 +118,6 @@ public class MappingProperties {
                 .append("stripPath", stripPath)
                 .append("retryable", retryable)
                 .append("timeout", timeout)
-                .append("hystrixFallbackResponse", hystrixFallbackResponse)
                 .toString();
     }
 
@@ -168,55 +153,6 @@ public class MappingProperties {
             return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
                     .append("connect", connect)
                     .append("read", read)
-                    .toString();
-        }
-    }
-
-    public static class HystrixFallbackResponseProperties {
-
-        /**
-         * HTTP status of Hystrix fallback response.
-         */
-        private int httpStatus = 204;
-        /**
-         * Body of Hystrix fallback HTTP response.
-         */
-        private String body;
-        /**
-         * Content type of Hystrix fallback HTTP response.
-         */
-        private String contentType;
-
-        public int getHttpStatus() {
-            return httpStatus;
-        }
-
-        public void setHttpStatus(int httpStatus) {
-            this.httpStatus = httpStatus;
-        }
-
-        public String getBody() {
-            return body;
-        }
-
-        public void setBody(String body) {
-            this.body = body;
-        }
-
-        public String getContentType() {
-            return contentType;
-        }
-
-        public void setContentType(String contentType) {
-            this.contentType = contentType;
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
-                    .append("httpStatus", httpStatus)
-                    .append("body", body)
-                    .append("contentType", contentType)
                     .toString();
         }
     }

@@ -5,11 +5,9 @@ import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
-import com.github.mkopylec.charon.core.hystrix.CommandCreator;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
-import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.RequestEntity;
@@ -18,7 +16,6 @@ import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
-import javax.servlet.ServletException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -42,7 +39,6 @@ public class RequestForwarder {
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
     protected final TraceInterceptor traceInterceptor;
-    protected final CommandCreator commandCreator;
 
     public RequestForwarder(
             ServerProperties server,
@@ -51,8 +47,7 @@ public class RequestForwarder {
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
-            TraceInterceptor traceInterceptor,
-            CommandCreator commandCreator
+            TraceInterceptor traceInterceptor
     ) {
         this.server = server;
         this.charon = charon;
@@ -61,10 +56,9 @@ public class RequestForwarder {
         this.loadBalancer = loadBalancer;
         this.metricRegistry = metricRegistry;
         this.traceInterceptor = traceInterceptor;
-        this.commandCreator = commandCreator;
     }
 
-    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) throws ServletException {
+    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
         runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(
                 traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders())
@@ -98,14 +92,14 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, MappingProperties mapping, String mappingMetricsName) throws ServletException {
+    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, MappingProperties mapping, String mappingMetricsName) {
         ResponseEntity<byte[]> responseEntity;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
         try {
-            responseEntity = getResponse(requestEntity, mapping);
+            responseEntity = restOperations.get(mapping.getName()).exchange(requestEntity, byte[].class);
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
             stopTimerContext(context);
@@ -116,23 +110,12 @@ public class RequestForwarder {
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
-        } catch (Throwable e) {
+        } catch (Exception e) {
             stopTimerContext(context);
             runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
-            throw new ServletException("Error sending HTTP request", e);
+            throw new CharonException("Error sending HTTP request", e);
         }
         return responseEntity;
-    }
-
-    protected ResponseEntity<byte[]> getResponse(RequestEntity<byte[]> requestEntity, MappingProperties mapping) throws Throwable {
-        RestOperations rest = this.restOperations.get(mapping.getName());
-        try {
-            return charon.getHystrix().isEnabled()
-                    ? commandCreator.createHystrixCommand(mapping, () -> rest.exchange(requestEntity, byte[].class)).execute()
-                    : rest.exchange(requestEntity, byte[].class);
-        } catch (HystrixRuntimeException ex) {
-            throw ex.getCause();
-        }
     }
 
     protected void stopTimerContext(Context context) {

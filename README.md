@@ -14,7 +14,6 @@ This tool tries to get the best of them joining their features into a one Spring
 - NIO support based on [Netty](http://netty.io/)
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
 - metrics support based on [Metrics](http://metrics.dropwizard.io/)
-- circuit breaker support based on [Hystrix](https://github.com/Netflix/Hystrix/wiki)
 - customizable proxy mappings changeable at runtime
 - customizable load balancer
 - forward HTTP headers support
@@ -264,24 +263,6 @@ charon.mappings:
 For asynchronous forwarding a thread pool executor is used.
 Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
 
-### Hystrix
-By default [Hystrix](https://github.com/Netflix/Hystrix/wiki) support is turned off.
-To enable it set an appropriate configuration property:
-
-```yaml
-charon.hystrix.enabled: true
-```
-
-Hystrix thread pool can be configured appropriate configuration properties:
-
-```yaml
-charon.hystrix.thread-pool:
-    maximum-queue-size: <maximum_queue_size>
-    core-size: <core_size>
-```
-For more info about queue size see [here](https://github.com/Netflix/Hystrix/wiki/Configuration#maxQueueSize)
-For more info about core size see [here](https://github.com/Netflix/Hystrix/wiki/Configuration#coreSize)
-
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
@@ -330,11 +311,6 @@ charon:
         size:
             initial: 5 # Thread pool executor initial number of threads.
             maximum: 30 # Thread pool executor maximum number of threads.
-    hystrix:
-        enabled: false # Flag for enabling and disabling Hystrix circuit breaker.
-        thread-pool:
-            maximum-queue-size: 50 # Maximum queue capacity, when it is reached a rejection will occur.
-            core-size: 10 # Number of threads in the pool.
     mappings:
         -
             name: # Name of the mapping.

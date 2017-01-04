@@ -9,7 +9,6 @@ import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
-import com.github.mkopylec.charon.core.hystrix.CommandCreator;
 import com.github.mkopylec.charon.core.mappings.ConfigurationMappingsProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
@@ -84,8 +83,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
 
+    //TODO After mappings update rest templates should be recreated, refresh scope?
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "charonRestOperations")
     public Map<String, RestOperations> charonRestOperations() {
         return charon.getMappings().stream().collect(toMap(MappingProperties::getName, this::createRestOperations));
     }
@@ -145,10 +145,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonRestOperations") Map<String, RestOperations> restOperations,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            TraceInterceptor traceInterceptor,
-            CommandCreator commandCreator
+            TraceInterceptor traceInterceptor
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, commandCreator);
+        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
     }
 
     @Bean
@@ -164,12 +163,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             return new LoggingTraceInterceptor();
         }
         return null;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public CommandCreator charonCommandCreator() {
-        return new CommandCreator(charon);
     }
 
     @PostConstruct
@@ -208,14 +201,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         }
         if (initialSize > maximumSize) {
             throw new CharonException("Initial size of asynchronous requests thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
-        }
-        int maxQueueSize = charon.getHystrix().getThreadPool().getMaximumQueueSize();
-        if (maxQueueSize < -1) {
-            throw new CharonException("Invalid Hystrix thread pool maximum queue size value: " + maxQueueSize);
-        }
-        int coreSize = charon.getHystrix().getThreadPool().getCoreSize();
-        if (coreSize < 1) {
-            throw new CharonException("Invalid Hystrix thread pool core size value: " + coreSize);
         }
         if (shouldCreateLoggingMetricsReporter()) {
             registerReporter(Slf4jReporter.forRegistry(metricRegistry)

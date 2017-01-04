@@ -78,5 +78,4 @@ public class MappingsCorrector {
             throw new CharonException("Invalid read timeout value: " + readTimeout);
         }
     }
-    //TODO correct hystrix fallback repsonse
 }

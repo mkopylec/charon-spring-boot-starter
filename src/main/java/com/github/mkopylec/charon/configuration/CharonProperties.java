@@ -39,11 +39,6 @@ public class CharonProperties {
     @NestedConfigurationProperty
     private AsynchronousForwardingThreadPoolProperties asynchronousForwardingThreadPool = new AsynchronousForwardingThreadPoolProperties();
     /**
-     * Properties responsible for Hystrix circuit breaker.
-     */
-    @NestedConfigurationProperty
-    private HystrixProperties hystrix = new HystrixProperties();
-    /**
      * List of proxy mappings.
      */
     @NestedConfigurationProperty
@@ -87,14 +82,6 @@ public class CharonProperties {
 
     public void setAsynchronousForwardingThreadPool(AsynchronousForwardingThreadPoolProperties asynchronousForwardingThreadPool) {
         this.asynchronousForwardingThreadPool = asynchronousForwardingThreadPool;
-    }
-
-    public HystrixProperties getHystrix() {
-        return hystrix;
-    }
-
-    public void setHystrix(HystrixProperties hystrix) {
-        this.hystrix = hystrix;
     }
 
     public List<MappingProperties> getMappings() {

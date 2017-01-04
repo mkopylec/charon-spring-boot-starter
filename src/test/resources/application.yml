@@ -1,8 +1,5 @@
 charon:
   filter-order: 2147483647
-  timeout:
-    connect: 100
-    read: 500
   retrying:
     max-attempts: 3
     retry-on:
@@ -28,17 +25,15 @@ charon:
     size:
       initial: 1
       maximum: 5
-  hystrix:
-    enabled: false
-    thread-pool:
-      maximum-queue-size: 2
-      core-size: 2
   mappings:
     -
       name: proxy 1
       path: /uri/1
       destinations: http://localhost:8080, localhost:8081
       retryable: true
+      timeout:
+        connect: 100
+        read: 500
     -
       name: proxy 2
       path: /uri/2
