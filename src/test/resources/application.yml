@@ -14,7 +14,7 @@ charon:
       logger:
         enabled: true
       graphite:
-        enabled: false
+        enabled: true
         hostname: localhost
         port: 2003
   tracing:
