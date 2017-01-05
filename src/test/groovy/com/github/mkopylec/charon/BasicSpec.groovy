@@ -59,8 +59,10 @@ abstract class BasicSpec extends Specification {
         }
     }
 
-    protected void addMapping(String name, String path, String... destinations) {
+    protected void addMapping(String name, String path, int connectTimeout, int readTimeout, String... destinations) {
         def mapping = new MappingProperties(name: name, path: path, destinations: destinations)
+        mapping.timeout.connect = connectTimeout
+        mapping.timeout.read = readTimeout
         charon.mappings.add(mapping)
     }
 

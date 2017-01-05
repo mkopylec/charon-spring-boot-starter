@@ -25,7 +25,7 @@ class MappingsUpdatesSpec extends BasicSpec {
                 .hasStatus(NOT_FOUND)
 
         when:
-        addMapping('new proxy 1', '/uri/new/1', 'localhost:8080', 'localhost:8081')
+        addMapping('new proxy 1', '/uri/new/1', 200, 2000, 'localhost:8080', 'localhost:8081')
         sendRequest GET, '/uri/new/1/path/new'
 
         then:
@@ -37,8 +37,8 @@ class MappingsUpdatesSpec extends BasicSpec {
     @DirtiesContext
     def "Should fail to update mappings when new mappings have duplicated paths"() {
         given:
-        addMapping('new proxy 6', '/uri/new/6', 'localhost:8080', 'localhost:8081')
-        addMapping('new proxy 7', '/uri/new/6', 'localhost:8080', 'localhost:8081')
+        addMapping('new proxy 6', '/uri/new/6', 200, 2000, 'localhost:8080', 'localhost:8081')
+        addMapping('new proxy 7', '/uri/new/6', 200, 2000, 'localhost:8080', 'localhost:8081')
 
         when:
         def response = sendRequest GET, '/uri/5/path/5'
@@ -55,7 +55,7 @@ class MappingsUpdatesSpec extends BasicSpec {
     @DirtiesContext
     def "Should fail to update mappings when new mapping name is '#mappingName'"() {
         given:
-        addMapping(mappingName, '/uri/new/3', 'localhost:8080', 'localhost:8081')
+        addMapping(mappingName, '/uri/new/3', 200, 2000, 'localhost:8080', 'localhost:8081')
 
         when:
         def response = sendRequest GET, '/uri/5/path/5'
@@ -74,7 +74,7 @@ class MappingsUpdatesSpec extends BasicSpec {
     @DirtiesContext
     def "Should fail to update mappings when new mapping has no destinations"() {
         given:
-        addMapping('new proxy 2', '/uri/new/2')
+        addMapping('new proxy 2', '/uri/new/2', 200, 2000)
 
         when:
         def response = sendRequest GET, '/uri/5/path/5'
@@ -91,7 +91,7 @@ class MappingsUpdatesSpec extends BasicSpec {
     @DirtiesContext
     def "Should fail to update mappings when new mapping has '#destinationHost' destination host"() {
         given:
-        addMapping('new proxy 4', '/uri/new/4', 'localhost:8080', destinationHost)
+        addMapping('new proxy 4', '/uri/new/4', 200, 2000, 'localhost:8080', destinationHost)
 
         when:
         def response = sendRequest GET, '/uri/5/path/5'
@@ -111,7 +111,7 @@ class MappingsUpdatesSpec extends BasicSpec {
     @DirtiesContext
     def "Should fail to update mappings when new mapping has '#path' path"() {
         given:
-        addMapping('new proxy 5', path, 'localhost:8080', 'localhost:8081')
+        addMapping('new proxy 5', path, 200, 2000, 'localhost:8080', 'localhost:8081')
 
         when:
         def response = sendRequest GET, '/uri/5/path/5'
@@ -125,5 +125,37 @@ class MappingsUpdatesSpec extends BasicSpec {
 
         where:
         path << [null, '', '  ']
+    }
+
+    @DirtiesContext
+    def "Should fail to update mappings when new mapping has invalid connect timeout"() {
+        given:
+        addMapping('new proxy 8', '/uri/new/8', -1, 2000, 'localhost:8080', 'localhost:8081')
+
+        when:
+        def response = sendRequest GET, '/uri/5/path/5'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+                .bodyContains('Invalid connect timeout value')
+    }
+
+    @DirtiesContext
+    def "Should fail to update mappings when new mapping has invalid read timeout"() {
+        given:
+        addMapping('new proxy 8', '/uri/new/8', 200, -1, 'localhost:8080', 'localhost:8081')
+
+        when:
+        def response = sendRequest GET, '/uri/5/path/5'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedNoRequest()
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+                .bodyContains('Invalid read timeout value')
     }
 }
