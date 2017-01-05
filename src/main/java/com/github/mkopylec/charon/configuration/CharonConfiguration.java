@@ -155,10 +155,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public TraceInterceptor charonTraceInterceptor() {
-        if (charon.getTracing().isEnabled()) {
-            return new LoggingTraceInterceptor();
-        }
-        return null;
+        return new LoggingTraceInterceptor(charon);
     }
 
     @PostConstruct

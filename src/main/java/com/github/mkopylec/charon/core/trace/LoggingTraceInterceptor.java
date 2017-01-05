@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon.core.trace;
 
+import com.github.mkopylec.charon.configuration.CharonProperties;
 import org.slf4j.Logger;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
@@ -8,6 +9,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class LoggingTraceInterceptor extends TraceInterceptor {
 
     private static final Logger log = getLogger(LoggingTraceInterceptor.class);
+
+    public LoggingTraceInterceptor(CharonProperties charon) {
+        super(charon);
+    }
 
     @Override
     protected void onRequestReceived(String traceId, IncomingRequest request) {

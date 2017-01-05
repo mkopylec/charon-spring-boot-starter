@@ -20,7 +20,6 @@ import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
-import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -58,18 +57,14 @@ public class RequestForwarder {
 
     public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(
-                traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders())
-        );
+        traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
         ResponseEntity<byte[]> response = sendRequest(traceId, requestEntity, mapping, destination.getMappingMetricsName());
 
         log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatusCode().value());
 
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardComplete(
-                traceId, response.getStatusCode(), response.getBody(), response.getHeaders())
-        );
+        traceInterceptor.onForwardComplete(traceId, response.getStatusCode(), response.getBody(), response.getHeaders());
 
         return response;
     }
@@ -102,7 +97,7 @@ public class RequestForwarder {
         } catch (HttpStatusCodeException e) {
             stopTimerContext(context);
             if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
-                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
+                traceInterceptor.onForwardFailed(traceId, e);
                 throw e;
             }
             responseEntity = status(e.getStatusCode())
@@ -110,7 +105,7 @@ public class RequestForwarder {
                     .body(e.getResponseBodyAsByteArray());
         } catch (Exception e) {
             stopTimerContext(context);
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
+            traceInterceptor.onForwardFailed(traceId, e);
             throw new CharonException("Error sending HTTP request", e);
         }
         return responseEntity;

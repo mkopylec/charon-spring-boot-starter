@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static java.lang.String.valueOf;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -74,12 +73,12 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         HttpHeaders headers = extractor.extractHttpHeaders(request);
         HttpMethod method = extractor.extractHttpMethod(request);
 
-        String traceId = charon.getTracing().isEnabled() ? traceInterceptor.generateTraceId() : null;
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(traceId, method, originUri, headers));
+        String traceId = traceInterceptor.generateTraceId();
+        traceInterceptor.onRequestReceived(traceId, method, originUri, headers);
 
         MappingProperties mapping = mappingsProvider.resolveMapping(originUri, request);
         if (mapping == null) {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(traceId, method, originUri, headers));
+            traceInterceptor.onNoMappingFound(traceId, method, originUri, headers);
 
             log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
 
@@ -113,7 +112,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
                     context -> {
                         try {
                             return requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping);
-                        } catch (Throwable e) {
+                        } catch (Exception e) {
                             log.error("Error forwarding HTTP request asynchronously", e);
                             return null;
                         }
