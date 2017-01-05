@@ -176,7 +176,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             throw new CharonException("Invalid Graphite server port value: " + graphitePort);
         }
         String graphiteHostname = charon.getMetrics().getReporting().getGraphite().getHostname();
-        if (isBlank(graphiteHostname) && shouldCreateGraphieMetricsReporter()) {
+        if (isBlank(graphiteHostname) && shouldCreateGraphiteMetricsReporter()) {
             throw new CharonException("Invalid Graphite server hostname value: " + graphiteHostname);
         }
         int queueCapacity = charon.getAsynchronousForwardingThreadPool().getQueueCapacity();
@@ -203,7 +203,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .build()
             ).start(metricsReportingInterval, SECONDS);
         }
-        if (shouldCreateGraphieMetricsReporter()) {
+        if (shouldCreateGraphiteMetricsReporter()) {
             Graphite graphite = new Graphite(graphiteHostname, graphitePort);
             registerReporter(GraphiteReporter.forRegistry(metricRegistry)
                     .convertDurationsTo(MILLISECONDS)
@@ -227,7 +227,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getLogger().isEnabled();
     }
 
-    protected boolean shouldCreateGraphieMetricsReporter() {
+    protected boolean shouldCreateGraphiteMetricsReporter() {
         return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getGraphite().isEnabled();
     }
 
