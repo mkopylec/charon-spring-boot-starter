@@ -106,7 +106,7 @@ public class RequestForwarder {
         } catch (Exception e) {
             stopTimerContext(context);
             traceInterceptor.onForwardFailed(traceId, e);
-            throw new CharonException("Error sending HTTP request", e);
+            throw e;
         }
         return responseEntity;
     }
