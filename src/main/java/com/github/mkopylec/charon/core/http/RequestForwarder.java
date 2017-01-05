@@ -14,11 +14,9 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -34,7 +32,7 @@ public class RequestForwarder {
 
     protected final ServerProperties server;
     protected final CharonProperties charon;
-    protected final Map<String, RestOperations> restOperations;
+    protected final HttpClientProvider httpClientProvider;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
@@ -43,7 +41,7 @@ public class RequestForwarder {
     public RequestForwarder(
             ServerProperties server,
             CharonProperties charon,
-            Map<String, RestOperations> restOperations,
+            HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
@@ -51,7 +49,7 @@ public class RequestForwarder {
     ) {
         this.server = server;
         this.charon = charon;
-        this.restOperations = restOperations;
+        this.httpClientProvider = httpClientProvider;
         this.mappingsProvider = mappingsProvider;
         this.loadBalancer = loadBalancer;
         this.metricRegistry = metricRegistry;
@@ -99,7 +97,7 @@ public class RequestForwarder {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
         try {
-            responseEntity = restOperations.get(mapping.getName()).exchange(requestEntity, byte[].class);
+            responseEntity = httpClientProvider.getHttpClient(mapping.getName()).exchange(requestEntity, byte[].class);
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
             stopTimerContext(context);

@@ -6,6 +6,7 @@ import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
+import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
@@ -27,14 +28,11 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -46,7 +44,6 @@ import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -83,11 +80,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
 
-    //TODO After mappings update rest templates should be recreated, refresh scope?
     @Bean
-    @ConditionalOnMissingBean(name = "charonRestOperations")
-    public Map<String, RestOperations> charonRestOperations() {
-        return charon.getMappings().stream().collect(toMap(MappingProperties::getName, this::createRestOperations));
+    @ConditionalOnMissingBean
+    public HttpClientProvider charonHttpClientProvider() {
+        return new HttpClientProvider(charon);
     }
 
     @Bean
@@ -110,8 +106,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
-        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector);
+    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector, HttpClientProvider httpClientProvider) {
+        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector, httpClientProvider);
     }
 
     @Bean
@@ -142,12 +138,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public RequestForwarder charonRequestForwarder(
-            @Qualifier("charonRestOperations") Map<String, RestOperations> restOperations,
+            HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             TraceInterceptor traceInterceptor
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
+        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
     }
 
     @Bean
@@ -171,13 +167,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);
         }
-        int loggerMetricsInterval = charon.getMetrics().getReporting().getLogger().getIntervalInSeconds();
-        if (loggerMetricsInterval < 1) {
-            throw new CharonException("Invalid interval of reporting metrics to application logger value: " + loggerMetricsInterval);
-        }
-        int graphiteMetricsInterval = charon.getMetrics().getReporting().getGraphite().getIntervalInSeconds();
-        if (graphiteMetricsInterval < 1) {
-            throw new CharonException("Invalid interval of reporting metrics to Graphite server value: " + graphiteMetricsInterval);
+        int metricsReportingInterval = charon.getMetrics().getReporting().getIntervalInSeconds();
+        if (metricsReportingInterval < 1) {
+            throw new CharonException("Invalid metrics reporting interval value: " + metricsReportingInterval);
         }
         int graphitePort = charon.getMetrics().getReporting().getGraphite().getPort();
         if (graphitePort < 1) {
@@ -209,7 +201,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .withLoggingLevel(TRACE)
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
-            ).start(loggerMetricsInterval, SECONDS);
+            ).start(metricsReportingInterval, SECONDS);
         }
         if (shouldCreateGraphieMetricsReporter()) {
             Graphite graphite = new Graphite(graphiteHostname, graphitePort);
@@ -217,15 +209,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
                     .convertDurationsTo(MILLISECONDS)
                     .convertRatesTo(SECONDS)
                     .build(graphite)
-            ).start(graphiteMetricsInterval, SECONDS);
+            ).start(metricsReportingInterval, SECONDS);
         }
-    }
-
-    protected RestOperations createRestOperations(MappingProperties mapping) {
-        Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(mapping.getTimeout().getConnect());
-        requestFactory.setReadTimeout(mapping.getTimeout().getRead());
-        return new RestTemplate(requestFactory);
     }
 
     protected RetryOperations createRetryOperations(RetryListener listener, int maxAttempts, List<Class<? extends Throwable>> retryableErrors) {

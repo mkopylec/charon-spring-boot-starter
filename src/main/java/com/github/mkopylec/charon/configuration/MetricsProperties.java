@@ -45,6 +45,10 @@ public class MetricsProperties {
     public static class ReportingProperties {
 
         /**
+         * Metrics reporting interval in seconds.
+         */
+        private int intervalInSeconds = 60;
+        /**
          * Properties responsible for reporting collected metrics to application logger.
          */
         @NestedConfigurationProperty
@@ -54,6 +58,14 @@ public class MetricsProperties {
          */
         @NestedConfigurationProperty
         private GraphiteProperties graphite = new GraphiteProperties();
+
+        public int getIntervalInSeconds() {
+            return intervalInSeconds;
+        }
+
+        public void setIntervalInSeconds(int intervalInSeconds) {
+            this.intervalInSeconds = intervalInSeconds;
+        }
 
         public LoggerProperties getLogger() {
             return logger;
@@ -77,10 +89,6 @@ public class MetricsProperties {
              * Flag for enabling and disabling reporting metrics to application logger.
              */
             private boolean enabled = false;
-            /**
-             * Metrics reporting interval in seconds.
-             */
-            private int intervalInSeconds = 60;
 
             public boolean isEnabled() {
                 return enabled;
@@ -88,14 +96,6 @@ public class MetricsProperties {
 
             public void setEnabled(boolean enabled) {
                 this.enabled = enabled;
-            }
-
-            public int getIntervalInSeconds() {
-                return intervalInSeconds;
-            }
-
-            public void setIntervalInSeconds(int intervalInSeconds) {
-                this.intervalInSeconds = intervalInSeconds;
             }
         }
 
@@ -105,10 +105,6 @@ public class MetricsProperties {
              * Flag for enabling and disabling reporting metrics to Graphite server.
              */
             private boolean enabled = false;
-            /**
-             * Metrics reporting interval in seconds.
-             */
-            private int intervalInSeconds = 60;
             /**
              * Graphite server hostname.
              */
@@ -124,14 +120,6 @@ public class MetricsProperties {
 
             public void setEnabled(boolean enabled) {
                 this.enabled = enabled;
-            }
-
-            public int getIntervalInSeconds() {
-                return intervalInSeconds;
-            }
-
-            public void setIntervalInSeconds(int intervalInSeconds) {
-                this.intervalInSeconds = intervalInSeconds;
             }
 
             public String getHostname() {

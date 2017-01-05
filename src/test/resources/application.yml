@@ -10,12 +10,11 @@ charon:
     enabled: true
     names-prefix: charon
     reporting:
+      interval-in-seconds: 1
       logger:
         enabled: true
-        interval-in-seconds: 1
       graphite:
         enabled: false
-        interval-in-seconds: 1
         hostname: localhost
         port: 2003
   tracing:

@@ -22,6 +22,7 @@ This tool tries to get the best of them joining their features into a one Spring
 
 - remove `@EnableCharon` annotation
 - correct `charon.mertics` properties in the _application.yml_ file if collecting metrics is enabled
+- `charon.timeout` properties are no longer available in the _application.yml_, now timeouts can be set per mapping
 
 ## Installing
 
@@ -280,9 +281,6 @@ The following list contains all available configuration properties with their de
 ```yaml
 charon:
     filter-order: Ordered.LOWEST_PRECEDENCE # Charon servlet filter order.
-    timeout:
-        connect: 500 # Connect timeout for HTTP requests forwarding.
-        read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
         retry-on:
@@ -292,16 +290,12 @@ charon:
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
-        logging-reporter:
-            enabled: false # Flag for enabling and disabling reporting metrics via application logger.
-            reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
         reporting:
+            interval-in-seconds: 60 # Metrics reporting interval in seconds.
             logger:
                 enabled: false # Flag for enabling and disabling reporting metrics to application logger.
-                interval-in-seconds: 60 # Metrics reporting interval in seconds.
             graphite:
                 enabled: false # Flag for enabling and disabling reporting metrics to Graphite server.
-                interval-in-seconds: 60 # Metrics reporting interval in seconds.
                 hostname: # Graphite server hostname.
                 port: 2003 # Graphite server port.
     tracing:
@@ -319,6 +313,9 @@ charon:
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
             retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
+            timeout:
+                connect: 200 # Connect timeout for HTTP requests forwarding.
+                read: 2000 # Read timeout for HTTP requests forwarding.
 ```
 
 ## Examples

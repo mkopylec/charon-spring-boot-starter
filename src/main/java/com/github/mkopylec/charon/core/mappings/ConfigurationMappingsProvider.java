@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.core.mappings;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
+import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,8 +12,13 @@ import static java.util.stream.Collectors.toList;
 
 public class ConfigurationMappingsProvider extends MappingsProvider {
 
-    public ConfigurationMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
-        super(server, charon, mappingsCorrector);
+    public ConfigurationMappingsProvider(
+            ServerProperties server,
+            CharonProperties charon,
+            MappingsCorrector mappingsCorrector,
+            HttpClientProvider httpClientProvider
+    ) {
+        super(server, charon, mappingsCorrector, httpClientProvider);
     }
 
     @Override
