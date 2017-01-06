@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
@@ -28,6 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.status
 
+@DirtiesContext
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestApplication)
 abstract class BasicSpec extends Specification {
 

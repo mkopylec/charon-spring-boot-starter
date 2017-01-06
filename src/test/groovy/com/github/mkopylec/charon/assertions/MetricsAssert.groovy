@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.assertions
 
-import com.github.mkopylec.charon.application.TestMetricsReporter
+import com.github.mkopylec.charon.application.GraphiteServerMock
 
 class MetricsAssert {
 
-    private TestMetricsReporter actual
+    private GraphiteServerMock actual
 
-    protected MetricsAssert(TestMetricsReporter actual) {
+    protected MetricsAssert(GraphiteServerMock actual) {
         assert actual != null
         this.actual = actual
     }

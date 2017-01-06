@@ -169,7 +169,7 @@ charon.metrics.enabled: true
 ```
 
 Charon collects metrics per mapping.
-To report collected metrics a `com.codahale.metrics.Reporter` is needed.
+To report collected metrics a reporter is needed.
 Charon includes two metrics reporters but they are disabled by default.
 To enable a reporter that logs collected metrics set an appropriate configuration property:
 
@@ -191,6 +191,24 @@ The interval can be changed by setting an appropriate configuration property:
 
 ```yaml
 charon.metrics.reporting.interval-in-seconds: <interval_in_seconds>
+```
+
+To create a custom reporter create a Spring bean that extends `ScheduledReporter`:
+
+```java
+@Component
+public class CustomMetricsReporter extends ScheduledReporter {
+
+    @Autowired
+    public CustomMetricsReporter(MetricRegistry registry) {
+        ...
+    }
+
+    @Override
+    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
+        ...
+    }
+}
 ```
 
 ### Tracing

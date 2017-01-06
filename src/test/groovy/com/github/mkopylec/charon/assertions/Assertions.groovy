@@ -1,6 +1,6 @@
 package com.github.mkopylec.charon.assertions
 
-import com.github.mkopylec.charon.application.TestMetricsReporter
+import com.github.mkopylec.charon.application.GraphiteServerMock
 import com.github.mkopylec.charon.application.TestTraceInterceptor
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.springframework.http.ResponseEntity
@@ -15,8 +15,8 @@ class Assertions {
         return new ResponseAssert(response)
     }
 
-    static MetricsAssert assertThat(TestMetricsReporter metricsReporter) {
-        return new MetricsAssert(metricsReporter)
+    static MetricsAssert assertThat(GraphiteServerMock graphiteServer) {
+        return new MetricsAssert(graphiteServer)
     }
 
     static TraceAssert assertThat(TestTraceInterceptor traceInterceptor) {

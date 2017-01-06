@@ -52,9 +52,7 @@ public abstract class TraceInterceptor {
     }
 
     public void onForwardFailed(String traceId, Throwable error) {
-        runIfTracingIsEnabled(() -> {
-            onForwardError(traceId, error);
-        });
+        runIfTracingIsEnabled(() -> onForwardError(traceId, error));
     }
 
     public void onForwardComplete(String traceId, HttpStatus status, byte[] body, HttpHeaders headers) {
