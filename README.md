@@ -193,7 +193,7 @@ The interval can be changed by setting an appropriate configuration property:
 charon.metrics.reporting.interval-in-seconds: <interval_in_seconds>
 ```
 
-To create a custom reporter create a Spring bean that extends `ScheduledReporter`:
+To create a custom metrics reporter create a Spring bean that extends `ScheduledReporter`:
 
 ```java
 @Component
