@@ -22,7 +22,7 @@ This tool tries to get the best of them joining their features into a one Spring
 
 - remove `@EnableCharon` annotation
 - correct `charon.mertics` properties in the _application.yml_ file if collecting metrics is enabled
-- `charon.timeout` properties are no longer available in the _application.yml_, now timeouts can be set per mapping
+- `charon.timeout` properties are no longer available in the _application.yml_ file, now timeouts can be set per mapping
 
 ## Installing
 
