@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.core.http;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
 import static java.lang.String.valueOf;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -74,12 +73,12 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         HttpHeaders headers = extractor.extractHttpHeaders(request);
         HttpMethod method = extractor.extractHttpMethod(request);
 
-        String traceId = charon.getTracing().isEnabled() ? traceInterceptor.generateTraceId() : null;
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onRequestReceived(traceId, method, originUri, headers));
+        String traceId = traceInterceptor.generateTraceId();
+        traceInterceptor.onRequestReceived(traceId, method, originUri, headers);
 
-        Mapping mapping = mappingsProvider.resolveMapping(originUri, request);
+        MappingProperties mapping = mappingsProvider.resolveMapping(originUri, request);
         if (mapping == null) {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onNoMappingFound(traceId, method, originUri, headers));
+            traceInterceptor.onNoMappingFound(traceId, method, originUri, headers);
 
             log.debug("Forwarding: {} {} -> no mapping found", method, originUri);
 
@@ -106,11 +105,18 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected void forwardToDestination(HttpServletResponse response, String traceId, Mapping mapping, RequestData dataToForward) {
+    protected void forwardToDestination(HttpServletResponse response, String traceId, MappingProperties mapping, RequestData dataToForward) throws ServletException {
         ResponseEntity<byte[]> responseEntity;
         if (mapping.isAsynchronous()) {
             taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
-                    context -> requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping)
+                    context -> {
+                        try {
+                            return requestForwarder.forwardHttpRequest(dataToForward, traceId, context, mapping);
+                        } catch (Exception e) {
+                            log.error("Error forwarding HTTP request asynchronously", e);
+                            return null;
+                        }
+                    }
             ));
             responseEntity = new ResponseEntity<>(ACCEPTED);
         } else {
@@ -119,7 +125,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         processResponse(response, responseEntity);
     }
 
-    protected RetryOperations resolveRetryOperations(Mapping mapping) {
+    protected RetryOperations resolveRetryOperations(MappingProperties mapping) {
         return mapping != null && mapping.isRetryable() ? retryOperations : defaultRetryOperations;
     }
 

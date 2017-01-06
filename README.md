@@ -18,6 +18,12 @@ This tool tries to get the best of them joining their features into a one Spring
 - customizable load balancer
 - forward HTTP headers support
 
+## Migrating from 1.x.x to 2.x.x
+
+- remove `@EnableCharon` annotation
+- correct `charon.mertics` properties in the _application.yml_ file if collecting metrics is enabled
+- `charon.timeout` properties are no longer available in the _application.yml_, now timeouts can be set per mapping
+
 ## Installing
 
 ```gradle
@@ -25,15 +31,14 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'com.github.mkopylec:charon-spring-boot-starter:1.10.0'
+    compile 'com.github.mkopylec:charon-spring-boot-starter:2.0.0'
 }
 ```
 
 ## Basic usage
-Add `@EnableCharon` to a Spring Boot web application:
+Create a Spring Boot web application:
 
 ```java
-@EnableCharon
 @SpringBootApplication
 public class Application {
 
@@ -164,19 +169,51 @@ charon.metrics.enabled: true
 ```
 
 Charon collects metrics per mapping.
-To report collected metrics a `Reporter` is needed.
-Charon includes the default metrics reporter but it is disabled by default, because usually the project registers its own metrics reporters.
-To enable it set an appropriate configuration property:
+To report collected metrics a reporter is needed.
+Charon includes two metrics reporters but they are disabled by default.
+To enable a reporter that logs collected metrics set an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter.enabled: true
+charon.metrics.reporting.logger.enabled: true
 ```
 
-The default metrics reporter logs results every 60 seconds.
+To enable a reporter that sends collected metrics to a [Graphite](https://graphiteapp.org/) host set an appropriate configuration properties:
+
+```yaml
+charon.metrics.reporting.graphite:
+    enabled: true
+    hostname: <graphite_hostname>
+    port: <graphite_port>
+```
+
+The default metrics reporters report results every 60 seconds.
 The interval can be changed by setting an appropriate configuration property:
 
 ```yaml
-charon.metrics.logging-reporter.reporting-interval-in-seconds: <interval_in_seconds>
+charon.metrics.reporting.interval-in-seconds: <interval_in_seconds>
+```
+
+To create a custom metrics reporter create a Spring bean that extends `ScheduledReporter`:
+
+```java
+@Component
+public class CustomMetricsReporter extends ScheduledReporter {
+
+    @Autowired
+    public CustomMetricsReporter(MetricRegistry registry) {
+        ...
+    }
+
+    @Override
+    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
+        ...
+    }
+    
+    @PostConstruct
+    private void startCapturingMetrics() {
+        start(...);
+    }
+}
 ```
 
 ### Tracing
@@ -265,9 +302,6 @@ The following list contains all available configuration properties with their de
 ```yaml
 charon:
     filter-order: Ordered.LOWEST_PRECEDENCE # Charon servlet filter order.
-    timeout:
-        connect: 500 # Connect timeout for HTTP requests forwarding.
-        read: 2000 # Read timeout for HTTP requests forwarding.
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
         retry-on:
@@ -277,9 +311,14 @@ charon:
     metrics:
         enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
-        logging-reporter:
-            enabled: false # Flag for enabling and disabling reporting metrics via application logger.
-            reporting-interval-in-seconds: 60 # Metrics reporting via logger interval in seconds.
+        reporting:
+            interval-in-seconds: 60 # Metrics reporting interval in seconds.
+            logger:
+                enabled: false # Flag for enabling and disabling reporting metrics to application logger.
+            graphite:
+                enabled: false # Flag for enabling and disabling reporting metrics to Graphite server.
+                hostname: # Graphite server hostname.
+                port: 2003 # Graphite server port.
     tracing:
         enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
     asynchronous-forwarding-thread-pool:
@@ -295,6 +334,9 @@ charon:
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
             retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
+            timeout:
+                connect: 200 # Connect timeout for HTTP requests forwarding.
+                read: 2000 # Read timeout for HTTP requests forwarding.
 ```
 
 ## Examples

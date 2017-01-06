@@ -2,7 +2,7 @@ package com.github.mkopylec.charon
 
 import com.github.mkopylec.charon.application.TestApplication
 import com.github.mkopylec.charon.configuration.CharonProperties
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping
+import com.github.mkopylec.charon.configuration.MappingProperties
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
@@ -28,6 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.ResponseEntity.status
 
+@DirtiesContext
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestApplication)
 abstract class BasicSpec extends Specification {
 
@@ -55,12 +57,14 @@ abstract class BasicSpec extends Specification {
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
-                    .body(e.responseBodyAsString);
+                    .body(e.responseBodyAsString)
         }
     }
 
-    protected void addMapping(String name, String path, String... destinations) {
-        def mapping = new Mapping(name: name, path: path, destinations: destinations)
+    protected void addMapping(String name, String path, int connectTimeout, int readTimeout, String... destinations) {
+        def mapping = new MappingProperties(name: name, path: path, destinations: destinations)
+        mapping.timeout.connect = connectTimeout
+        mapping.timeout.read = readTimeout
         charon.mappings.add(mapping)
     }
 
@@ -70,6 +74,10 @@ abstract class BasicSpec extends Specification {
 
     protected String getPort() {
         return context.embeddedServletContainer.port
+    }
+
+    protected void stubDestinationResponse(boolean timedOut) {
+        stubResponse(OK, [:], null, timedOut)
     }
 
     protected void stubDestinationResponse(HttpStatus responseStatus) {
@@ -92,12 +100,15 @@ abstract class BasicSpec extends Specification {
         stubResponse(responseStatus, [:], responseBody)
     }
 
-    private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null) {
+    private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null, boolean timedOut = false) {
         [localhost8080, localhost8081].each {
             def response = aResponse()
             responseHeaders.each { name, value -> response = response.withHeader(name, value) }
             if (responseBody) {
                 response = response.withBody(responseBody)
+            }
+            if (timedOut) {
+                response = response.withFixedDelay(1000)
             }
             response = response.withStatus(responseStatus.value())
             it.stubFor(any(urlMatching('.*')).willReturn(response))

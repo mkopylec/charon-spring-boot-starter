@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.core.http;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
@@ -14,15 +14,14 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
-import static com.github.mkopylec.charon.core.utils.PredicateRunner.runIfTrue;
+import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
+import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.ResponseEntity.status;
@@ -33,7 +32,7 @@ public class RequestForwarder {
 
     protected final ServerProperties server;
     protected final CharonProperties charon;
-    protected final RestOperations restOperations;
+    protected final HttpClientProvider httpClientProvider;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
@@ -42,7 +41,7 @@ public class RequestForwarder {
     public RequestForwarder(
             ServerProperties server,
             CharonProperties charon,
-            RestOperations restOperations,
+            HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
@@ -50,38 +49,34 @@ public class RequestForwarder {
     ) {
         this.server = server;
         this.charon = charon;
-        this.restOperations = restOperations;
+        this.httpClientProvider = httpClientProvider;
         this.mappingsProvider = mappingsProvider;
         this.loadBalancer = loadBalancer;
         this.metricRegistry = metricRegistry;
         this.traceInterceptor = traceInterceptor;
     }
 
-    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, Mapping mapping) {
+    public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardStart(
-                traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders())
-        );
+        traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> requestEntity = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
-        ResponseEntity<byte[]> response = sendRequest(traceId, requestEntity, destination.getMappingMetricsName());
+        ResponseEntity<byte[]> response = sendRequest(traceId, requestEntity, mapping, destination.getMappingMetricsName());
 
         log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatusCode().value());
 
-        runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardComplete(
-                traceId, response.getStatusCode(), response.getBody(), response.getHeaders())
-        );
+        traceInterceptor.onForwardComplete(traceId, response.getStatusCode(), response.getBody(), response.getHeaders());
 
         return response;
     }
 
-    protected ForwardDestination resolveForwardDestination(String originUri, Mapping mapping) {
+    protected ForwardDestination resolveForwardDestination(String originUri, MappingProperties mapping) {
         return new ForwardDestination(createDestinationUrl(originUri, mapping), mapping.getName(), resolveMetricsName(mapping));
     }
 
-    protected URI createDestinationUrl(String uri, Mapping mapping) {
+    protected URI createDestinationUrl(String uri, MappingProperties mapping) {
         if (mapping.isStripPath()) {
-            uri = removeStart(uri, concatContextAndMappingPaths(mapping));
+            uri = stripMappingPath(uri, mapping);
         }
         String host = loadBalancer.chooseDestination(mapping.getDestinations());
         try {
@@ -91,26 +86,27 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, String mappingMetricsName) {
+    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, MappingProperties mapping, String mappingMetricsName) {
         ResponseEntity<byte[]> responseEntity;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
         try {
-            responseEntity = restOperations.exchange(requestEntity, byte[].class);
+            responseEntity = httpClientProvider.getHttpClient(mapping.getName()).exchange(requestEntity, byte[].class);
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
+            stopTimerContext(context);
             if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
-                runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
+                traceInterceptor.onForwardFailed(traceId, e);
                 throw e;
             }
-            stopTimerContext(context);
             responseEntity = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
-        } catch (Throwable e) {
-            runIfTrue(charon.getTracing().isEnabled(), () -> traceInterceptor.onForwardFailed(traceId, e));
+        } catch (Exception e) {
+            stopTimerContext(context);
+            traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
         return responseEntity;
@@ -122,11 +118,15 @@ public class RequestForwarder {
         }
     }
 
-    protected String resolveMetricsName(Mapping mapping) {
+    protected String resolveMetricsName(MappingProperties mapping) {
         return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
     }
 
-    protected String concatContextAndMappingPaths(Mapping mapping) {
+    protected String stripMappingPath(String uri, MappingProperties mapping) {
+        return prependIfMissing(removeStart(uri, concatContextAndMappingPaths(mapping)), "/");
+    }
+
+    protected String concatContextAndMappingPaths(MappingProperties mapping) {
         return correctUri(server.getContextPath()) + mapping.getPath();
     }
 }

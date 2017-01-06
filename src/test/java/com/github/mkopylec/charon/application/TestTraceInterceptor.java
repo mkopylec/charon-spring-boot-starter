@@ -1,9 +1,11 @@
 package com.github.mkopylec.charon.application;
 
+import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.core.trace.ForwardRequest;
 import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,11 @@ public class TestTraceInterceptor extends TraceInterceptor {
     private boolean forwardCompleteCaptured = false;
     private boolean hasUnchangeableTraceId = false;
     private String traceId = EMPTY;
+
+    @Autowired
+    public TestTraceInterceptor(CharonProperties charon) {
+        super(charon);
+    }
 
     @Override
     protected void onRequestReceived(String traceId, IncomingRequest request) {

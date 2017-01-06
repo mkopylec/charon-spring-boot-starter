@@ -1,8 +1,5 @@
 charon:
   filter-order: 2147483647
-  timeout:
-    connect: 500
-    read: 2000
   retrying:
     max-attempts: 3
     retry-on:
@@ -12,9 +9,14 @@ charon:
   metrics:
     enabled: true
     names-prefix: charon
-    logging-reporter:
-      enabled: true
-      reporting-interval-in-seconds: 1
+    reporting:
+      interval-in-seconds: 1
+      logger:
+        enabled: true
+      graphite:
+        enabled: false
+        hostname: localhost
+        port: 2003
   tracing:
     enabled: true
   asynchronous-forwarding-thread-pool:
@@ -28,6 +30,9 @@ charon:
       path: /uri/1
       destinations: http://localhost:8080, localhost:8081
       retryable: true
+      timeout:
+        connect: 100
+        read: 500
     -
       name: proxy 2
       path: /uri/2

@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.specification
 
 import com.github.mkopylec.charon.BasicSpec
-import com.github.mkopylec.charon.application.TestMetricsReporter
+import com.github.mkopylec.charon.application.GraphiteServerMock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
@@ -9,11 +9,11 @@ import org.springframework.test.context.TestPropertySource
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 
-@TestPropertySource(properties = ['test.metrics-reporter-enabled: true'])
+@TestPropertySource(properties = ['charon.metrics.reporting.graphite.enabled: true'])
 class MetricsSpec extends BasicSpec {
 
     @Autowired
-    private TestMetricsReporter metricsReporter
+    private GraphiteServerMock graphiteServer
 
     @DirtiesContext
     def "Should capture metrics while proxying HTTP request after a time interval"() {
@@ -22,7 +22,7 @@ class MetricsSpec extends BasicSpec {
         sleep(1000)
 
         then:
-        assertThat(metricsReporter)
+        assertThat(graphiteServer)
                 .hasCapturedMetrics()
     }
 }

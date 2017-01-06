@@ -124,4 +124,16 @@ class ProxyingResponseSpec extends BasicSpec {
                 .hasStatus(ACCEPTED)
                 .hasNoBody()
     }
+
+    def "Should fail to proxy HTTP request when a timeout occurs"() {
+        given:
+        stubDestinationResponse true
+
+        when:
+        def response = sendRequest GET, '/uri/1/path/1'
+
+        then:
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+    }
 }

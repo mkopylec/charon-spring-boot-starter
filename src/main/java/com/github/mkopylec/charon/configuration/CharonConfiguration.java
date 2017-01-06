@@ -1,9 +1,12 @@
 package com.github.mkopylec.charon.configuration;
 
 import com.codahale.metrics.MetricRegistry;
-import com.github.mkopylec.charon.configuration.CharonProperties.Mapping;
+import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
+import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
@@ -25,14 +28,11 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
-import static com.codahale.metrics.Slf4jReporter.forRegistry;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
@@ -82,11 +82,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public RestOperations charonRestOperations() {
-        Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(charon.getTimeout().getConnect());
-        requestFactory.setReadTimeout(charon.getTimeout().getRead());
-        return new RestTemplate(requestFactory);
+    public HttpClientProvider charonHttpClientProvider() {
+        return new HttpClientProvider(charon);
     }
 
     @Bean
@@ -109,8 +106,8 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
 
     @Bean
     @ConditionalOnMissingBean
-    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector) {
-        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector);
+    public MappingsProvider charonMappingsProvider(MappingsCorrector mappingsCorrector, HttpClientProvider httpClientProvider) {
+        return new ConfigurationMappingsProvider(server, charon, mappingsCorrector, httpClientProvider);
     }
 
     @Bean
@@ -141,12 +138,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public RequestForwarder charonRequestForwarder(
-            @Qualifier("charonRestOperations") RestOperations restOperations,
+            HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             TraceInterceptor traceInterceptor
     ) {
-        return new RequestForwarder(server, charon, restOperations, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
+        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
     }
 
     @Bean
@@ -158,49 +155,58 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public TraceInterceptor charonTraceInterceptor() {
-        if (charon.getTracing().isEnabled()) {
-            return new LoggingTraceInterceptor();
-        }
-        return null;
+        return new LoggingTraceInterceptor(charon);
     }
 
     @PostConstruct
     protected void checkConfiguration() {
-        int connectTimeout = charon.getTimeout().getConnect();
-        int readTimeout = charon.getTimeout().getRead();
-        if (connectTimeout < 0) {
-            throw new CharonException("Invalid connect timeout value: " + connectTimeout);
-        }
-        if (readTimeout < 0) {
-            throw new CharonException("Invalid read timeout value: " + readTimeout);
-        }
         int maxAttempts = charon.getRetrying().getMaxAttempts();
         if (maxAttempts < 1) {
             throw new CharonException("Invalid max number of attempts to forward HTTP request value: " + maxAttempts);
         }
+        int metricsReportingInterval = charon.getMetrics().getReporting().getIntervalInSeconds();
+        if (metricsReportingInterval < 1) {
+            throw new CharonException("Invalid metrics reporting interval value: " + metricsReportingInterval);
+        }
+        int graphitePort = charon.getMetrics().getReporting().getGraphite().getPort();
+        if (graphitePort < 1) {
+            throw new CharonException("Invalid Graphite server port value: " + graphitePort);
+        }
+        String graphiteHostname = charon.getMetrics().getReporting().getGraphite().getHostname();
+        if (isBlank(graphiteHostname) && shouldCreateGraphiteMetricsReporter()) {
+            throw new CharonException("Invalid Graphite server hostname value: " + graphiteHostname);
+        }
         int queueCapacity = charon.getAsynchronousForwardingThreadPool().getQueueCapacity();
         if (queueCapacity < 0) {
-            throw new CharonException("Invalid thread pool executor queue capacity value: " + queueCapacity);
+            throw new CharonException("Invalid asynchronous requests thread pool executor queue capacity value: " + queueCapacity);
         }
         int initialSize = charon.getAsynchronousForwardingThreadPool().getSize().getInitial();
         if (initialSize < 0) {
-            throw new CharonException("Invalid thread pool executor initial size value: " + initialSize);
+            throw new CharonException("Invalid asynchronous requests thread pool executor initial size value: " + initialSize);
         }
         int maximumSize = charon.getAsynchronousForwardingThreadPool().getSize().getMaximum();
         if (maximumSize < 1) {
-            throw new CharonException("Invalid thread pool executor maximum size value: " + maximumSize);
+            throw new CharonException("Invalid asynchronous requests thread pool executor maximum size value: " + maximumSize);
         }
         if (initialSize > maximumSize) {
-            throw new CharonException("Initial size of thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
+            throw new CharonException("Initial size of asynchronous requests thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
         }
-        if (shouldCreateDefaultMetricsReporter()) {
-            registerReporter(forRegistry(metricRegistry)
+        if (shouldCreateLoggingMetricsReporter()) {
+            registerReporter(Slf4jReporter.forRegistry(metricRegistry)
                     .convertDurationsTo(MILLISECONDS)
                     .convertRatesTo(SECONDS)
                     .withLoggingLevel(TRACE)
                     .outputTo(getLogger(ReverseProxyFilter.class))
                     .build()
-            ).start(charon.getMetrics().getLoggingReporter().getReportingIntervalInSeconds(), SECONDS);
+            ).start(metricsReportingInterval, SECONDS);
+        }
+        if (shouldCreateGraphiteMetricsReporter()) {
+            Graphite graphite = new Graphite(graphiteHostname, graphitePort);
+            registerReporter(GraphiteReporter.forRegistry(metricRegistry)
+                    .convertDurationsTo(MILLISECONDS)
+                    .convertRatesTo(SECONDS)
+                    .build(graphite)
+            ).start(metricsReportingInterval, SECONDS);
         }
     }
 
@@ -214,13 +220,17 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         return retryTemplate;
     }
 
-    protected boolean shouldCreateDefaultMetricsReporter() {
-        return charon.getMetrics().isEnabled() && charon.getMetrics().getLoggingReporter().isEnabled();
+    protected boolean shouldCreateLoggingMetricsReporter() {
+        return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getLogger().isEnabled();
+    }
+
+    protected boolean shouldCreateGraphiteMetricsReporter() {
+        return charon.getMetrics().isEnabled() && charon.getMetrics().getReporting().getGraphite().isEnabled();
     }
 
     protected boolean isAsynchronousMappingPresent() {
         return !charon.getMappings().stream()
-                .filter(Mapping::isAsynchronous)
+                .filter(MappingProperties::isAsynchronous)
                 .collect(toList())
                 .isEmpty();
     }

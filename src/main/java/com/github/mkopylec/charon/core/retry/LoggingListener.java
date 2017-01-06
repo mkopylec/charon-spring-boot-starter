@@ -7,7 +7,7 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import static com.github.mkopylec.charon.configuration.CharonProperties.Retrying.MAPPING_NAME_RETRY_ATTRIBUTE;
+import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class LoggingListener extends RetryListenerSupport {
@@ -33,7 +33,7 @@ public class LoggingListener extends RetryListenerSupport {
         Object mappingName = context.getAttribute(MAPPING_NAME_RETRY_ATTRIBUTE);
         if (mappingName != null) {
             if (throwable != null) {
-                log.error("All {} attempts to forward HTTP request using '{}' mapping has failed", context.getRetryCount(), mappingName);
+                log.error("All {} attempts to forward HTTP request using '{}' mapping has failed. {}", context.getRetryCount(), mappingName, retrieveErrorMessage(throwable));
             } else {
                 log.debug("Attempt {} to forward HTTP request using '{}' mapping has succeeded", context.getRetryCount() + 1, mappingName);
             }
