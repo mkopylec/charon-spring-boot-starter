@@ -208,6 +208,11 @@ public class CustomMetricsReporter extends ScheduledReporter {
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
         ...
     }
+    
+    @PostConstruct
+    private void startCapturingMetrics() {
+        start(...);
+    }
 }
 ```
 
