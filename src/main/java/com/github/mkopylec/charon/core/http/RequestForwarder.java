@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
+import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.ResponseEntity.status;
@@ -75,7 +76,7 @@ public class RequestForwarder {
 
     protected URI createDestinationUrl(String uri, MappingProperties mapping) {
         if (mapping.isStripPath()) {
-            uri = removeStart(uri, concatContextAndMappingPaths(mapping));
+            uri = stripMappingPath(uri, mapping);
         }
         String host = loadBalancer.chooseDestination(mapping.getDestinations());
         try {
@@ -119,6 +120,10 @@ public class RequestForwarder {
 
     protected String resolveMetricsName(MappingProperties mapping) {
         return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
+    }
+
+    protected String stripMappingPath(String uri, MappingProperties mapping) {
+        return prependIfMissing(removeStart(uri, concatContextAndMappingPaths(mapping)), "/");
     }
 
     protected String concatContextAndMappingPaths(MappingProperties mapping) {
