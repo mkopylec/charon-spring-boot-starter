@@ -177,7 +177,7 @@ To enable a reporter that logs collected metrics set an appropriate configuratio
 charon.metrics.reporting.logger.enabled: true
 ```
 
-To enable a reporter that sends collected metrics to a [Graphite](https://graphiteapp.org/) host set an appropriate configuration properties:
+To enable a reporter that sends collected metrics to a [Graphite](https://graphiteapp.org/) server set an appropriate configuration properties:
 
 ```yaml
 charon.metrics.reporting.graphite:
