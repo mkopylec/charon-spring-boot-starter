@@ -137,4 +137,15 @@ abstract class ProxyingRequestSpec extends BasicSpec {
                 .withMethodAndUri(GET, '/path/7')
                 .withoutBody()
     }
+
+    def "Should proxy HTTPS request"() {
+        when:
+        sendRequest GET, '/uri/9/path/9'
+
+        then:
+        assertThat(localhost8082)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, '/path/9')
+                .withoutBody()
+    }
 }

@@ -23,6 +23,7 @@ import spock.lang.Specification
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import static com.github.tomakehurst.wiremock.client.WireMock.any
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import static org.apache.commons.lang3.StringUtils.EMPTY
 import static org.apache.commons.lang3.StringUtils.trimToEmpty
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -37,6 +38,8 @@ abstract class BasicSpec extends Specification {
     public WireMockRule localhost8080 = new WireMockRule(8080)
     @Rule
     public WireMockRule localhost8081 = new WireMockRule(8081)
+    @Rule
+    public WireMockRule localhost8082 = new WireMockRule(wireMockConfig().port(8083).httpsPort(8082))
 
     @Shared
     private RestTemplate restTemplate = new RestTemplate()
@@ -101,7 +104,7 @@ abstract class BasicSpec extends Specification {
     }
 
     private void stubResponse(HttpStatus responseStatus = OK, Map<String, String> responseHeaders = [:], String responseBody = null, boolean timedOut = false) {
-        [localhost8080, localhost8081].each {
+        [localhost8080, localhost8081, localhost8082].each {
             def response = aResponse()
             responseHeaders.each { name, value -> response = response.withHeader(name, value) }
             if (responseBody) {
