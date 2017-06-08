@@ -88,19 +88,19 @@ This can be done by creating a Spring bean of type `MappingsProvider`:
 public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
-		super(server, charon, mappingsCorrector);
-	}
+    public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+        super(server, charon, mappingsCorrector);
+    }
 	
-	@Override
+    @Override
     protected boolean shouldUpdateMappings(HttpServletRequest request) {
         ...
     }
 
-	@Override
-	protected List<Mapping> retrieveMappings() {
-		...
-	}
+    @Override
+    protected List<Mapping> retrieveMappings() {
+        ...
+    }
 }
 ```
 
@@ -153,10 +153,10 @@ A custom load balancer can be created by creating a Spring bean of type `LoadBal
 @Component
 public class CustomLoadBalancer implements LoadBalancer {
 
-	@Override
-	public String chooseDestination(List<String> destinations) {
-		...
-	}
+    @Override
+    public String chooseDestination(List<String> destinations) {
+        ...
+    }
 }
 ```
 
@@ -295,6 +295,7 @@ Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` con
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
 - if there are mappings like _/uri_ and _/uri/path_ and the incoming request URI is _/uri/path/something_ than the more specific mapping (_/uri/path_) will be chosen
+- proxying requests to domains with trusted SSL certificates is automatically supported
 
 ## Configuration properties list
 The following list contains all available configuration properties with their default values.
