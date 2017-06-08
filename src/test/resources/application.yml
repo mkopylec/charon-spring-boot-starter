@@ -77,8 +77,8 @@ charon:
       destinations: http://localhost:8080, localhost:8081
     -
       name: ssl proxy
-      path: /uri/9
-      destinations: https://localhost:8082
+      path: /mkopylec
+      destinations: https://github.com
 
 test:
   metrics-reporter-enabled: false

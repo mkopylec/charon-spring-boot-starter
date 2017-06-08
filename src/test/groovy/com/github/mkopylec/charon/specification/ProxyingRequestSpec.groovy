@@ -12,6 +12,7 @@ import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import static org.springframework.http.HttpStatus.OK
 
 abstract class ProxyingRequestSpec extends BasicSpec {
 
@@ -140,12 +141,10 @@ abstract class ProxyingRequestSpec extends BasicSpec {
 
     def "Should proxy HTTPS request"() {
         when:
-        sendRequest GET, '/uri/9/path/9'
+        def response = sendRequest(GET, '/mkopylec')
 
         then:
-        assertThat(localhost8082)
-                .haveReceivedRequest()
-                .withMethodAndUri(GET, '/path/9')
-                .withoutBody()
+        assertThat(response)
+                .hasStatus(OK)
     }
 }
