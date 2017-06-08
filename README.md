@@ -88,19 +88,19 @@ This can be done by creating a Spring bean of type `MappingsProvider`:
 public class CustomMappingsProvider extends MappingsProvider {
 
     @Autowired
-	public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
-		super(server, charon, mappingsCorrector);
-	}
+    public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
+        super(server, charon, mappingsCorrector);
+    }
 	
-	@Override
+    @Override
     protected boolean shouldUpdateMappings(HttpServletRequest request) {
         ...
     }
 
-	@Override
-	protected List<Mapping> retrieveMappings() {
-		...
-	}
+    @Override
+    protected List<Mapping> retrieveMappings() {
+        ...
+    }
 }
 ```
 
@@ -153,10 +153,10 @@ A custom load balancer can be created by creating a Spring bean of type `LoadBal
 @Component
 public class CustomLoadBalancer implements LoadBalancer {
 
-	@Override
-	public String chooseDestination(List<String> destinations) {
-		...
-	}
+    @Override
+    public String chooseDestination(List<String> destinations) {
+        ...
+    }
 }
 ```
 
