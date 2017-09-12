@@ -56,11 +56,13 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     protected CharonProperties charon;
     @Autowired
     protected ServerProperties server;
-    @Autowired
-    protected MetricRegistry metricRegistry;
 
     @Bean
-    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter) {
+    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MetricRegistry metricRegistry) {
+        int metricsReportingInterval = charon.getMetrics().getReporting().getIntervalInSeconds();
+        int graphitePort = charon.getMetrics().getReporting().getGraphite().getPort();
+        String graphiteHostname = charon.getMetrics().getReporting().getGraphite().getHostname();
+        startMetricReporters(metricsReportingInterval, graphitePort, graphiteHostname, metricRegistry);
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(proxyFilter);
         registrationBean.setOrder(charon.getFilterOrder());
         return registrationBean;
@@ -141,6 +143,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
+            MetricRegistry metricRegistry,
             TraceInterceptor traceInterceptor
     ) {
         return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
@@ -191,6 +194,9 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         if (initialSize > maximumSize) {
             throw new CharonException("Initial size of asynchronous requests thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
         }
+    }
+
+    protected void startMetricReporters(int metricsReportingInterval, int graphitePort, String graphiteHostname, MetricRegistry metricRegistry) {
         if (shouldCreateLoggingMetricsReporter()) {
             registerReporter(Slf4jReporter.forRegistry(metricRegistry)
                     .convertDurationsTo(MILLISECONDS)
