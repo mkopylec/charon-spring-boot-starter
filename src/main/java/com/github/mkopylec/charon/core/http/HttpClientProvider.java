@@ -2,17 +2,16 @@ package com.github.mkopylec.charon.core.http;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
-import com.github.mkopylec.charon.exceptions.CharonException;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.SSLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.netty.handler.ssl.SslContextBuilder.forClient;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.http.impl.client.HttpClientBuilder.create;
 
 public class HttpClientProvider {
 
@@ -32,12 +31,8 @@ public class HttpClientProvider {
     }
 
     protected RestOperations createHttpClient(MappingProperties mapping) {
-        Netty4ClientHttpRequestFactory requestFactory = new Netty4ClientHttpRequestFactory();
-        try {
-            requestFactory.setSslContext(forClient().build());
-        } catch (SSLException e) {
-            throw new CharonException("Error configuring SSL connection for mapping named: " + mapping.getName(), e);
-        }
+        CloseableHttpClient client = create().useSystemProperties().disableRedirectHandling().build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(client);
         requestFactory.setConnectTimeout(mapping.getTimeout().getConnect());
         requestFactory.setReadTimeout(mapping.getTimeout().getRead());
         return new RestTemplate(requestFactory);

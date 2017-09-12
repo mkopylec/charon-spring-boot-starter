@@ -12,7 +12,7 @@ import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpMethod.TRACE
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import static org.springframework.http.HttpStatus.OK
+import static org.springframework.http.HttpStatus.MOVED_PERMANENTLY
 
 abstract class ProxyingRequestSpec extends BasicSpec {
 
@@ -145,6 +145,6 @@ abstract class ProxyingRequestSpec extends BasicSpec {
 
         then:
         assertThat(response)
-                .hasStatus(OK)
+                .hasStatus(MOVED_PERMANENTLY)
     }
 }
