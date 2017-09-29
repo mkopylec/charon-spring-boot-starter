@@ -53,6 +53,7 @@ public abstract class MappingsProvider {
     @PostConstruct
     protected synchronized void updateMappings() {
         List<MappingProperties> newMappings = retrieveMappings();
+        charon.setMappings(newMappings);
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
         httpClientProvider.updateHttpClients();
