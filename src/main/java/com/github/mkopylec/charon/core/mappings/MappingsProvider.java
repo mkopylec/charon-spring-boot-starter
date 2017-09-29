@@ -55,6 +55,7 @@ public abstract class MappingsProvider {
         List<MappingProperties> newMappings = retrieveMappings();
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
+        charon.setMappings(mappings);
         httpClientProvider.updateHttpClients();
         log.info("Destination mappings updated to: {}", mappings);
     }
