@@ -55,7 +55,7 @@ public abstract class MappingsProvider {
         List<MappingProperties> newMappings = retrieveMappings();
         mappingsCorrector.correct(newMappings);
         mappings = newMappings;
-        httpClientProvider.updateHttpClients();
+        httpClientProvider.updateHttpClients(mappings);
         log.info("Destination mappings updated to: {}", mappings);
     }
 

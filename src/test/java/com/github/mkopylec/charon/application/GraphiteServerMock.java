@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.application;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -42,7 +41,6 @@ public class GraphiteServerMock {
     private Thread thread;
     private boolean metricsCaptured;
 
-    @Autowired
     public GraphiteServerMock(CharonProperties charon) {
         this.charon = charon;
     }

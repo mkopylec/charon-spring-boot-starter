@@ -5,8 +5,8 @@ import com.github.mkopylec.charon.core.trace.ForwardRequest;
 import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 @Component
 @ConditionalOnProperty("test.trace-interceptor-enabled")
+@EnableConfigurationProperties(CharonProperties.class)
 public class TestTraceInterceptor extends TraceInterceptor {
 
     private boolean requestReceivedCaptured = false;
@@ -27,7 +28,6 @@ public class TestTraceInterceptor extends TraceInterceptor {
     private boolean hasUnchangeableTraceId = false;
     private String traceId = EMPTY;
 
-    @Autowired
     public TestTraceInterceptor(CharonProperties charon) {
         super(charon);
     }

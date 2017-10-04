@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-
 public class MetricsProperties {
 
     /**
@@ -15,7 +13,6 @@ public class MetricsProperties {
     /**
      * Properties responsible for reporting collected metrics.
      */
-    @NestedConfigurationProperty
     private ReportingProperties reporting = new ReportingProperties();
 
     public boolean isEnabled() {
@@ -51,12 +48,10 @@ public class MetricsProperties {
         /**
          * Properties responsible for reporting collected metrics to application logger.
          */
-        @NestedConfigurationProperty
         private LoggerProperties logger = new LoggerProperties();
         /**
          * Properties responsible for reporting collected metrics to Graphite server.
          */
-        @NestedConfigurationProperty
         private GraphiteProperties graphite = new GraphiteProperties();
 
         public int getIntervalInSeconds() {

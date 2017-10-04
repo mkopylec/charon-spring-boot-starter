@@ -1,7 +1,6 @@
 package com.github.mkopylec.charon.configuration;
 
 import com.github.mkopylec.charon.exceptions.CharonException;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -24,7 +23,6 @@ public class RetryingProperties {
     /**
      * Properties responsible for triggering HTTP requests forward retries.
      */
-    @NestedConfigurationProperty
     private RetryOnProperties retryOn = new RetryOnProperties();
 
     public int getMaxAttempts() {

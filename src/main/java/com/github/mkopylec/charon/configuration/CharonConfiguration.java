@@ -85,7 +85,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public HttpClientProvider charonHttpClientProvider() {
-        return new HttpClientProvider(charon);
+        return new HttpClientProvider();
     }
 
     @Bean
