@@ -1,6 +1,5 @@
 package com.github.mkopylec.charon.core.http;
 
-import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -16,12 +15,7 @@ import static org.apache.http.impl.client.HttpClientBuilder.create;
 
 public class HttpClientProvider {
 
-    protected final CharonProperties charon;
     protected Map<String, RestOperations> httpClients = new HashMap<>();
-
-    public HttpClientProvider(CharonProperties charon) {
-        this.charon = charon;
-    }
 
     public void updateHttpClients(List<MappingProperties> mappings) {
         httpClients = mappings.stream().collect(toMap(MappingProperties::getName, this::createHttpClient));

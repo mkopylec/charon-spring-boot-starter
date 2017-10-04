@@ -1,7 +1,6 @@
 package com.github.mkopylec.charon.configuration;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,6 @@ public class MappingProperties {
     /**
      * Properties responsible for timeouts while forwarding HTTP requests.
      */
-    @NestedConfigurationProperty
     private TimeoutProperties timeout = new TimeoutProperties();
 
     public String getName() {
