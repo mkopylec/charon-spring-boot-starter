@@ -222,6 +222,7 @@ Particularly any aspect of the request can be modified: method, URI, headers and
 To intercept requests create a Spring bean of type `ForwardedRequestInterceptor` and modify the `RequestData` object:
 
 ```java
+@Component
 public class CustomForwardedRequestInterceptor implements ForwardedRequestInterceptor {
 
     @Override
