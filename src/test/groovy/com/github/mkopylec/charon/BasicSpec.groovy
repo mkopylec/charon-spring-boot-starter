@@ -43,6 +43,10 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private ServerProperties server
 
+    void setup() {
+        stubResponse(OK)
+    }
+
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
         def url = "http://localhost:$context.embeddedServletContainer.port$contextPath$uri"
         def httpHeaders = new HttpHeaders()
