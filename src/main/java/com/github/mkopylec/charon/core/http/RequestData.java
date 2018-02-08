@@ -5,10 +5,10 @@ import org.springframework.http.HttpMethod;
 
 public class RequestData {
 
-    protected final HttpMethod method;
-    protected final String uri;
-    protected final HttpHeaders headers;
-    protected final byte[] body;
+    protected HttpMethod method;
+    protected String uri;
+    protected HttpHeaders headers;
+    protected byte[] body;
 
     public RequestData(HttpMethod method, String uri, HttpHeaders headers, byte[] body) {
         this.method = method;
@@ -21,15 +21,31 @@ public class RequestData {
         return method;
     }
 
+    public void setMethod(HttpMethod method) {
+        this.method = method;
+    }
+
     public String getUri() {
         return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public HttpHeaders getHeaders() {
         return headers;
     }
 
+    public void setHeaders(HttpHeaders headers) {
+        this.headers = headers;
+    }
+
     public byte[] getBody() {
         return body;
+    }
+
+    public void setBody(byte[] body) {
+        this.body = body;
     }
 }

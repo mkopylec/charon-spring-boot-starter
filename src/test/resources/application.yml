@@ -79,10 +79,14 @@ charon:
       name: ssl proxy
       path: /mkopylec
       destinations: https://github.com
+      timeout:
+        connect: 500
+        read: 5000
 
 test:
   metrics-reporter-enabled: false
   trace-interceptor-enabled: false
+  forwarded-request-interceptor-enabled: false
   mappings-provider-enabled: false
 
 logging.level:
