@@ -1,8 +1,6 @@
 package com.github.mkopylec.charon
 
 import com.github.mkopylec.charon.application.TestApplication
-import com.github.mkopylec.charon.configuration.CharonProperties
-import com.github.mkopylec.charon.configuration.MappingProperties
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,8 +41,6 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private EmbeddedWebApplicationContext context
     @Autowired
-    private CharonProperties charon
-    @Autowired
     private ServerProperties server
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
@@ -59,13 +55,6 @@ abstract class BasicSpec extends Specification {
                     .headers(e.responseHeaders)
                     .body(e.responseBodyAsString)
         }
-    }
-
-    protected void addMapping(String name, String path, int connectTimeout, int readTimeout, String... destinations) {
-        def mapping = new MappingProperties(name: name, path: path, destinations: destinations)
-        mapping.timeout.connect = connectTimeout
-        mapping.timeout.read = readTimeout
-        charon.mappings.add(mapping)
     }
 
     protected String getContextPath() {
