@@ -217,7 +217,7 @@ public class CustomMetricsReporter extends ScheduledReporter {
 
 ### Tracing
 Charon can trace a proxying process.
-Tracing allows applications to collect detailed information about Charons activity.
+Tracing allows applications to collect detailed information about Charon's activity.
 To enable it set an appropriate configuration property:
 
 ```yaml
@@ -239,30 +239,30 @@ To change this behaviour create a Spring bean of type `TraceInterceptor`:
 
 ```java
 @Component
-public class CustomTraceInterceptor extends TraceInterceptor {
+public class CustomTraceInterceptor implements TraceInterceptor {
 
     @Override
-    protected void onRequestReceived(String traceId, IncomingRequest request) {
+    public void onRequestReceived(String traceId, IncomingRequest request) {
         ...
     }
     
     @Override
-    protected void onNoMappingFound(String traceId, IncomingRequest request) {
+    public void onNoMappingFound(String traceId, IncomingRequest request) {
         ...
     }
 
     @Override
-    protected void onForwardStart(String traceId, ForwardRequest request) {
+    public void onForwardStart(String traceId, ForwardRequest request) {
         ...
     }
 
     @Override
-    protected void onForwardError(String traceId, Throwable error) {
+    public void onForwardError(String traceId, Throwable error) {
         ...
     }
 
     @Override
-    protected void onForwardComplete(String traceId, ReceivedResponse response) {
+    public void onForwardComplete(String traceId, ReceivedResponse response) {
         ...
     }
 }

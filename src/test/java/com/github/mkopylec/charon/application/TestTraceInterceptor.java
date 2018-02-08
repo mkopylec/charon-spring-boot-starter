@@ -1,12 +1,10 @@
 package com.github.mkopylec.charon.application;
 
-import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.core.trace.ForwardRequest;
 import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -17,8 +15,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 @Component
 @ConditionalOnProperty("test.trace-interceptor-enabled")
-@EnableConfigurationProperties(CharonProperties.class)
-public class TestTraceInterceptor extends TraceInterceptor {
+public class TestTraceInterceptor implements TraceInterceptor {
 
     private boolean requestReceivedCaptured = false;
     private boolean forwardStartCaptured = false;
@@ -28,37 +25,33 @@ public class TestTraceInterceptor extends TraceInterceptor {
     private boolean hasUnchangeableTraceId = false;
     private String traceId = EMPTY;
 
-    public TestTraceInterceptor(CharonProperties charon) {
-        super(charon);
-    }
-
     @Override
-    protected void onRequestReceived(String traceId, IncomingRequest request) {
+    public void onRequestReceived(String traceId, IncomingRequest request) {
         hasUnchangeableTraceId = isNotBlank(traceId);
         this.traceId = traceId;
         requestReceivedCaptured = true;
     }
 
     @Override
-    protected void onNoMappingFound(String traceId, IncomingRequest request) {
+    public void onNoMappingFound(String traceId, IncomingRequest request) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
         noMappingFoundCaptured = true;
     }
 
     @Override
-    protected void onForwardStart(String traceId, ForwardRequest request) {
+    public void onForwardStart(String traceId, ForwardRequest request) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
         forwardStartCaptured = true;
     }
 
     @Override
-    protected void onForwardError(String traceId, Throwable error) {
+    public void onForwardError(String traceId, Throwable error) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
         forwardErrorCaptured = true;
     }
 
     @Override
-    protected void onForwardComplete(String traceId, ReceivedResponse response) {
+    public void onForwardComplete(String traceId, ReceivedResponse response) {
         hasUnchangeableTraceId = hasUnchangeableTraceId && this.traceId.equals(traceId);
         forwardCompleteCaptured = true;
     }

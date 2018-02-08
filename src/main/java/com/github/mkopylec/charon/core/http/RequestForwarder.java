@@ -6,7 +6,7 @@ import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
-import com.github.mkopylec.charon.core.trace.TraceInterceptor;
+import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -36,7 +36,8 @@ public class RequestForwarder {
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
     protected final MetricRegistry metricRegistry;
-    protected final TraceInterceptor traceInterceptor;
+    protected final ProxyingTraceInterceptor traceInterceptor;
+    protected final ForwardedRequestInterceptor forwardedRequestInterceptor;
 
     public RequestForwarder(
             ServerProperties server,
@@ -45,7 +46,8 @@ public class RequestForwarder {
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
-            TraceInterceptor traceInterceptor
+            ProxyingTraceInterceptor traceInterceptor,
+            ForwardedRequestInterceptor forwardedRequestInterceptor
     ) {
         this.server = server;
         this.charon = charon;
@@ -54,9 +56,11 @@ public class RequestForwarder {
         this.loadBalancer = loadBalancer;
         this.metricRegistry = metricRegistry;
         this.traceInterceptor = traceInterceptor;
+        this.forwardedRequestInterceptor = forwardedRequestInterceptor;
     }
 
     public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
+        forwardedRequestInterceptor.intercept(data);
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());

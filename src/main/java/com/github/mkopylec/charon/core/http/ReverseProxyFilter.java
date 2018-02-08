@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.core.http;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
-import com.github.mkopylec.charon.core.trace.TraceInterceptor;
+import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 import org.springframework.core.task.TaskExecutor;
@@ -42,7 +42,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
     protected final MappingsProvider mappingsProvider;
     protected final TaskExecutor taskExecutor;
     protected final RequestForwarder requestForwarder;
-    protected final TraceInterceptor traceInterceptor;
+    protected final ProxyingTraceInterceptor traceInterceptor;
 
     public ReverseProxyFilter(
             CharonProperties charon,
@@ -52,7 +52,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
             MappingsProvider mappingsProvider,
             TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
-            TraceInterceptor traceInterceptor
+            ProxyingTraceInterceptor traceInterceptor
     ) {
         this.charon = charon;
         this.retryOperations = retryOperations;
@@ -105,7 +105,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected void forwardToDestination(HttpServletResponse response, String traceId, MappingProperties mapping, RequestData dataToForward) throws ServletException {
+    protected void forwardToDestination(HttpServletResponse response, String traceId, MappingProperties mapping, RequestData dataToForward) {
         ResponseEntity<byte[]> responseEntity;
         if (mapping.isAsynchronous()) {
             taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(

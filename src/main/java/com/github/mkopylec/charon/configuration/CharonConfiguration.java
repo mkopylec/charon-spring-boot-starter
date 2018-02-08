@@ -6,7 +6,9 @@ import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
+import com.github.mkopylec.charon.core.http.ForwardedRequestInterceptor;
 import com.github.mkopylec.charon.core.http.HttpClientProvider;
+import com.github.mkopylec.charon.core.http.NoOpForwardedRequestInterceptor;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
@@ -15,6 +17,7 @@ import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.retry.LoggingListener;
 import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
+import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
@@ -77,7 +80,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             MappingsProvider mappingsProvider,
             @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
             RequestForwarder requestForwarder,
-            TraceInterceptor traceInterceptor
+            ProxyingTraceInterceptor traceInterceptor
     ) {
         return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
     }
@@ -144,9 +147,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
-            TraceInterceptor traceInterceptor
+            ProxyingTraceInterceptor traceInterceptor,
+            ForwardedRequestInterceptor forwardedRequestInterceptor
     ) {
-        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor);
+        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, forwardedRequestInterceptor);
     }
 
     @Bean
@@ -158,7 +162,19 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @Bean
     @ConditionalOnMissingBean
     public TraceInterceptor charonTraceInterceptor() {
-        return new LoggingTraceInterceptor(charon);
+        return new LoggingTraceInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ProxyingTraceInterceptor charonProxyingTraceInterceptor(TraceInterceptor traceInterceptor) {
+        return new ProxyingTraceInterceptor(charon, traceInterceptor);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ForwardedRequestInterceptor charonForwardedRequestInterceptor() {
+        return new NoOpForwardedRequestInterceptor();
     }
 
     @PostConstruct
