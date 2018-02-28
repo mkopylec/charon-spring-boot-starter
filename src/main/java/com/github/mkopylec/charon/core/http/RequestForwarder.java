@@ -1,5 +1,8 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
@@ -9,14 +12,12 @@ import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
+
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -38,6 +39,7 @@ public class RequestForwarder {
     protected final MetricRegistry metricRegistry;
     protected final ProxyingTraceInterceptor traceInterceptor;
     protected final ForwardedRequestInterceptor forwardedRequestInterceptor;
+    protected final ReceivedResponseInterceptor receivedResponseInterceptor;
 
     public RequestForwarder(
             ServerProperties server,
@@ -47,7 +49,8 @@ public class RequestForwarder {
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
             ProxyingTraceInterceptor traceInterceptor,
-            ForwardedRequestInterceptor forwardedRequestInterceptor
+            ForwardedRequestInterceptor forwardedRequestInterceptor,
+            ReceivedResponseInterceptor receivedResponseInterceptor
     ) {
         this.server = server;
         this.charon = charon;
@@ -57,6 +60,7 @@ public class RequestForwarder {
         this.metricRegistry = metricRegistry;
         this.traceInterceptor = traceInterceptor;
         this.forwardedRequestInterceptor = forwardedRequestInterceptor;
+        this.receivedResponseInterceptor = receivedResponseInterceptor;
     }
 
     public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
@@ -64,14 +68,17 @@ public class RequestForwarder {
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
-        RequestEntity<byte[]> requestEntity = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
-        ResponseEntity<byte[]> response = sendRequest(traceId, requestEntity, mapping, destination.getMappingMetricsName());
+        RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
+        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName());
 
-        log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatusCode().value());
+        log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
-        traceInterceptor.onForwardComplete(traceId, response.getStatusCode(), response.getBody(), response.getHeaders());
+        traceInterceptor.onForwardComplete(traceId, response.getStatus(), response.getBody(), response.getHeaders());
+        receivedResponseInterceptor.intercept(response);
 
-        return response;
+        return status(response.getStatus())
+                .headers(response.getHeaders())
+                .body(response.getBody());
     }
 
     protected ForwardDestination resolveForwardDestination(String originUri, MappingProperties mapping) {
@@ -90,14 +97,14 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseEntity<byte[]> sendRequest(String traceId, RequestEntity<byte[]> requestEntity, MappingProperties mapping, String mappingMetricsName) {
-        ResponseEntity<byte[]> responseEntity;
+    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName) {
+        ResponseEntity<byte[]> response;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
             context = metricRegistry.timer(mappingMetricsName).time();
         }
         try {
-            responseEntity = httpClientProvider.getHttpClient(mapping.getName()).exchange(requestEntity, byte[].class);
+            response = httpClientProvider.getHttpClient(mapping.getName()).exchange(request, byte[].class);
             stopTimerContext(context);
         } catch (HttpStatusCodeException e) {
             stopTimerContext(context);
@@ -105,7 +112,7 @@ public class RequestForwarder {
                 traceInterceptor.onForwardFailed(traceId, e);
                 throw e;
             }
-            responseEntity = status(e.getStatusCode())
+            response = status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
         } catch (Exception e) {
@@ -113,7 +120,7 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return responseEntity;
+        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody());
     }
 
     protected void stopTimerContext(Context context) {

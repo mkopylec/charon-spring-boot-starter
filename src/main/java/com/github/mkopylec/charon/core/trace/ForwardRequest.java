@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.core.trace;
 
+import static com.github.mkopylec.charon.core.utils.BodyConverter.convertBodyToString;
+
 public class ForwardRequest extends IncomingRequest {
 
     protected String mappingName;
@@ -9,7 +11,7 @@ public class ForwardRequest extends IncomingRequest {
         return mappingName;
     }
 
-    public void setMappingName(String mappingName) {
+    protected void setMappingName(String mappingName) {
         this.mappingName = mappingName;
     }
 
@@ -21,7 +23,7 @@ public class ForwardRequest extends IncomingRequest {
         return body;
     }
 
-    public void setBody(byte[] body) {
+    protected void setBody(byte[] body) {
         this.body = body;
     }
 }

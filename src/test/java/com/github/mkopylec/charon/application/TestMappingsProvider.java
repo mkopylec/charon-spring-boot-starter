@@ -1,17 +1,19 @@
 package com.github.mkopylec.charon.application;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import com.github.mkopylec.charon.core.mappings.MappingsCorrector;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Component
 @ConditionalOnProperty("test.mappings-provider-enabled")

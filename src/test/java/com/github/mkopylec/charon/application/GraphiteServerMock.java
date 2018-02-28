@@ -1,13 +1,5 @@
 package com.github.mkopylec.charon.application;
 
-import com.github.mkopylec.charon.configuration.CharonProperties;
-import org.slf4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -17,6 +9,16 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.util.Iterator;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import com.github.mkopylec.charon.configuration.CharonProperties;
+import org.slf4j.Logger;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;

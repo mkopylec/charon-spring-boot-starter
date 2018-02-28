@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.core.trace;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;

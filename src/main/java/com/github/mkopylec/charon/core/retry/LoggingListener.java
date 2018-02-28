@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.core.retry;
 
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import org.slf4j.Logger;
+
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.listener.RetryListenerSupport;

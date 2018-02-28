@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 

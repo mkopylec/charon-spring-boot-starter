@@ -1,5 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.graphite.Graphite;
@@ -9,6 +15,8 @@ import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.ForwardedRequestInterceptor;
 import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import com.github.mkopylec.charon.core.http.NoOpForwardedRequestInterceptor;
+import com.github.mkopylec.charon.core.http.NoOpReceivedResponseInterceptor;
+import com.github.mkopylec.charon.core.http.ReceivedResponseInterceptor;
 import com.github.mkopylec.charon.core.http.RequestDataExtractor;
 import com.github.mkopylec.charon.core.http.RequestForwarder;
 import com.github.mkopylec.charon.core.http.ReverseProxyFilter;
@@ -22,6 +30,7 @@ import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,11 +45,6 @@ import org.springframework.retry.RetryOperations;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static java.util.Collections.emptyList;
@@ -148,9 +152,10 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             LoadBalancer loadBalancer,
             MetricRegistry metricRegistry,
             ProxyingTraceInterceptor traceInterceptor,
-            ForwardedRequestInterceptor forwardedRequestInterceptor
+            ForwardedRequestInterceptor forwardedRequestInterceptor,
+            ReceivedResponseInterceptor receivedResponseInterceptor
     ) {
-        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, forwardedRequestInterceptor);
+        return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, forwardedRequestInterceptor, receivedResponseInterceptor);
     }
 
     @Bean
@@ -175,6 +180,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     @ConditionalOnMissingBean
     public ForwardedRequestInterceptor charonForwardedRequestInterceptor() {
         return new NoOpForwardedRequestInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ReceivedResponseInterceptor charonReceivedResponseInterceptor() {
+        return new NoOpReceivedResponseInterceptor();
     }
 
     @PostConstruct

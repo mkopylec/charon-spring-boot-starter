@@ -4,6 +4,7 @@ import com.github.mkopylec.charon.core.trace.ForwardRequest;
 import com.github.mkopylec.charon.core.trace.IncomingRequest;
 import com.github.mkopylec.charon.core.trace.ReceivedResponse;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 

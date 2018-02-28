@@ -2,6 +2,8 @@ package com.github.mkopylec.charon.core.trace;
 
 import org.springframework.http.HttpStatus;
 
+import static com.github.mkopylec.charon.core.utils.BodyConverter.convertBodyToString;
+
 public class ReceivedResponse extends HttpEntity {
 
     protected HttpStatus status;
@@ -11,7 +13,7 @@ public class ReceivedResponse extends HttpEntity {
         return status;
     }
 
-    public void setStatus(HttpStatus status) {
+    protected void setStatus(HttpStatus status) {
         this.status = status;
     }
 
@@ -23,7 +25,7 @@ public class ReceivedResponse extends HttpEntity {
         return body;
     }
 
-    public void setBody(byte[] body) {
+    protected void setBody(byte[] body) {
         this.body = body;
     }
 }

@@ -11,7 +11,7 @@ public class IncomingRequest extends HttpEntity {
         return method;
     }
 
-    public void setMethod(HttpMethod method) {
+    protected void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -19,7 +19,7 @@ public class IncomingRequest extends HttpEntity {
         return uri;
     }
 
-    public void setUri(String uri) {
+    protected void setUri(String uri) {
         this.uri = uri;
     }
 }

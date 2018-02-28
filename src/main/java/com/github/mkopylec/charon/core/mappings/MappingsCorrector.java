@@ -1,10 +1,10 @@
 package com.github.mkopylec.charon.core.mappings;
 
-import com.github.mkopylec.charon.configuration.MappingProperties;
-import com.github.mkopylec.charon.exceptions.CharonException;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.github.mkopylec.charon.configuration.MappingProperties;
+import com.github.mkopylec.charon.exceptions.CharonException;
 
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static java.util.stream.Collectors.toSet;

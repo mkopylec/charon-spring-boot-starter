@@ -1,13 +1,14 @@
 package com.github.mkopylec.charon.application;
 
-import com.github.mkopylec.charon.configuration.CharonProperties;
-import com.github.mkopylec.charon.configuration.MappingProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.github.mkopylec.charon.configuration.CharonProperties;
+import com.github.mkopylec.charon.configuration.MappingProperties;
+
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import static java.util.Collections.emptyList;
 

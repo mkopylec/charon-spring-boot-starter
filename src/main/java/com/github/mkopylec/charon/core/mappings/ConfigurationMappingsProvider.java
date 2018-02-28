@@ -1,12 +1,14 @@
 package com.github.mkopylec.charon.core.mappings;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.http.HttpClientProvider;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 import static java.util.stream.Collectors.toList;
 

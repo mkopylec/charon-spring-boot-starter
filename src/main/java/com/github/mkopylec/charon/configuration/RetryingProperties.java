@@ -1,12 +1,13 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.exceptions.CharonException;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import com.github.mkopylec.charon.exceptions.CharonException;
+
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;

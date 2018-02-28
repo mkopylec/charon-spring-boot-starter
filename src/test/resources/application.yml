@@ -86,7 +86,7 @@ charon:
 test:
   metrics-reporter-enabled: false
   trace-interceptor-enabled: false
-  forwarded-request-interceptor-enabled: false
+  interceptors-enabled: false
   mappings-provider-enabled: false
 
 logging.level:
