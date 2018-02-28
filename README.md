@@ -31,7 +31,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.2.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.3.0'
 }
 ```
 
@@ -227,6 +227,22 @@ public class CustomForwardedRequestInterceptor implements ForwardedRequestInterc
 
     @Override
     public void intercept(RequestData data) {
+        ...
+    }
+}
+```
+
+### Received response intercepting
+Charon gives a possibility to change the incoming HTTP responses.
+Particularly any aspect of the response can be modified: status, headers and body.
+To intercept responses create a Spring bean of type `ReceivedResponseInterceptor` and modify the `ResponseData` object:
+
+```java
+@Component
+public class CustomReceivedResponseInterceptor implements ReceivedResponseInterceptor {
+
+    @Override
+    public void intercept(ResponseData data) {
         ...
     }
 }
