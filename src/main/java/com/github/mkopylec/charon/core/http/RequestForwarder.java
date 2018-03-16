@@ -14,6 +14,7 @@ import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
@@ -66,6 +67,7 @@ public class RequestForwarder {
     public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
         forwardedRequestInterceptor.intercept(data);
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
+        prepareForwardedRequestHeaders(data, destination);
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
@@ -76,9 +78,36 @@ public class RequestForwarder {
         traceInterceptor.onForwardComplete(traceId, response.getStatus(), response.getBody(), response.getHeaders());
         receivedResponseInterceptor.intercept(response);
 
+        prepareForwardedResponseHeaders(response);
+
         return status(response.getStatus())
                 .headers(response.getHeaders())
                 .body(response.getBody());
+    }
+
+    /**
+     * Remove any protocol-level headers from the remote server's response that
+     * do not apply to the new response we are sending.
+     */
+    private void prepareForwardedResponseHeaders(ResponseData response) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.putAll(response.getHeaders());
+        response.setHeaders(headers);
+
+        headers.remove("Transfer-Encoding");
+        headers.remove("Connection");
+        headers.remove("Public-Key-Pins");
+        headers.remove("Server");
+        headers.remove("Strict-Transport-Security");
+    }
+
+    /**
+     * Remove any protocol-level headers from the clients request that
+     * do not apply to the new request we are sending to the remote server.
+     */
+    private void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
+        request.getHeaders().set("Host", destination.uri.getAuthority());
+        request.getHeaders().remove("TE");
     }
 
     protected ForwardDestination resolveForwardDestination(String originUri, MappingProperties mapping) {
