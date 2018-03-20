@@ -82,6 +82,7 @@ public class RequestForwarder {
 
         return status(response.getStatus())
                 .headers(response.getHeaders())
+                .contentLength(response.getBody().length)
                 .body(response.getBody());
     }
 
