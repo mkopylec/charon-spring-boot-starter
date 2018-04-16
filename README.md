@@ -327,6 +327,8 @@ Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` con
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
 - X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
+- TE header is not added to any forwarded request
+- Transfer-Encoding, Connection, Public-Key-Pins, Server and Strict-Transport-Security headers are removed from any received response
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
 - if there are mappings like _/uri_ and _/uri/path_ and the incoming request URI is _/uri/path/something_ than the more specific mapping (_/uri/path_) will be chosen
