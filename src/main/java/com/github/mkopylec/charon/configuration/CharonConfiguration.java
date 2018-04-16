@@ -31,7 +31,6 @@ import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -56,13 +55,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
 @EnableMetrics
-@EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
+@EnableConfigurationProperties(CharonProperties.class)
 public class CharonConfiguration extends MetricsConfigurerAdapter {
 
-    @Autowired
-    protected CharonProperties charon;
-    @Autowired
-    protected ServerProperties server;
+    protected final CharonProperties charon;
+    protected final ServerProperties server;
+
+    public CharonConfiguration(CharonProperties charon, ServerProperties server) {
+        this.charon = charon;
+        this.server = server;
+    }
 
     @Bean
     public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MetricRegistry metricRegistry) {

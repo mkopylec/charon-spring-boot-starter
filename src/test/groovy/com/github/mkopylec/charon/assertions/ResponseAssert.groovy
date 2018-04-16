@@ -44,4 +44,9 @@ class ResponseAssert {
         headers.each { k, v -> assert actual.headers.get(k).join(', ') == v }
         return this
     }
+
+    ResponseAssert notContainsHeaders(List<String> headers) {
+        headers.each { name -> assert !actual.headers.containsKey(name) }
+        return this
+    }
 }

@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.matching.UrlPattern
 import org.springframework.http.HttpMethod
 
+import static com.github.tomakehurst.wiremock.client.WireMock.absent
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
@@ -49,6 +50,17 @@ class ProxiedRequestAssert {
                 value.split(', ').each {
                     matcher = matcher.withHeader(name, equalTo(it))
                 }
+            }
+            it.verify(matcher)
+        }
+        return this
+    }
+
+    ProxiedRequestAssert withoutHeaders(List<String> headers) {
+        verify {
+            def matcher = allRequests()
+            headers.each { name ->
+                matcher = matcher.withHeader(name, absent())
             }
             it.verify(matcher)
         }

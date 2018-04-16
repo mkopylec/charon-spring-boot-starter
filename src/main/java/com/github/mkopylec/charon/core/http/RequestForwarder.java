@@ -26,6 +26,11 @@ import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpHeaders.CONNECTION;
+import static org.springframework.http.HttpHeaders.HOST;
+import static org.springframework.http.HttpHeaders.SERVER;
+import static org.springframework.http.HttpHeaders.TE;
+import static org.springframework.http.HttpHeaders.TRANSFER_ENCODING;
 import static org.springframework.http.ResponseEntity.status;
 
 public class RequestForwarder {
@@ -73,11 +78,10 @@ public class RequestForwarder {
         RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
         ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName());
 
-        log.info("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
+        log.debug("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
         traceInterceptor.onForwardComplete(traceId, response.getStatus(), response.getBody(), response.getHeaders());
         receivedResponseInterceptor.intercept(response);
-
         prepareForwardedResponseHeaders(response);
 
         return status(response.getStatus())
@@ -89,15 +93,12 @@ public class RequestForwarder {
      * Remove any protocol-level headers from the remote server's response that
      * do not apply to the new response we are sending.
      */
-    private void prepareForwardedResponseHeaders(ResponseData response) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.putAll(response.getHeaders());
-        response.setHeaders(headers);
-
-        headers.remove("Transfer-Encoding");
-        headers.remove("Connection");
+    protected void prepareForwardedResponseHeaders(ResponseData response) {
+        HttpHeaders headers = response.getHeaders();
+        headers.remove(TRANSFER_ENCODING);
+        headers.remove(CONNECTION);
         headers.remove("Public-Key-Pins");
-        headers.remove("Server");
+        headers.remove(SERVER);
         headers.remove("Strict-Transport-Security");
     }
 
@@ -105,9 +106,10 @@ public class RequestForwarder {
      * Remove any protocol-level headers from the clients request that
      * do not apply to the new request we are sending to the remote server.
      */
-    private void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
-        request.getHeaders().set("Host", destination.uri.getAuthority());
-        request.getHeaders().remove("TE");
+    protected void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
+        HttpHeaders headers = request.getHeaders();
+        headers.set(HOST, destination.getUri().getAuthority());
+        headers.remove(TE);
     }
 
     protected ForwardDestination resolveForwardDestination(String originUri, MappingProperties mapping) {

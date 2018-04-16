@@ -59,7 +59,7 @@ abstract class ProxyingRequestSpec extends BasicSpec {
     }
 
     @Unroll
-    def "Should proxy HTTP request with headers #destinationHeaders when request headers are #requestHeaders"() {
+    def "Should proxy HTTP request with headers #destinationHeaders when request headers are #requestHeaders including X-Forwarded headers"() {
         when:
         sendRequest GET, '/uri/1/path/1', requestHeaders
 
@@ -77,6 +77,27 @@ abstract class ProxyingRequestSpec extends BasicSpec {
         ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1', 'X-Forwarded-For': '127.0.0.1']
         ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'X-Forwarded-For': '127.0.0.1']
         ['X-Forwarded-For': '172.10.89.11']                            | ['X-Forwarded-For': '172.10.89.11, 127.0.0.1']
+        ['X-Forwarded-For': '172.10.89.11']                            | ['X-Forwarded-For': '172.10.89.11, 127.0.0.1']
+    }
+
+    @Unroll
+    def "Should proxy HTTP request with headers #destinationHeaders when request headers are #requestHeaders"() {
+        when:
+        sendRequest GET, '/uri/9/path/9', requestHeaders
+
+        then:
+        assertThat(localhost8080)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, '/path/9')
+                .withHeaders(destinationHeaders)
+                .withoutHeaders(removedHeaders)
+                .withoutBody()
+
+        where:
+        requestHeaders                            | destinationHeaders         | removedHeaders
+        [:]                                       | ['Host': 'localhost:8080'] | []
+        ['TE': 'compress']                        | ['Host': 'localhost:8080'] | ['TE']
+        ['Host': 'example.com', 'TE': 'compress'] | ['Host': 'localhost:8080'] | ['TE']
     }
 
     @Unroll
@@ -146,6 +167,5 @@ abstract class ProxyingRequestSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .bodyContains("<link rel=\"canonical\" href=\"https://github.com/\"")
     }
 }

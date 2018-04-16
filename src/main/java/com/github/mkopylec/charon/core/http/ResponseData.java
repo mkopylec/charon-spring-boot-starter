@@ -14,7 +14,8 @@ public class ResponseData {
 
     public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body) {
         this.status = status;
-        this.headers = headers;
+        this.headers = new HttpHeaders();
+        this.headers.putAll(headers);
         this.body = body;
     }
 

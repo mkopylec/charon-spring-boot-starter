@@ -46,13 +46,18 @@ class ProxyingResponseSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
                 .containsHeaders(responseHeaders)
+                .notContainsHeaders(removedHeaders)
                 .hasNoBody()
 
         where:
-        receivedHeaders                                                | responseHeaders
-        [:]                                                            | [:]
-        ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']
-        ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2']
+        receivedHeaders                                                | responseHeaders                                                | removedHeaders
+        ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']                                        | []
+        ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | []
+        ['Transfer-Encoding': 'chunked']                               | [:]                                                            | ['Transfer-Encoding']
+        ['Connection': 'close']                                        | [:]                                                            | ['Connection']
+        ['Public-Key-Pins': 'pin-sha256']                              | [:]                                                            | ['Public-Key-Pins']
+        ['Server': 'Apache/2.4.1 (Unix)']                              | [:]                                                            | ['Server']
+        ['Strict-Transport-Security': 'max-age=3600']                  | [:]                                                            | ['Strict-Transport-Security']
     }
 
     def "Should get proxied HTTP response with preserved headers when response status indicates error"() {
