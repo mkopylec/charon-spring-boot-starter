@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.core.trace;
 
 import org.springframework.http.HttpStatus;
 
-import static com.github.mkopylec.charon.core.utils.BodyConverter.convertBodyToString;
+import static com.github.mkopylec.charon.core.utils.ResponseBodyUtils.convertBodyToString;
 
 public class ReceivedResponse extends HttpEntity {
 

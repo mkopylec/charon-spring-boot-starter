@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.io.InputStream;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
@@ -8,9 +10,9 @@ public class RequestData {
     protected HttpMethod method;
     protected String uri;
     protected HttpHeaders headers;
-    protected byte[] body;
+    protected InputStream body;
 
-    public RequestData(HttpMethod method, String uri, HttpHeaders headers, byte[] body) {
+    public RequestData(HttpMethod method, String uri, HttpHeaders headers, InputStream body) {
         this.method = method;
         this.uri = uri;
         this.headers = headers;
@@ -41,11 +43,11 @@ public class RequestData {
         this.headers = headers;
     }
 
-    public byte[] getBody() {
+    public InputStream getBody() {
         return body;
     }
 
-    public void setBody(byte[] body) {
+    public void setBody(InputStream body) {
         this.body = body;
     }
 }

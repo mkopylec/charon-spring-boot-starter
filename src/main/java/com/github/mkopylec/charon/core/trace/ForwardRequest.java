@@ -1,6 +1,6 @@
 package com.github.mkopylec.charon.core.trace;
 
-import static com.github.mkopylec.charon.core.utils.BodyConverter.convertBodyToString;
+import static com.github.mkopylec.charon.core.utils.ResponseBodyUtils.convertBodyToString;
 
 public class ForwardRequest extends IncomingRequest {
 

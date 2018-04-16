@@ -126,9 +126,9 @@ public class MappingProperties {
          */
         private int connect = 200;
         /**
-         * Read timeout for HTTP requests forwarding.
+         * Socket timeout for HTTP requests forwarding.
          */
-        private int read = 2000;
+        private int socket = 2000;
 
         public int getConnect() {
             return connect;
@@ -138,19 +138,19 @@ public class MappingProperties {
             this.connect = connect;
         }
 
-        public int getRead() {
-            return read;
+        public int getSocket() {
+            return socket;
         }
 
-        public void setRead(int read) {
-            this.read = read;
+        public void setSocket(int socket) {
+            this.socket = socket;
         }
 
         @Override
         public String toString() {
             return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
                     .append("connect", connect)
-                    .append("read", read)
+                    .append("socket", socket)
                     .toString();
         }
     }

@@ -73,7 +73,7 @@ public class MappingsCorrector {
         if (connectTimeout < 0) {
             throw new CharonException("Invalid connect timeout value: " + connectTimeout);
         }
-        int readTimeout = mapping.getTimeout().getRead();
+        int readTimeout = mapping.getTimeout().getSocket();
         if (readTimeout < 0) {
             throw new CharonException("Invalid read timeout value: " + readTimeout);
         }

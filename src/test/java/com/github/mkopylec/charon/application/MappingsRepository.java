@@ -35,7 +35,7 @@ public class MappingsRepository {
         mapping.setName(name);
         mapping.setPath(path);
         mapping.getTimeout().setConnect(connectTimeout);
-        mapping.getTimeout().setRead(readTimeout);
+        mapping.getTimeout().setSocket(readTimeout);
         mapping.setDestinations(destinations);
         mappings.add(mapping);
     }
