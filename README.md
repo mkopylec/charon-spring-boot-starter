@@ -34,7 +34,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.4.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.5.0'
 }
 ```
 
