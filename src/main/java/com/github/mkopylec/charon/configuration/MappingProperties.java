@@ -43,7 +43,7 @@ public class MappingProperties {
     /**
      * Flexible customm metadata
      */
-    private Map<String, String> metadata = new HashMap<>();
+    private final Map<String, String> metadata = new HashMap<>();
 
     public String getName() {
         return name;
@@ -103,10 +103,6 @@ public class MappingProperties {
 
     public Map<String, String> getMetadata() {
         return metadata;
-    }
-
-    public void setMetadata(Map<String, String> metadata) {
-        this.metadata = metadata;
     }
 
     public MappingProperties copy() {
