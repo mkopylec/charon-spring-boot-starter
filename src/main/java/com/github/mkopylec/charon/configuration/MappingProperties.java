@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 
@@ -37,6 +37,11 @@ public class MappingProperties {
      * Properties responsible for timeouts while forwarding HTTP requests.
      */
     private TimeoutProperties timeout = new TimeoutProperties();
+
+    /**
+     * List of workarounds.
+     */
+    private WorkaroundsProperties workarounds = new WorkaroundsProperties();
 
     public String getName() {
         return name;
@@ -94,6 +99,14 @@ public class MappingProperties {
         this.timeout = timeout;
     }
 
+    public WorkaroundsProperties getWorkarounds() {
+        return workarounds;
+    }
+
+    public void setWorkarounds(WorkaroundsProperties workarounds) {
+        this.workarounds = workarounds;
+    }
+
     public MappingProperties copy() {
         MappingProperties clone = new MappingProperties();
         clone.setName(name);
@@ -103,6 +116,7 @@ public class MappingProperties {
         clone.setStripPath(stripPath);
         clone.setRetryable(retryable);
         clone.setTimeout(timeout);
+        clone.setWorkarounds(workarounds);
         return clone;
     }
 
@@ -117,6 +131,29 @@ public class MappingProperties {
                 .append("retryable", retryable)
                 .append("timeout", timeout)
                 .toString();
+    }
+
+    public class WorkaroundsProperties {
+
+        /**
+         * Manage the case where the server respond with a bad chunk encoding request
+         */
+        private boolean prematureEndOfChunk = false;
+
+        public boolean isPrematureEndOfChunk() {
+            return prematureEndOfChunk;
+        }
+
+        public void setPrematureEndOfChunk(boolean prematureEndOfChunk) {
+            this.prematureEndOfChunk = prematureEndOfChunk;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
+                    .append("prematureEndOfChunk", prematureEndOfChunk)
+                    .toString();
+        }
     }
 
     public static class TimeoutProperties {
