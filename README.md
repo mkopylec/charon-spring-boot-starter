@@ -372,6 +372,10 @@ charon:
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
             retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
+            metadata: # Adds custom metadata to mapping
+              custom-boolean: true
+              custom-str: server.org
+              custom-int: 42
             timeout:
                 connect: 200 # Connect timeout for HTTP requests forwarding.
                 read: 2000 # Read timeout for HTTP requests forwarding.
