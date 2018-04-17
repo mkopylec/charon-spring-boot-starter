@@ -1,9 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 
@@ -37,6 +39,11 @@ public class MappingProperties {
      * Properties responsible for timeouts while forwarding HTTP requests.
      */
     private TimeoutProperties timeout = new TimeoutProperties();
+
+    /**
+     * Flexible customm metadata
+     */
+    private final Map<String, String> metadata = new HashMap<>();
 
     public String getName() {
         return name;
@@ -92,6 +99,10 @@ public class MappingProperties {
 
     public void setTimeout(TimeoutProperties timeout) {
         this.timeout = timeout;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
     }
 
     public MappingProperties copy() {

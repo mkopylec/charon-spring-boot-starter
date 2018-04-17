@@ -30,6 +30,10 @@ charon:
       path: /uri/1
       destinations: http://localhost:8080, localhost:8081
       retryable: true
+      metadata:
+        custom-boolean: true
+        custom-str: server.org
+        custom-int: 42
       timeout:
         connect: 100
         read: 500
