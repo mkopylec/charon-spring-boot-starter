@@ -320,6 +320,36 @@ charon.mappings:
 For asynchronous forwarding a thread pool executor is used.
 Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
 
+### Custom mapping properties
+There is a possibility to define custom mapping properties.
+This can be useful when additional mapping configuration is needed in overridden Charon's Spring beans.
+To add custom mapping configuration set an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+      custom-configuration:
+          some-boolean-property: true
+          some-string-poperty: custom string
+          some-integer-property: 666
+```
+
+The above configuration can be used, for example, in custom `HttpClientProvider`:
+
+```java
+@Component
+public class CustomHttpClientProvider extends HttpClientProvider {
+ 
+     protected RestOperations createHttpClient(MappingProperties mapping) {
+         boolean booleanProperty = (boolean) mapping.getCustomConfiguration().get("some-boolean-property");
+         String stringProperty = (String) mapping.getCustomConfiguration().get("some-string-property");
+         int integerProperty = (int) mapping.getCustomConfiguration().get("some-integer-property");
+         ...
+     }
+ }
+```
+
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
@@ -372,13 +402,10 @@ charon:
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
             retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
-            metadata: # Adds custom metadata to mapping
-              custom-boolean: true
-              custom-str: server.org
-              custom-int: 42
             timeout:
                 connect: 200 # Connect timeout for HTTP requests forwarding.
                 read: 2000 # Read timeout for HTTP requests forwarding.
+            custom-configuration: # Custom properties placeholder.
 ```
 
 ## Examples

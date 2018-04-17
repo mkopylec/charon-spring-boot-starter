@@ -1,11 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.NO_CLASS_NAME_STYLE;
 
@@ -41,9 +41,9 @@ public class MappingProperties {
     private TimeoutProperties timeout = new TimeoutProperties();
 
     /**
-     * Flexible customm metadata
+     * Custom properties placeholder.
      */
-    private final Map<String, String> metadata = new HashMap<>();
+    private Map<String, Object> customConfiguration = new HashMap<>();
 
     public String getName() {
         return name;
@@ -101,8 +101,12 @@ public class MappingProperties {
         this.timeout = timeout;
     }
 
-    public Map<String, String> getMetadata() {
-        return metadata;
+    public Map<String, Object> getCustomConfiguration() {
+        return customConfiguration;
+    }
+
+    public void setCustomConfiguration(Map<String, Object> customConfiguration) {
+        this.customConfiguration = customConfiguration;
     }
 
     public MappingProperties copy() {
@@ -114,6 +118,7 @@ public class MappingProperties {
         clone.setStripPath(stripPath);
         clone.setRetryable(retryable);
         clone.setTimeout(timeout);
+        clone.setCustomConfiguration(customConfiguration == null ? null : new HashMap<>(customConfiguration));
         return clone;
     }
 
@@ -127,6 +132,7 @@ public class MappingProperties {
                 .append("stripPath", stripPath)
                 .append("retryable", retryable)
                 .append("timeout", timeout)
+                .append("customConfiguration", customConfiguration)
                 .toString();
     }
 
