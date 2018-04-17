@@ -9,9 +9,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Converter de octet-stream -> byte[]
+ * Converter from octet-stream to byte[]
  *
- * Il est tolérant aux "Connection closed" exceptions qui arrivent dans le cas de serveur web pourris. Ex: MADR et MADRSIM
+ * This converter is tolerant to "Connection closed" exceptions that can arise when some
+ * chunked requests are invalid
  *
  */
 public class PrematureEndOfChunkHttpMessageConverter extends ByteArrayHttpMessageConverter {
