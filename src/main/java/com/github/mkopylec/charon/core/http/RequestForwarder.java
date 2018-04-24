@@ -76,7 +76,7 @@ public class RequestForwarder {
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
-        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName());
+        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName(), data.getUri());
 
         log.debug("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
@@ -128,7 +128,7 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName) {
+    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName, String uri) {
         ResponseEntity<byte[]> response;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
@@ -151,7 +151,7 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody());
+        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), uri);
     }
 
     protected void stopTimerContext(Context context) {
