@@ -7,6 +7,7 @@ import com.github.mkopylec.charon.core.http.ResponseData;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -27,6 +28,7 @@ public class TestForwardedRequestInterceptor implements ForwardedRequestIntercep
 
     @Override
     public void intercept(ResponseData data) {
+        Assert.notNull(data.getUri(), "Uri is null");
         data.setStatus(CREATED);
         data.setBody(INTERCEPTED_BODY);
     }
