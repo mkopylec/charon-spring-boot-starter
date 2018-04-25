@@ -28,6 +28,7 @@ public class TestForwardedRequestInterceptor implements ForwardedRequestIntercep
 
     @Override
     public void intercept(ResponseData data) {
+        Assert.notNull(data.getMethod(), "Method is null");
         Assert.notNull(data.getUri(), "Uri is null");
         data.setStatus(CREATED);
         data.setBody(INTERCEPTED_BODY);

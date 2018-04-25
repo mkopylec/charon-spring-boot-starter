@@ -1,8 +1,5 @@
 package com.github.mkopylec.charon.core.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
@@ -12,13 +9,15 @@ import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
-
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -151,7 +150,7 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), uri);
+        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), uri, request.getMethod());
     }
 
     protected void stopTimerContext(Context context) {
