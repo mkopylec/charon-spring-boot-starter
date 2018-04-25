@@ -15,7 +15,7 @@ public class ResponseData {
     protected String uri;
     protected HttpMethod method;
 
-    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body, String uri, HttpMethod method;) {
+    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body, String uri, HttpMethod method) {
         this.status = status;
         this.headers = new HttpHeaders();
         this.headers.putAll(headers);
