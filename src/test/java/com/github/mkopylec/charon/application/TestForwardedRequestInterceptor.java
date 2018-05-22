@@ -19,15 +19,28 @@ public class TestForwardedRequestInterceptor implements ForwardedRequestIntercep
     public static final String INTERCEPTED_AUTHORIZATION = "intercepted-authorization";
     public static final String INTERCEPTED_BODY = "intercepted-body";
 
+    private RequestData interceptedRequest = null;
+    private ResponseData interceptedResponse = null;
+
     @Override
     public void intercept(RequestData data) {
+        interceptedRequest = data;
         data.setMethod(DELETE);
         data.getHeaders().set(AUTHORIZATION, INTERCEPTED_AUTHORIZATION);
     }
 
     @Override
     public void intercept(ResponseData data) {
+        interceptedResponse = data;
         data.setStatus(CREATED);
         data.setBody(INTERCEPTED_BODY);
+    }
+
+    public RequestData getInterceptedRequest() {
+        return interceptedRequest;
+    }
+
+    public ResponseData getInterceptedResponse() {
+        return interceptedResponse;
     }
 }
