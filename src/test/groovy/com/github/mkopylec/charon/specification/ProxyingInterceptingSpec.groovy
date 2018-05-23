@@ -51,7 +51,16 @@ class ProxyingInterceptingSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(CREATED)
                 .hasBody(INTERCEPTED_BODY)
+    }
 
+    def "Should receive correct request and response data"() {
+        given:
+        stubDestinationResponse OK
+
+        when:
+        def response = sendRequest GET, '/uri/1/sync'
+
+        then:
         assertThat(interceptor)
                 .hasInterceptedRequest()
                 .hasInterceptedResponse()
