@@ -169,6 +169,6 @@ public class RequestForwarder {
     }
 
     protected String concatContextAndMappingPaths(MappingProperties mapping) {
-        return correctUri(server.getContextPath()) + mapping.getPath();
+        return correctUri(server.getServlet().getContextPath()) + mapping.getPath();
     }
 }

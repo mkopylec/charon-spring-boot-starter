@@ -31,6 +31,7 @@ import com.github.mkopylec.charon.exceptions.CharonException;
 import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
 import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -84,11 +85,12 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             @Qualifier("charonDefaultRetryOperations") RetryOperations defaultRetryOperations,
             RequestDataExtractor extractor,
             MappingsProvider mappingsProvider,
-            @Qualifier("charonTaskExecutor") TaskExecutor taskExecutor,
+            @Autowired(required = false)
+            TaskExecutor charonTaskExecutor,
             RequestForwarder requestForwarder,
             ProxyingTraceInterceptor traceInterceptor
     ) {
-        return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, taskExecutor, requestForwarder, traceInterceptor);
+        return new ReverseProxyFilter(charon, retryOperations, defaultRetryOperations, extractor, mappingsProvider, charonTaskExecutor, requestForwarder, traceInterceptor);
     }
 
     @Bean
