@@ -5,8 +5,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.boot.web.embedded.EmbeddedWebApplicationContext
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -43,13 +43,15 @@ abstract class BasicSpec extends Specification {
     private WebApplicationContext context
     @Autowired
     private ServerProperties server
+    @LocalServerPort
+    int randomServerPort;
 
     void setup() {
         stubResponse(OK)
     }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
-        def url = "http://localhost:$context.embeddedServletContainer.port$contextPath$uri"
+        def url = "http://localhost:$randomServerPort$contextPath$uri"
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
@@ -63,11 +65,11 @@ abstract class BasicSpec extends Specification {
     }
 
     protected String getContextPath() {
-        return trimToEmpty(server.contextPath)
+        return trimToEmpty(server.servlet.contextPath)
     }
 
     protected String getPort() {
-        return context.embeddedServletContainer.port
+        return randomServerPort;
     }
 
     protected void stubDestinationResponse(boolean timedOut) {

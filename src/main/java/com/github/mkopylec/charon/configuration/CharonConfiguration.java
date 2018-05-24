@@ -6,10 +6,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Slf4jReporter;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.balancer.RandomLoadBalancer;
 import com.github.mkopylec.charon.core.http.ForwardedRequestInterceptor;
@@ -28,9 +24,9 @@ import com.github.mkopylec.charon.core.trace.LoggingTraceInterceptor;
 import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
-import com.ryantenney.metrics.spring.config.annotation.EnableMetrics;
-import com.ryantenney.metrics.spring.config.annotation.MetricsConfigurerAdapter;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -46,7 +42,6 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import static com.codahale.metrics.Slf4jReporter.LoggingLevel.TRACE;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -55,9 +50,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Configuration
-@EnableMetrics
 @EnableConfigurationProperties(CharonProperties.class)
-public class CharonConfiguration extends MetricsConfigurerAdapter {
+public class CharonConfiguration  {
 
     protected final CharonProperties charon;
     protected final ServerProperties server;
@@ -68,11 +62,7 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter, MetricRegistry metricRegistry) {
-        int metricsReportingInterval = charon.getMetrics().getReporting().getIntervalInSeconds();
-        int graphitePort = charon.getMetrics().getReporting().getGraphite().getPort();
-        String graphiteHostname = charon.getMetrics().getReporting().getGraphite().getHostname();
-        startMetricReporters(metricsReportingInterval, graphitePort, graphiteHostname, metricRegistry);
+    public FilterRegistrationBean charonReverseProxyFilterRegistrationBean(ReverseProxyFilter proxyFilter) {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(proxyFilter);
         registrationBean.setOrder(charon.getFilterOrder());
         return registrationBean;
@@ -154,12 +144,17 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
             HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            MetricRegistry metricRegistry,
+            MeterRegistry metricRegistry,
             ProxyingTraceInterceptor traceInterceptor,
             ForwardedRequestInterceptor forwardedRequestInterceptor,
             ReceivedResponseInterceptor receivedResponseInterceptor
     ) {
         return new RequestForwarder(server, charon, httpClientProvider, mappingsProvider, loadBalancer, metricRegistry, traceInterceptor, forwardedRequestInterceptor, receivedResponseInterceptor);
+    }
+
+    @Bean
+    public MeterRegistry meterRegistry() {
+        return new SimpleMeterRegistry();
     }
 
     @Bean
@@ -224,26 +219,6 @@ public class CharonConfiguration extends MetricsConfigurerAdapter {
         }
         if (initialSize > maximumSize) {
             throw new CharonException("Initial size of asynchronous requests thread pool executor value: " + initialSize + " greater than maximum size value: " + maximumSize);
-        }
-    }
-
-    protected void startMetricReporters(int metricsReportingInterval, int graphitePort, String graphiteHostname, MetricRegistry metricRegistry) {
-        if (shouldCreateLoggingMetricsReporter()) {
-            registerReporter(Slf4jReporter.forRegistry(metricRegistry)
-                    .convertDurationsTo(MILLISECONDS)
-                    .convertRatesTo(SECONDS)
-                    .withLoggingLevel(TRACE)
-                    .outputTo(getLogger(ReverseProxyFilter.class))
-                    .build()
-            ).start(metricsReportingInterval, SECONDS);
-        }
-        if (shouldCreateGraphiteMetricsReporter()) {
-            Graphite graphite = new Graphite(graphiteHostname, graphitePort);
-            registerReporter(GraphiteReporter.forRegistry(metricRegistry)
-                    .convertDurationsTo(MILLISECONDS)
-                    .convertRatesTo(SECONDS)
-                    .build(graphite)
-            ).start(metricsReportingInterval, SECONDS);
         }
     }
 
