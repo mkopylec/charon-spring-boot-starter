@@ -3,49 +3,31 @@ package com.github.mkopylec.charon.core.http;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
-public class RequestData {
+import static com.github.mkopylec.charon.core.utils.BodyConverter.convertStringToBody;
 
-    protected HttpMethod method;
-    protected String uri;
-    protected HttpHeaders headers;
-    protected byte[] body;
+public class RequestData extends UnmodifiableRequestData {
 
     public RequestData(HttpMethod method, String uri, HttpHeaders headers, byte[] body) {
-        this.method = method;
-        this.uri = uri;
-        this.headers = headers;
-        this.body = body;
-    }
-
-    public HttpMethod getMethod() {
-        return method;
+        super(method, uri, headers, body);
     }
 
     public void setMethod(HttpMethod method) {
         this.method = method;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
     public void setUri(String uri) {
         this.uri = uri;
-    }
-
-    public HttpHeaders getHeaders() {
-        return headers;
     }
 
     public void setHeaders(HttpHeaders headers) {
         this.headers = headers;
     }
 
-    public byte[] getBody() {
-        return body;
-    }
-
     public void setBody(byte[] body) {
         this.body = body;
+    }
+
+    public void setBody(String body) {
+        this.body = convertStringToBody(body);
     }
 }

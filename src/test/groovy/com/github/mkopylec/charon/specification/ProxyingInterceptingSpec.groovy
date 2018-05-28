@@ -53,24 +53,16 @@ class ProxyingInterceptingSpec extends BasicSpec {
                 .hasBody(INTERCEPTED_BODY)
     }
 
-    def "Should receive correct request and response data"() {
+    def "Should contain request data in response data while intercepting"() {
         given:
         stubDestinationResponse OK
 
         when:
-        def response = sendRequest GET, '/uri/1/sync'
+        sendRequest GET, '/uri/1/sync'
 
         then:
         assertThat(interceptor)
-                .hasInterceptedRequest()
-                .hasInterceptedResponse()
-                .withRequestInResponse()
-                .withRequestMethod(DELETE)
-                .withRequestUri('/uri/1/sync')
-                .withRequestHeader('Authorization', INTERCEPTED_AUTHORIZATION)
-                .withRequestHeader('X-Forwarded-For', '127.0.0.1')
-                .withResponseStatus(CREATED)
-                .withResponseBody(INTERCEPTED_BODY)
+                .hasResponseDataContainingRequestData()
     }
 
     def "Should not change HTTP response while proxying HTTP request when asynchronous mode is enabled"() {

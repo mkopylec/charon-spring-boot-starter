@@ -151,7 +151,8 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), requestData);
+        UnmodifiableRequestData data = new UnmodifiableRequestData(requestData);
+        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), data);
     }
 
     protected void stopTimerContext(Context context) {

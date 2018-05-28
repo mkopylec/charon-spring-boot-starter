@@ -11,9 +11,9 @@ public class ResponseData {
     protected HttpStatus status;
     protected HttpHeaders headers;
     protected byte[] body;
-    protected RequestData requestData;
+    protected UnmodifiableRequestData requestData;
 
-    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body, RequestData requestData) {
+    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body, UnmodifiableRequestData requestData) {
         this.status = status;
         this.headers = new HttpHeaders();
         this.headers.putAll(headers);
@@ -53,11 +53,7 @@ public class ResponseData {
         this.body = convertStringToBody(body);
     }
 
-    public RequestData getRequestData() {
+    public UnmodifiableRequestData getRequestData() {
         return requestData;
-    }
-
-    public void setRequestData(RequestData requestData) {
-        this.requestData = requestData;
     }
 }
