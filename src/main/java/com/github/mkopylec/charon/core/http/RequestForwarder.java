@@ -75,7 +75,7 @@ public class RequestForwarder {
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
-        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName());
+        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName(), data);
 
         log.debug("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
@@ -127,7 +127,7 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName) {
+    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName, RequestData requestData) {
         final ResponseEntity<byte[]>[] response = new ResponseEntity[1];
         Timer timer = metricRegistry.timer(mappingMetricsName);
 
@@ -147,8 +147,10 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return new ResponseData(response[0].getStatusCode(), response[0].getHeaders(), response[0].getBody());
+        UnmodifiableRequestData data = new UnmodifiableRequestData(requestData);
+        return new ResponseData(response[0].getStatusCode(), response[0].getHeaders(), response[0].getBody(), data);
     }
+
 
     protected String resolveMetricsName(MappingProperties mapping) {
         return charon.getMetrics().getNamesPrefix() + "." + mapping.getName();

@@ -5,7 +5,7 @@ plugins {
     id 'com.github.kt3k.coveralls' version '2.8.2'
     id 'maven'
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.9.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.9.1'
     id 'io.codearte.nexus-staging' version '0.11.0'
 }
 
@@ -15,11 +15,15 @@ scmVersion {
     }
 }
 
-group 'com.github.mkopylec'
+group = 'com.github.mkopylec'
 archivesBaseName = name
-version scmVersion.version
+version = scmVersion.version
 
 sourceCompatibility = 1.8
+
+ext {
+    springBootVersion = '2.0.1.RELEASE'
+}
 
 repositories {
     mavenCentral()
@@ -27,20 +31,20 @@ repositories {
 
 dependencies {
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.1.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-actuator', version: '2.0.1.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+    compile group: 'org.springframework.boot', name: 'spring-boot-actuator', version: springBootVersion
     compile group: 'io.micrometer', name: 'micrometer-core', version: '1.0.3'
+
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
     compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.2.RELEASE'
 
-    compileOnly group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '2.0.1.RELEASE'
-
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.0.1.RELEASE'
+    compileOnly group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.1-groovy-2.4'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.16.0'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.17.0'
 }
 
 configurations {
@@ -48,7 +52,7 @@ configurations {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
 }
 
 task javadocJar(type: Jar) {
@@ -117,10 +121,6 @@ uploadArchives {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId 'com.github.mkopylec'
-            artifactId 'charon-spring-boot-starter'
-            version '2.5.0.2'
-
             from components.java
             artifact sourceJar
         }

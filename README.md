@@ -34,7 +34,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.5.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.6.0'
 }
 ```
 
@@ -87,10 +87,8 @@ This can be done by creating a Spring bean of type `MappingsProvider`:
 
 ```java
 @Component
-@EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
 public class CustomMappingsProvider extends MappingsProvider {
 
-    @Autowired
     public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
         super(server, charon, mappingsCorrector);
     }
@@ -202,7 +200,6 @@ To create a custom metrics reporter create a Spring bean that extends `Scheduled
 @Component
 public class CustomMetricsReporter extends ScheduledReporter {
 
-    @Autowired
     public CustomMetricsReporter(MetricRegistry registry) {
         ...
     }
