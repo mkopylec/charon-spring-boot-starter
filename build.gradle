@@ -32,7 +32,6 @@ repositories {
 dependencies {
 
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
-    compile group: 'org.springframework.boot', name: 'spring-boot-actuator', version: springBootVersion
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -45,7 +44,8 @@ dependencies {
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.1-groovy-2.4'
     testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.18.0'
-    testCompile group: 'io.micrometer', name: 'micrometer-registry-graphite', version: '1.0.4'
+//    testCompile group: 'org.springframework.boot', name: 'spring-boot-actuator-autoconfigure', version: springBootVersion
+//    testCompile group: 'io.micrometer', name: 'micrometer-registry-graphite', version: '1.0.4'
 }
 
 configurations {

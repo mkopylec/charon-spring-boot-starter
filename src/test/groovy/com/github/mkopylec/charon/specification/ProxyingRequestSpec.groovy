@@ -28,7 +28,8 @@ abstract class ProxyingRequestSpec extends BasicSpec {
                 .withoutBody()
 
         where:
-        method << [GET, POST, OPTIONS, DELETE, PUT, TRACE, HEAD]
+// TODO        method << [GET, POST, OPTIONS, DELETE, PUT, TRACE, HEAD]
+        method << [TRACE]
     }
 
     @Unroll

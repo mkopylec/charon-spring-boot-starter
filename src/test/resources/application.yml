@@ -7,7 +7,7 @@ charon:
       server-http-error: false
       exceptions: java.nio.channels.UnresolvedAddressException
   metrics:
-#    enabled: true
+# TODO    enabled: true
     names-prefix: charon
 #    reporting:
 #      interval-in-seconds: 1
@@ -100,10 +100,3 @@ test:
 logging.level:
   com.github.mkopylec.charon: trace
   org.eclipse.jetty: error
-
-management:
-  metrics:
-    export:
-      graphite:
-        enabled: false
-        step: 1s

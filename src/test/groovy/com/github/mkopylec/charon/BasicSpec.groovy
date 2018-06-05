@@ -6,7 +6,6 @@ import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -15,6 +14,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestTemplate
+import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -35,24 +36,34 @@ abstract class BasicSpec extends Specification {
     @Rule
     public WireMockRule localhost8081 = new WireMockRule(8081)
 
-    @Autowired
-    private TestRestTemplate restTemplate
+    @Shared
+    private RestTemplate restTemplate = new RestTemplate()
     @LocalServerPort
     protected int port
     @Autowired
     private ServerProperties server
 
+    void setupSpec() {
+        // Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
+        System.setProperty('http.keepAlive', 'false')
+        System.setProperty('http.maxConnections', '1')
+    }
+
     void setup() {
+        // Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
+        System.setProperty('http.keepAlive', 'false')
+        System.setProperty('http.maxConnections', '1')
         stubResponse(OK)
     }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
-        def url = "$contextPath$uri".toString()
+        def url = "http://localhost:$port$contextPath$uri".toString()
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         try {
-            return restTemplate.exchange(url, method, request, String)
+            def exchange = restTemplate.exchange(url, method, request, String)
+            return exchange
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
