@@ -9,7 +9,7 @@ import org.springframework.test.context.TestPropertySource
 import static com.github.mkopylec.charon.assertions.Assertions.assertThat
 import static org.springframework.http.HttpMethod.GET
 
-@TestPropertySource(properties = ['charon.metrics.reporting.graphite.enabled: true'])
+@TestPropertySource(properties = ['management.metrics.export.graphite.enabled: true'])
 class MetricsSpec extends BasicSpec {
 
     @Autowired

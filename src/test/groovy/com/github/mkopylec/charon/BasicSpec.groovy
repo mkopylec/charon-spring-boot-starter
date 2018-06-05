@@ -5,8 +5,9 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -14,8 +15,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.RestTemplate
-import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -36,10 +35,10 @@ abstract class BasicSpec extends Specification {
     @Rule
     public WireMockRule localhost8081 = new WireMockRule(8081)
 
-    @Shared
-    private RestTemplate restTemplate = new RestTemplate()
     @Autowired
-    private EmbeddedWebApplicationContext context
+    private TestRestTemplate restTemplate
+    @LocalServerPort
+    protected int port
     @Autowired
     private ServerProperties server
 
@@ -48,12 +47,12 @@ abstract class BasicSpec extends Specification {
     }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
-        def url = "http://localhost:$context.embeddedServletContainer.port$contextPath$uri"
+        def url = "$contextPath$uri".toString()
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         try {
-            return restTemplate.exchange(url.toString(), method, request, String)
+            return restTemplate.exchange(url, method, request, String)
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
@@ -62,11 +61,7 @@ abstract class BasicSpec extends Specification {
     }
 
     protected String getContextPath() {
-        return trimToEmpty(server.contextPath)
-    }
-
-    protected String getPort() {
-        return context.embeddedServletContainer.port
+        return trimToEmpty(server.servlet.contextPath)
     }
 
     protected void stubDestinationResponse(boolean timedOut) {

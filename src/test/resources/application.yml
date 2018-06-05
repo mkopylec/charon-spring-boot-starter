@@ -7,16 +7,16 @@ charon:
       server-http-error: false
       exceptions: java.nio.channels.UnresolvedAddressException
   metrics:
-    enabled: true
+#    enabled: true
     names-prefix: charon
-    reporting:
-      interval-in-seconds: 1
-      logger:
-        enabled: true
-      graphite:
-        enabled: false
-        hostname: localhost
-        port: 2003
+#    reporting:
+#      interval-in-seconds: 1
+#      logger:
+#        enabled: true
+#      graphite:
+#        enabled: false
+#        hostname: localhost
+#        port: 2003
   tracing:
     enabled: true
   asynchronous-forwarding-thread-pool:
@@ -100,3 +100,10 @@ test:
 logging.level:
   com.github.mkopylec.charon: trace
   org.eclipse.jetty: error
+
+management:
+  metrics:
+    export:
+      graphite:
+        enabled: false
+        step: 1s

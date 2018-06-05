@@ -1,18 +1,13 @@
 package com.github.mkopylec.charon.core.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
 import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
-
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
@@ -20,9 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import static com.codahale.metrics.MetricRegistry.name;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
+import static java.lang.System.nanoTime;
+import static java.time.Duration.ofNanos;
 import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -42,7 +41,7 @@ public class RequestForwarder {
     protected final HttpClientProvider httpClientProvider;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
-    protected final MetricRegistry metricRegistry;
+    protected final MeterRegistry meterRegistry;
     protected final ProxyingTraceInterceptor traceInterceptor;
     protected final ForwardedRequestInterceptor forwardedRequestInterceptor;
     protected final ReceivedResponseInterceptor receivedResponseInterceptor;
@@ -53,7 +52,7 @@ public class RequestForwarder {
             HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            MetricRegistry metricRegistry,
+            MeterRegistry meterRegistry,
             ProxyingTraceInterceptor traceInterceptor,
             ForwardedRequestInterceptor forwardedRequestInterceptor,
             ReceivedResponseInterceptor receivedResponseInterceptor
@@ -63,7 +62,7 @@ public class RequestForwarder {
         this.httpClientProvider = httpClientProvider;
         this.mappingsProvider = mappingsProvider;
         this.loadBalancer = loadBalancer;
-        this.metricRegistry = metricRegistry;
+        this.meterRegistry = meterRegistry;
         this.traceInterceptor = traceInterceptor;
         this.forwardedRequestInterceptor = forwardedRequestInterceptor;
         this.receivedResponseInterceptor = receivedResponseInterceptor;
@@ -130,15 +129,12 @@ public class RequestForwarder {
 
     protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName, RequestData requestData) {
         ResponseEntity<byte[]> response;
-        Context context = null;
-        if (charon.getMetrics().isEnabled()) {
-            context = metricRegistry.timer(mappingMetricsName).time();
-        }
+        long startingTime = nanoTime();
         try {
             response = httpClientProvider.getHttpClient(mapping.getName()).exchange(request, byte[].class);
-            stopTimerContext(context);
+            recordLatency(mappingMetricsName, startingTime);
         } catch (HttpStatusCodeException e) {
-            stopTimerContext(context);
+            recordLatency(mappingMetricsName, startingTime);
             if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
                 traceInterceptor.onForwardFailed(traceId, e);
                 throw e;
@@ -147,7 +143,7 @@ public class RequestForwarder {
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsByteArray());
         } catch (Exception e) {
-            stopTimerContext(context);
+            recordLatency(mappingMetricsName, startingTime);
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
@@ -155,14 +151,12 @@ public class RequestForwarder {
         return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), data);
     }
 
-    protected void stopTimerContext(Context context) {
-        if (context != null) {
-            context.stop();
-        }
+    protected void recordLatency(String metricName, long startingTime) {
+        meterRegistry.timer(metricName).record(ofNanos(nanoTime() - startingTime));
     }
 
     protected String resolveMetricsName(MappingProperties mapping) {
-        return name(charon.getMetrics().getNamesPrefix(), mapping.getName());
+        return charon.getMetrics().getNamesPrefix() + "." + mapping.getName();
     }
 
     protected String stripMappingPath(String uri, MappingProperties mapping) {
@@ -170,6 +164,6 @@ public class RequestForwarder {
     }
 
     protected String concatContextAndMappingPaths(MappingProperties mapping) {
-        return correctUri(server.getContextPath()) + mapping.getPath();
+        return correctUri(server.getServlet().getContextPath()) + mapping.getPath();
     }
 }
