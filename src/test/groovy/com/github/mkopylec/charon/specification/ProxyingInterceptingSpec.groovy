@@ -1,6 +1,8 @@
 package com.github.mkopylec.charon.specification
 
 import com.github.mkopylec.charon.BasicSpec
+import com.github.mkopylec.charon.application.TestForwardedRequestInterceptor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.TestPropertySource
 import spock.lang.Unroll
 
@@ -15,6 +17,9 @@ import static org.springframework.http.HttpStatus.OK
 
 @TestPropertySource(properties = ['test.interceptors-enabled: true'])
 class ProxyingInterceptingSpec extends BasicSpec {
+
+    @Autowired
+    private TestForwardedRequestInterceptor interceptor
 
     @Unroll
     def "Should change forwarded request while proxying HTTP request when URI is #requestUri"() {
@@ -46,6 +51,18 @@ class ProxyingInterceptingSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(CREATED)
                 .hasBody(INTERCEPTED_BODY)
+    }
+
+    def "Should contain request data in response data while intercepting"() {
+        given:
+        stubDestinationResponse OK
+
+        when:
+        sendRequest GET, '/uri/1/sync'
+
+        then:
+        assertThat(interceptor)
+                .hasResponseDataContainingRequestData()
     }
 
     def "Should not change HTTP response while proxying HTTP request when asynchronous mode is enabled"() {

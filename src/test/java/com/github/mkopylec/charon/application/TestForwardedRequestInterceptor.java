@@ -12,6 +12,9 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpStatus.CREATED;
 
+/**
+ * This class in not thread safe.
+ */
 @Component
 @ConditionalOnProperty("test.interceptors-enabled")
 public class TestForwardedRequestInterceptor implements ForwardedRequestInterceptor, ReceivedResponseInterceptor {
@@ -19,15 +22,28 @@ public class TestForwardedRequestInterceptor implements ForwardedRequestIntercep
     public static final String INTERCEPTED_AUTHORIZATION = "intercepted-authorization";
     public static final String INTERCEPTED_BODY = "intercepted-body";
 
+    private RequestData requestData;
+    private ResponseData responseData;
+
     @Override
     public void intercept(RequestData data) {
+        requestData = data;
         data.setMethod(DELETE);
         data.getHeaders().set(AUTHORIZATION, INTERCEPTED_AUTHORIZATION);
     }
 
     @Override
     public void intercept(ResponseData data) {
+        responseData = data;
         data.setStatus(CREATED);
         data.setBody(INTERCEPTED_BODY);
+    }
+
+    public RequestData getRequestData() {
+        return requestData;
+    }
+
+    public ResponseData getResponseData() {
+        return responseData;
     }
 }

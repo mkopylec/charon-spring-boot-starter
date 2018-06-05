@@ -1,5 +1,8 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer.Context;
 import com.github.mkopylec.charon.configuration.CharonProperties;
@@ -9,15 +12,13 @@ import com.github.mkopylec.charon.core.mappings.MappingsProvider;
 import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import org.slf4j.Logger;
+
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.codahale.metrics.MetricRegistry.name;
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
@@ -75,7 +76,7 @@ public class RequestForwarder {
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
         context.setAttribute(MAPPING_NAME_RETRY_ATTRIBUTE, destination.getMappingName());
         RequestEntity<byte[]> request = new RequestEntity<>(data.getBody(), data.getHeaders(), data.getMethod(), destination.getUri());
-        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName());
+        ResponseData response = sendRequest(traceId, request, mapping, destination.getMappingMetricsName(), data);
 
         log.debug("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
@@ -92,7 +93,7 @@ public class RequestForwarder {
      * Remove any protocol-level headers from the remote server's response that
      * do not apply to the new response we are sending.
      */
-    private void prepareForwardedResponseHeaders(ResponseData response) {
+    protected void prepareForwardedResponseHeaders(ResponseData response) {
         HttpHeaders headers = response.getHeaders();
         headers.remove(TRANSFER_ENCODING);
         headers.remove(CONNECTION);
@@ -105,7 +106,7 @@ public class RequestForwarder {
      * Remove any protocol-level headers from the clients request that
      * do not apply to the new request we are sending to the remote server.
      */
-    private void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
+    protected void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
         HttpHeaders headers = request.getHeaders();
         headers.set(HOST, destination.getUri().getAuthority());
         headers.remove(TE);
@@ -127,7 +128,7 @@ public class RequestForwarder {
         }
     }
 
-    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName) {
+    protected ResponseData sendRequest(String traceId, RequestEntity<byte[]> request, MappingProperties mapping, String mappingMetricsName, RequestData requestData) {
         ResponseEntity<byte[]> response;
         Context context = null;
         if (charon.getMetrics().isEnabled()) {
@@ -150,7 +151,8 @@ public class RequestForwarder {
             traceInterceptor.onForwardFailed(traceId, e);
             throw e;
         }
-        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody());
+        UnmodifiableRequestData data = new UnmodifiableRequestData(requestData);
+        return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), data);
     }
 
     protected void stopTimerContext(Context context) {

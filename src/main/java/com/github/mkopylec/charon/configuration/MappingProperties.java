@@ -1,7 +1,9 @@
 package com.github.mkopylec.charon.configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -37,6 +39,11 @@ public class MappingProperties {
      * Properties responsible for timeouts while forwarding HTTP requests.
      */
     private TimeoutProperties timeout = new TimeoutProperties();
+
+    /**
+     * Custom properties placeholder.
+     */
+    private Map<String, Object> customConfiguration = new HashMap<>();
 
     public String getName() {
         return name;
@@ -94,6 +101,14 @@ public class MappingProperties {
         this.timeout = timeout;
     }
 
+    public Map<String, Object> getCustomConfiguration() {
+        return customConfiguration;
+    }
+
+    public void setCustomConfiguration(Map<String, Object> customConfiguration) {
+        this.customConfiguration = customConfiguration;
+    }
+
     public MappingProperties copy() {
         MappingProperties clone = new MappingProperties();
         clone.setName(name);
@@ -103,6 +118,7 @@ public class MappingProperties {
         clone.setStripPath(stripPath);
         clone.setRetryable(retryable);
         clone.setTimeout(timeout);
+        clone.setCustomConfiguration(customConfiguration == null ? null : new HashMap<>(customConfiguration));
         return clone;
     }
 
@@ -116,6 +132,7 @@ public class MappingProperties {
                 .append("stripPath", stripPath)
                 .append("retryable", retryable)
                 .append("timeout", timeout)
+                .append("customConfiguration", customConfiguration)
                 .toString();
     }
 

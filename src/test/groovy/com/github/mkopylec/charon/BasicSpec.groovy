@@ -53,7 +53,7 @@ abstract class BasicSpec extends Specification {
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         try {
-            return restTemplate.exchange(url, method, request, String)
+            return restTemplate.exchange(url.toString(), method, request, String)
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)

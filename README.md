@@ -18,6 +18,9 @@ This tool tries to get the best of them joining their features into a one Spring
 - forward HTTP headers support
 - intercepting and tracing
 
+## Contribution
+Please use **pull-requests branch** as a destination branch for all pull requests.
+
 ## Migrating from 1.x.x to 2.x.x
 
 - remove `@EnableCharon` annotation
@@ -31,7 +34,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.3.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.6.0'
 }
 ```
 
@@ -84,10 +87,8 @@ This can be done by creating a Spring bean of type `MappingsProvider`:
 
 ```java
 @Component
-@EnableConfigurationProperties({CharonProperties.class, ServerProperties.class})
 public class CustomMappingsProvider extends MappingsProvider {
 
-    @Autowired
     public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
         super(server, charon, mappingsCorrector);
     }
@@ -199,7 +200,6 @@ To create a custom metrics reporter create a Spring bean that extends `Scheduled
 @Component
 public class CustomMetricsReporter extends ScheduledReporter {
 
-    @Autowired
     public CustomMetricsReporter(MetricRegistry registry) {
         ...
     }
@@ -317,6 +317,36 @@ charon.mappings:
 For asynchronous forwarding a thread pool executor is used.
 Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
 
+### Custom mapping properties
+There is a possibility to define custom mapping properties.
+This can be useful when additional mapping configuration is needed in overridden Charon's Spring beans.
+To add custom mapping configuration set an appropriate configuration property:
+
+```yaml
+charon.mappings:
+    -
+        ...
+      custom-configuration:
+          some-boolean-property: true
+          some-string-poperty: custom string
+          some-integer-property: 666
+```
+
+The above configuration can be used, for example, in custom `HttpClientProvider`:
+
+```java
+@Component
+public class CustomHttpClientProvider extends HttpClientProvider {
+ 
+     protected RestOperations createHttpClient(MappingProperties mapping) {
+         boolean booleanProperty = (boolean) mapping.getCustomConfiguration().get("some-boolean-property");
+         String stringProperty = (String) mapping.getCustomConfiguration().get("some-string-property");
+         int integerProperty = (int) mapping.getCustomConfiguration().get("some-integer-property");
+         ...
+     }
+ }
+```
+
 ### Other tips
 - change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
 - tracing logs have INFO and ERROR level
@@ -324,6 +354,8 @@ Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` con
 - if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
 - mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
 - X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
+- TE header is not added to any forwarded request
+- Transfer-Encoding, Connection, Public-Key-Pins, Server and Strict-Transport-Security headers are removed from any received response
 - the proxy is based on a servlet filter, the order of the filter is configurable
 - do not prepend server context path to mappings paths, it will be done automatically
 - if there are mappings like _/uri_ and _/uri/path_ and the incoming request URI is _/uri/path/something_ than the more specific mapping (_/uri/path_) will be chosen
@@ -370,6 +402,7 @@ charon:
             timeout:
                 connect: 200 # Connect timeout for HTTP requests forwarding.
                 read: 2000 # Read timeout for HTTP requests forwarding.
+            custom-configuration: # Custom properties placeholder.
 ```
 
 ## Examples

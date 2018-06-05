@@ -11,12 +11,14 @@ public class ResponseData {
     protected HttpStatus status;
     protected HttpHeaders headers;
     protected byte[] body;
+    protected UnmodifiableRequestData requestData;
 
-    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body) {
+    public ResponseData(HttpStatus status, HttpHeaders headers, byte[] body, UnmodifiableRequestData requestData) {
         this.status = status;
         this.headers = new HttpHeaders();
         this.headers.putAll(headers);
         this.body = body;
+        this.requestData = requestData;
     }
 
     public HttpStatus getStatus() {
@@ -49,5 +51,9 @@ public class ResponseData {
 
     public void setBody(String body) {
         this.body = convertStringToBody(body);
+    }
+
+    public UnmodifiableRequestData getRequestData() {
+        return requestData;
     }
 }
