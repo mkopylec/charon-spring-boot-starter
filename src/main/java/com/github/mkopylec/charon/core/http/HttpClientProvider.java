@@ -30,8 +30,6 @@ public class HttpClientProvider {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(client);
         requestFactory.setConnectTimeout(mapping.getTimeout().getConnect());
         requestFactory.setReadTimeout(mapping.getTimeout().getRead());
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-        restTemplate.getInterceptors().add(new MultipartHeaderFixer());
-        return restTemplate;
+        return new RestTemplate(requestFactory);
     }
 }

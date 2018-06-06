@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.OK
 class ProxyingResponseSpec extends BasicSpec {
 
     @Unroll
-    def "Should get proxied HTTP response with preserved status when response status is #status"() {
+    def "Should get proxied HTTP response with preserved status when destination response status is #status"() {
         given:
         stubDestinationResponse status
 
@@ -35,7 +35,7 @@ class ProxyingResponseSpec extends BasicSpec {
     }
 
     @Unroll
-    def "Should get proxied HTTP response with #responseHeaders when response headers are #receivedHeaders"() {
+    def "Should get proxied HTTP response with #responseHeaders headers when destination response headers are #receivedHeaders"() {
         given:
         stubDestinationResponse receivedHeaders
 
@@ -54,13 +54,12 @@ class ProxyingResponseSpec extends BasicSpec {
         ['Header-1': 'Value 1']                                        | ['Header-1': 'Value 1']                                        | []
         ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | ['Header-1': 'Value 1', 'Header-2': 'Value 2', 'Header-3': ''] | []
         ['Transfer-Encoding': 'chunked']                               | [:]                                                            | ['Transfer-Encoding']
-        ['Connection': 'close']                                        | [:]                                                            | ['Connection']
         ['Public-Key-Pins': 'pin-sha256']                              | [:]                                                            | ['Public-Key-Pins']
         ['Server': 'Apache/2.4.1 (Unix)']                              | [:]                                                            | ['Server']
         ['Strict-Transport-Security': 'max-age=3600']                  | [:]                                                            | ['Strict-Transport-Security']
     }
 
-    def "Should get proxied HTTP response with preserved headers when response status indicates error"() {
+    def "Should get proxied HTTP response with preserved headers when destination response status indicates error"() {
         given:
         stubDestinationResponse INTERNAL_SERVER_ERROR, ['Header-1': 'Value 1']
 
@@ -75,7 +74,7 @@ class ProxyingResponseSpec extends BasicSpec {
     }
 
     @Unroll
-    def "Should get proxied HTTP response with preserved body when response body is '#body'"() {
+    def "Should get proxied HTTP response with preserved body when destination response body is '#body'"() {
         given:
         stubDestinationResponse body
 
@@ -91,7 +90,7 @@ class ProxyingResponseSpec extends BasicSpec {
         body << [null, '   ', 'Sample body']
     }
 
-    def "Should get proxied HTTP response with preserved body when response status indicates error"() {
+    def "Should get proxied HTTP response with preserved body when destination response status indicates error"() {
         given:
         stubDestinationResponse BAD_REQUEST, 'Sample body'
 

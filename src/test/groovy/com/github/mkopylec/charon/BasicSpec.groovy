@@ -43,16 +43,8 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private ServerProperties server
 
-    void setupSpec() {
-        // Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
-        System.setProperty('http.keepAlive', 'false')
-        System.setProperty('http.maxConnections', '1')
-    }
-
     void setup() {
-        // Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
-        System.setProperty('http.keepAlive', 'false')
-        System.setProperty('http.maxConnections', '1')
+        fixWiremock()
         stubResponse(OK)
     }
 
@@ -112,5 +104,11 @@ abstract class BasicSpec extends Specification {
             response = response.withStatus(responseStatus.value())
             it.stubFor(any(urlMatching('.*')).willReturn(response))
         }
+    }
+
+    // TODO Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
+    private static void fixWiremock() {
+        System.setProperty('http.keepAlive', 'false')
+        System.setProperty('http.maxConnections', '1')
     }
 }
