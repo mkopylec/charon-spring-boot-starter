@@ -19,7 +19,6 @@ import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.core.trace.TraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -38,6 +37,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -136,7 +136,7 @@ public class CharonConfiguration {
             HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            MeterRegistry meterRegistry,
+            Optional<MeterRegistry> meterRegistry,
             ProxyingTraceInterceptor traceInterceptor,
             ForwardedRequestInterceptor forwardedRequestInterceptor,
             ReceivedResponseInterceptor receivedResponseInterceptor
@@ -172,12 +172,6 @@ public class CharonConfiguration {
     @ConditionalOnMissingBean
     public ReceivedResponseInterceptor charonReceivedResponseInterceptor() {
         return new NoOpReceivedResponseInterceptor();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MeterRegistry charonMeterRegistry() {
-        return new SimpleMeterRegistry();
     }
 
     @PostConstruct

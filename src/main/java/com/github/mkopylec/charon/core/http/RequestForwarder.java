@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
@@ -41,7 +42,7 @@ public class RequestForwarder {
     protected final HttpClientProvider httpClientProvider;
     protected final MappingsProvider mappingsProvider;
     protected final LoadBalancer loadBalancer;
-    protected final MeterRegistry meterRegistry;
+    protected final Optional<MeterRegistry> meterRegistry;
     protected final ProxyingTraceInterceptor traceInterceptor;
     protected final ForwardedRequestInterceptor forwardedRequestInterceptor;
     protected final ReceivedResponseInterceptor receivedResponseInterceptor;
@@ -52,7 +53,7 @@ public class RequestForwarder {
             HttpClientProvider httpClientProvider,
             MappingsProvider mappingsProvider,
             LoadBalancer loadBalancer,
-            MeterRegistry meterRegistry,
+            Optional<MeterRegistry> meterRegistry,
             ProxyingTraceInterceptor traceInterceptor,
             ForwardedRequestInterceptor forwardedRequestInterceptor,
             ReceivedResponseInterceptor receivedResponseInterceptor
@@ -152,7 +153,7 @@ public class RequestForwarder {
     }
 
     protected void recordLatency(String metricName, long startingTime) {
-        meterRegistry.timer(metricName).record(ofNanos(nanoTime() - startingTime));
+        meterRegistry.ifPresent(meterRegistry -> meterRegistry.timer(metricName).record(ofNanos(nanoTime() - startingTime)));
     }
 
     protected String resolveMetricsName(MappingProperties mapping) {
