@@ -24,8 +24,12 @@ Please use **pull-requests branch** as a destination branch for all pull request
 ## Migrating from 1.x.x to 2.x.x
 
 - remove `@EnableCharon` annotation
-- correct `charon.mertics` properties in the _application.yml_ file if collecting metrics is enabled
+- correct `charon.metrics` properties in the _application.yml_ file if collecting metrics is enabled
 - `charon.timeout` properties are no longer available in the _application.yml_ file, now timeouts can be set per mapping
+
+## Migrating from 2.x.x to 3.x.x
+
+- correct `charon.metrics` properties in the _application.yml_ file are no longer available except `charon.metrics.name-prefix` property, now metrics rely on [Micrometer](https://micrometer.io/)
 
 ## Installing
 
@@ -34,7 +38,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '2.6.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '3.0.0'
 }
 ```
 
@@ -162,59 +166,9 @@ public class CustomLoadBalancer implements LoadBalancer {
 ```
 
 ### Metrics
-Collecting performance metrics is disabled by default.
-To turn them on set an appropriate configuration property:
-
-```yaml
-charon.metrics.enabled: true
-```
-
-Charon collects metrics per mapping.
-To report collected metrics a reporter is needed.
-Charon includes two metrics reporters but they are disabled by default.
-To enable a reporter that logs collected metrics set an appropriate configuration property:
-
-```yaml
-charon.metrics.reporting.logger.enabled: true
-```
-
-To enable a reporter that sends collected metrics to a [Graphite](https://graphiteapp.org/) server set an appropriate configuration properties:
-
-```yaml
-charon.metrics.reporting.graphite:
-    enabled: true
-    hostname: <graphite_hostname>
-    port: <graphite_port>
-```
-
-The default metrics reporters report results every 60 seconds.
-The interval can be changed by setting an appropriate configuration property:
-
-```yaml
-charon.metrics.reporting.interval-in-seconds: <interval_in_seconds>
-```
-
-To create a custom metrics reporter create a Spring bean that extends `ScheduledReporter`:
-
-```java
-@Component
-public class CustomMetricsReporter extends ScheduledReporter {
-
-    public CustomMetricsReporter(MetricRegistry registry) {
-        ...
-    }
-
-    @Override
-    public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
-        ...
-    }
-    
-    @PostConstruct
-    private void startCapturingMetrics() {
-        start(...);
-    }
-}
-```
+Charon collects performance metrics using [Micrometer](https://micrometer.io/), the default Spring Boot's metrics provider.
+To turn them on a `MeterRegistry` Spring bean need to be provided.
+Spring supports multiple metrics providers and reporters, see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-metrics.html) for more information.
 
 ### Forwarded request intercepting
 Charon gives a possibility to change the outgoing HTTP requests.
@@ -374,16 +328,7 @@ charon:
             server-http-error: true # Flag for enabling and disabling triggering HTTP requests forward retries on 5xx HTTP responses from destination.
             exceptions: java.lang.Exception # Comma-separated list of exceptions that triggers HTTP request forward retries.
     metrics:
-        enabled: false # Flag for enabling and disabling collecting metrics during HTTP requests forwarding.
         names-prefix: charon # Global metrics names prefix.
-        reporting:
-            interval-in-seconds: 60 # Metrics reporting interval in seconds.
-            logger:
-                enabled: false # Flag for enabling and disabling reporting metrics to application logger.
-            graphite:
-                enabled: false # Flag for enabling and disabling reporting metrics to Graphite server.
-                hostname: # Graphite server hostname.
-                port: 2003 # Graphite server port.
     tracing:
         enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
     asynchronous-forwarding-thread-pool:

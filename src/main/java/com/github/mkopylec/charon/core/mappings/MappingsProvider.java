@@ -1,16 +1,14 @@
 package com.github.mkopylec.charon.core.mappings;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.http.HttpClientProvider;
 import org.slf4j.Logger;
-
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static java.util.stream.Collectors.toList;
@@ -62,7 +60,7 @@ public abstract class MappingsProvider {
     }
 
     protected String concatContextAndMappingPaths(MappingProperties mapping) {
-        return correctUri(server.getContextPath()) + mapping.getPath();
+        return correctUri(server.getServlet().getContextPath()) + mapping.getPath();
     }
 
     protected abstract boolean shouldUpdateMappings(HttpServletRequest request);

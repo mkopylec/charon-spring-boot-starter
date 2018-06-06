@@ -5,8 +5,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.web.ServerProperties
-import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -38,22 +38,24 @@ abstract class BasicSpec extends Specification {
 
     @Shared
     private RestTemplate restTemplate = new RestTemplate()
-    @Autowired
-    private EmbeddedWebApplicationContext context
+    @LocalServerPort
+    protected int port
     @Autowired
     private ServerProperties server
 
     void setup() {
+        fixWiremock()
         stubResponse(OK)
     }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String uri, Map<String, String> headers = [:], String body = EMPTY) {
-        def url = "http://localhost:$context.embeddedServletContainer.port$contextPath$uri"
+        def url = "http://localhost:$port$contextPath$uri".toString()
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         try {
-            return restTemplate.exchange(url.toString(), method, request, String)
+            def exchange = restTemplate.exchange(url, method, request, String)
+            return exchange
         } catch (HttpStatusCodeException e) {
             return status(e.getStatusCode())
                     .headers(e.responseHeaders)
@@ -62,11 +64,7 @@ abstract class BasicSpec extends Specification {
     }
 
     protected String getContextPath() {
-        return trimToEmpty(server.contextPath)
-    }
-
-    protected String getPort() {
-        return context.embeddedServletContainer.port
+        return trimToEmpty(server.servlet.contextPath)
     }
 
     protected void stubDestinationResponse(boolean timedOut) {
@@ -106,5 +104,11 @@ abstract class BasicSpec extends Specification {
             response = response.withStatus(responseStatus.value())
             it.stubFor(any(urlMatching('.*')).willReturn(response))
         }
+    }
+
+    // TODO Wiremock fix https://github.com/tomakehurst/wiremock/issues/97
+    private static void fixWiremock() {
+        System.setProperty('http.keepAlive', 'false')
+        System.setProperty('http.maxConnections', '1')
     }
 }

@@ -68,7 +68,7 @@ abstract class ProxyingRequestSpec extends BasicSpec {
                 .haveReceivedRequest()
                 .withMethodAndUri(GET, '/path/1')
                 .withHeaders(destinationHeaders)
-                .withHeaders(['X-Forwarded-Proto': 'http', 'X-Forwarded-Host': 'localhost', 'X-Forwarded-Port': port])
+                .withHeaders(['X-Forwarded-Proto': 'http', 'X-Forwarded-Host': 'localhost', 'X-Forwarded-Port': port.toString()])
                 .withoutBody()
 
         where:

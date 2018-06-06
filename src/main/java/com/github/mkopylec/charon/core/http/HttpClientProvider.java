@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.core.http;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import org.apache.http.impl.client.CloseableHttpClient;
-
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
