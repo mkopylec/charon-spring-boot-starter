@@ -12,7 +12,7 @@ This tool tries to get the best of them joining their features into a one Spring
 - easy to use
 - highly configurable and extensible
 - retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
-- metrics support based on [Metrics](http://metrics.dropwizard.io/)
+- metrics support based on [Micrometer](https://micrometer.io/)
 - customizable proxy mappings changeable at runtime
 - customizable load balancer
 - forward HTTP headers support
