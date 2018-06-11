@@ -127,7 +127,9 @@ public class CharonConfiguration {
             taskExecutor.setMaxPoolSize(charon.getAsynchronousForwardingThreadPool().getSize().getMaximum());
             return taskExecutor;
         }
-        return null;
+        return task -> {
+
+        };
     }
 
     @Bean
