@@ -1,36 +1,32 @@
 package com.github.mkopylec.charon.core.http;
 
+import com.github.mkopylec.charon.exceptions.CharonException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.github.mkopylec.charon.exceptions.CharonException;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static java.util.Collections.list;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.resolve;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 public class RequestDataExtractor {
-
-    protected static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
-    protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
     public byte[] extractBody(HttpServletRequest request) {
         try {
@@ -71,32 +67,27 @@ public class RequestDataExtractor {
         }
     }
 
-    private static boolean isFormPost(HttpServletRequest request) {
+    // Fix for empty form body, copy of https://github.com/spring-projects/spring-framework/blob/master/spring-web/src/main/java/org/springframework/http/server/ServletServerHttpRequest.java
+
+    private boolean isFormPost(HttpServletRequest request) {
         String contentType = request.getContentType();
-        return (contentType != null && contentType.contains(FORM_CONTENT_TYPE) &&
-                HttpMethod.POST.matches(request.getMethod()));
+        return contentType != null && contentType.contains(APPLICATION_FORM_URLENCODED_VALUE) && POST.matches(request.getMethod());
     }
 
-    /**
-     * Use {@link javax.servlet.ServletRequest#getParameterMap()} to reconstruct the
-     * body of a form 'POST' providing a predictable outcome as opposed to reading
-     * from the body, which can fail if any other code has used the ServletRequest
-     * to access a parameter, thus causing the input stream to be "consumed".
-     */
-    private static InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
+    private InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-        Writer writer = new OutputStreamWriter(bos, FORM_CHARSET);
+        Writer writer = new OutputStreamWriter(bos, UTF_8);
 
         Map<String, String[]> form = request.getParameterMap();
-        for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {
+        for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext(); ) {
             String name = nameIterator.next();
-            List<String> values = Arrays.asList(form.get(name));
-            for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext();) {
+            List<String> values = asList(form.get(name));
+            for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext(); ) {
                 String value = valueIterator.next();
-                writer.write(URLEncoder.encode(name, FORM_CHARSET.name()));
+                writer.write(encode(name, UTF_8.name()));
                 if (value != null) {
                     writer.write('=');
-                    writer.write(URLEncoder.encode(value, FORM_CHARSET.name()));
+                    writer.write(encode(value, UTF_8.name()));
                     if (valueIterator.hasNext()) {
                         writer.write('&');
                     }
