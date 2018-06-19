@@ -22,7 +22,7 @@ version = scmVersion.version
 sourceCompatibility = 1.8
 
 ext {
-    springBootVersion = '2.0.2.RELEASE'
+    springBootVersion = '2.0.3.RELEASE'
 }
 
 repositories {
@@ -37,7 +37,7 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
     compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.2.RELEASE'
-    compile group: 'io.micrometer', name: 'micrometer-core', version: '1.0.4'
+    compile group: 'io.micrometer', name: 'micrometer-core', version: '1.0.5'
 
     compileOnly group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
 
