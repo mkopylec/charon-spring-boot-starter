@@ -20,6 +20,10 @@ public class MappingProperties {
      */
     private String path = "/";
     /**
+     * Path to rewrite the original path from incoming HTTP requests URIs.
+     */
+    private String rewrittenPath;
+    /**
      * List of destination hosts where HTTP requests will be forwarded.
      */
     private List<String> destinations = new ArrayList<>();
@@ -59,6 +63,14 @@ public class MappingProperties {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getRewrittenPath() {
+        return rewrittenPath;
+    }
+
+    public void setRewrittenPath(String rewrittenPath) {
+        this.rewrittenPath = rewrittenPath;
     }
 
     public List<String> getDestinations() {
@@ -113,6 +125,7 @@ public class MappingProperties {
         MappingProperties clone = new MappingProperties();
         clone.setName(name);
         clone.setPath(path);
+        clone.setRewrittenPath(rewrittenPath);
         clone.setDestinations(destinations == null ? null : new ArrayList<>(destinations));
         clone.setAsynchronous(asynchronous);
         clone.setStripPath(stripPath);
@@ -127,6 +140,7 @@ public class MappingProperties {
         return new ToStringBuilder(this, NO_CLASS_NAME_STYLE)
                 .append("name", name)
                 .append("path", path)
+                .append("rewrittenPath", rewrittenPath)
                 .append("destinations", destinations)
                 .append("asynchronous", asynchronous)
                 .append("stripPath", stripPath)

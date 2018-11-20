@@ -137,6 +137,17 @@ abstract class ProxyingRequestSpec extends BasicSpec {
                 .withoutBody()
     }
 
+    def "Should proxy HTTP request rewriting its path"() {
+        when:
+        sendRequest GET, '/uri/10/path/10'
+
+        then:
+        assertThat(localhost8080, localhost8081)
+                .haveReceivedRequest()
+                .withMethodAndUri(GET, '/rewritten')
+                .withoutBody()
+    }
+
     def "Should fail to proxy HTTP request when destination URL cannot be created"() {
         when:
         def response = sendRequest GET, '/uri/4/path/4'

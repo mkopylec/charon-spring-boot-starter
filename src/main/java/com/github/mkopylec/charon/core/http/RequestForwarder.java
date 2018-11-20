@@ -1,5 +1,9 @@
 package com.github.mkopylec.charon.core.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 import com.github.mkopylec.charon.configuration.CharonProperties;
 import com.github.mkopylec.charon.configuration.MappingProperties;
 import com.github.mkopylec.charon.core.balancer.LoadBalancer;
@@ -8,6 +12,7 @@ import com.github.mkopylec.charon.core.trace.ProxyingTraceInterceptor;
 import com.github.mkopylec.charon.exceptions.CharonException;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
+
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
@@ -15,14 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryContext;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
-
 import static com.github.mkopylec.charon.configuration.RetryingProperties.MAPPING_NAME_RETRY_ATTRIBUTE;
 import static com.github.mkopylec.charon.core.utils.UriCorrector.correctUri;
 import static java.lang.System.nanoTime;
 import static java.time.Duration.ofNanos;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -117,7 +119,9 @@ public class RequestForwarder {
     }
 
     protected URI createDestinationUrl(String uri, MappingProperties mapping) {
-        if (mapping.isStripPath()) {
+        if (isNotBlank(mapping.getRewrittenPath())) {
+            uri = mapping.getRewrittenPath();
+        } else if (mapping.isStripPath()) {
             uri = stripMappingPath(uri, mapping);
         }
         String host = loadBalancer.chooseDestination(mapping.getDestinations());

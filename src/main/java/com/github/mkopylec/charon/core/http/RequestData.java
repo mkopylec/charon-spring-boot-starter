@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.core.http;
 
+import com.github.mkopylec.charon.configuration.MappingProperties;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
@@ -7,8 +9,8 @@ import static com.github.mkopylec.charon.core.utils.BodyConverter.convertStringT
 
 public class RequestData extends UnmodifiableRequestData {
 
-    public RequestData(HttpMethod method, String uri, HttpHeaders headers, byte[] body) {
-        super(method, uri, headers, body);
+    public RequestData(MappingProperties mapping, HttpMethod method, String uri, HttpHeaders headers, byte[] body) {
+        super(mapping, method, uri, headers, body);
     }
 
     public void setMethod(HttpMethod method) {

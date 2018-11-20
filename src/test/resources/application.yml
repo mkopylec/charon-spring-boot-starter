@@ -81,6 +81,11 @@ charon:
       name: proxy 9
       path: /uri/9
       destinations: http://localhost:8080
+    -
+      name: proxy 10
+      path: /uri/10
+      rewritten-path: /rewritten
+      destinations: http://localhost:8080
 
 test:
   metrics-reporter-enabled: false

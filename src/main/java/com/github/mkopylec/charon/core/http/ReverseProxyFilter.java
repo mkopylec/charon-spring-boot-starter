@@ -91,8 +91,8 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         byte[] body = extractor.extractBody(request);
         addForwardHeaders(request, headers);
 
-        RequestData dataToForward = new RequestData(method, originUri, headers, body);
-        forwardToDestination(response, traceId, mapping, dataToForward);
+        RequestData dataToForward = new RequestData(mapping, method, originUri, headers, body);
+        forwardToDestination(response, traceId, dataToForward);
     }
 
     protected void addForwardHeaders(HttpServletRequest request, HttpHeaders headers) {
@@ -107,8 +107,9 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-    protected void forwardToDestination(HttpServletResponse response, String traceId, MappingProperties mapping, RequestData dataToForward) {
+    protected void forwardToDestination(HttpServletResponse response, String traceId, RequestData dataToForward) {
         ResponseEntity<byte[]> responseEntity;
+        MappingProperties mapping = dataToForward.getMapping();
         if (mapping.isAsynchronous()) {
             taskExecutor.execute(() -> resolveRetryOperations(mapping).execute(
                     context -> {

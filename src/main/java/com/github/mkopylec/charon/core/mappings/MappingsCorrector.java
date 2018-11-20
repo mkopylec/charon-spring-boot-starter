@@ -33,6 +33,7 @@ public class MappingsCorrector {
         correctName(mapping);
         correctDestinations(mapping);
         correctPath(mapping);
+        correctRewrittenPath(mapping);
         correctTimeout(mapping);
     }
 
@@ -66,6 +67,14 @@ public class MappingsCorrector {
         }
         String path = correctUri(mapping.getPath());
         mapping.setPath(path);
+    }
+
+    protected void correctRewrittenPath(MappingProperties mapping) {
+        if (isBlank(mapping.getRewrittenPath())) {
+            return;
+        }
+        String rewrittenPath = correctUri(mapping.getRewrittenPath());
+        mapping.setRewrittenPath(rewrittenPath);
     }
 
     protected void correctTimeout(MappingProperties mapping) {
