@@ -86,6 +86,17 @@ charon.mappings:
         strip-path: false
 ```
 
+The forward request URL can also be completely rewritten.
+When using URL rewriting path stripping has no effect.
+To change the forward URL set an appropriate configuration property:
+                          
+```yaml
+charon.mappings:
+  -
+      ...
+      rewritten-path: <forward_request_path>
+```
+
 If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
 This can be done by creating a Spring bean of type `MappingsProvider`:
 
@@ -340,6 +351,7 @@ charon:
         -
             name: # Name of the mapping.
             path: / # Path for mapping incoming HTTP requests URIs.
+            rewritten-path: # Path to rewrite the original path from incoming HTTP requests URIs.
             destinations: # List of destination hosts where HTTP requests will be forwarded.
             asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
             strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
