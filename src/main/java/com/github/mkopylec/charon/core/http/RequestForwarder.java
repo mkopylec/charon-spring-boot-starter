@@ -136,7 +136,7 @@ public class RequestForwarder {
             recordLatency(mappingMetricsName, startingTime);
         } catch (HttpStatusCodeException e) {
             recordLatency(mappingMetricsName, startingTime);
-            if (charon.getRetrying().getRetryOn().getExceptions().contains(e.getClass())) {
+            if (shouldRetry(e)) {
                 traceInterceptor.onForwardFailed(traceId, e);
                 throw e;
             }
@@ -150,6 +150,10 @@ public class RequestForwarder {
         }
         UnmodifiableRequestData data = new UnmodifiableRequestData(requestData);
         return new ResponseData(response.getStatusCode(), response.getHeaders(), response.getBody(), data);
+    }
+
+    protected boolean shouldRetry(HttpStatusCodeException e) {
+        return charon.getRetrying().getRetryOn().getExceptions().stream().anyMatch(type -> type.isAssignableFrom(e.getClass()));
     }
 
     protected void recordLatency(String metricName, long startingTime) {

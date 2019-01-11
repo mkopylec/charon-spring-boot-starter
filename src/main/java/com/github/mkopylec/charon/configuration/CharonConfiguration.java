@@ -118,7 +118,6 @@ public class CharonConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
     public TaskExecutor charonTaskExecutor() {
         if (isAsynchronousMappingPresent()) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
