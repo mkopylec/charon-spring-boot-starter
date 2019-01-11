@@ -92,6 +92,7 @@ public class RequestForwarder {
     /**
      * Remove any protocol-level headers from the remote server's response that
      * do not apply to the new response we are sending.
+     * @param response
      */
     protected void prepareForwardedResponseHeaders(ResponseData response) {
         HttpHeaders headers = response.getHeaders();
@@ -105,6 +106,8 @@ public class RequestForwarder {
     /**
      * Remove any protocol-level headers from the clients request that
      * do not apply to the new request we are sending to the remote server.
+     * @param request
+     * @param destination
      */
     protected void prepareForwardedRequestHeaders(RequestData request, ForwardDestination destination) {
         HttpHeaders headers = request.getHeaders();
