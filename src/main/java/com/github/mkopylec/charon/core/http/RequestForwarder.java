@@ -70,7 +70,7 @@ public class RequestForwarder {
     }
 
     public ResponseEntity<byte[]> forwardHttpRequest(RequestData data, String traceId, RetryContext context, MappingProperties mapping) {
-        forwardedRequestInterceptor.intercept(data);
+        forwardedRequestInterceptor.intercept(data, mapping);
         ForwardDestination destination = resolveForwardDestination(data.getUri(), mapping);
         prepareForwardedRequestHeaders(data, destination);
         traceInterceptor.onForwardStart(traceId, destination.getMappingName(), data.getMethod(), destination.getUri().toString(), data.getBody(), data.getHeaders());
@@ -81,7 +81,7 @@ public class RequestForwarder {
         log.debug("Forwarding: {} {} -> {} {}", data.getMethod(), data.getUri(), destination.getUri(), response.getStatus().value());
 
         traceInterceptor.onForwardComplete(traceId, response.getStatus(), response.getBody(), response.getHeaders());
-        receivedResponseInterceptor.intercept(response);
+        receivedResponseInterceptor.intercept(response, mapping);
         prepareForwardedResponseHeaders(response);
 
         return status(response.getStatus())
@@ -92,6 +92,7 @@ public class RequestForwarder {
     /**
      * Remove any protocol-level headers from the remote server's response that
      * do not apply to the new response we are sending.
+     *
      * @param response
      */
     protected void prepareForwardedResponseHeaders(ResponseData response) {
@@ -106,6 +107,7 @@ public class RequestForwarder {
     /**
      * Remove any protocol-level headers from the clients request that
      * do not apply to the new request we are sending to the remote server.
+     *
      * @param request
      * @param destination
      */

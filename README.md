@@ -180,7 +180,7 @@ To intercept requests create a Spring bean of type `ForwardedRequestInterceptor`
 public class CustomForwardedRequestInterceptor implements ForwardedRequestInterceptor {
 
     @Override
-    public void intercept(RequestData data) {
+    public void intercept(RequestData data, MappingProperties mapping) {
         ...
     }
 }
@@ -196,7 +196,7 @@ To intercept responses create a Spring bean of type `ReceivedResponseInterceptor
 public class CustomReceivedResponseInterceptor implements ReceivedResponseInterceptor {
 
     @Override
-    public void intercept(ResponseData data) {
+    public void intercept(ResponseData data, MappingProperties mapping) {
         ...
     }
 }
