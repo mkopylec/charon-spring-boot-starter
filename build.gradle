@@ -55,12 +55,12 @@ wrapper {
 }
 
 task javadocJar(type: Jar) {
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc
 }
 
 task sourceJar(type: Jar) {
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
