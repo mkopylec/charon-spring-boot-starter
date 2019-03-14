@@ -1,0 +1,5 @@
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+    compile group: 'org.spockframework', name: 'spock-spring', version: '1.2-groovy-2.5'
+    compile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
+}

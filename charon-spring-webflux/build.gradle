@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':charon-common')
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
+}

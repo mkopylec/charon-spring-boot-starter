@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':charon-common')
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.13.1'
+}
