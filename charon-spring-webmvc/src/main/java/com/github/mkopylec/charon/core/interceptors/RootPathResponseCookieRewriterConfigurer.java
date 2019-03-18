@@ -1,8 +1,8 @@
-package com.github.mkopylec.charon.core;
+package com.github.mkopylec.charon.core.interceptors;
 
-import com.github.mkopylec.charon.configuration.ResponseCookieRewriterConfigurer;
+import com.github.mkopylec.charon.configuration.ForwardingCompleteInterceptorConfigurer;
 
-public class RootPathResponseCookieRewriterConfigurer extends ResponseCookieRewriterConfigurer<RootPathResponseCookieRewriter> {
+public class RootPathResponseCookieRewriterConfigurer extends ForwardingCompleteInterceptorConfigurer<RootPathResponseCookieRewriter> {
 
     protected RootPathResponseCookieRewriterConfigurer() {
         super(new RootPathResponseCookieRewriter());

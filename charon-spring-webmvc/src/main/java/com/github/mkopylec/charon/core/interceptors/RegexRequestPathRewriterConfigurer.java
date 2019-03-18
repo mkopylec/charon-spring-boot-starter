@@ -1,8 +1,8 @@
-package com.github.mkopylec.charon.core;
+package com.github.mkopylec.charon.core.interceptors;
 
-import com.github.mkopylec.charon.configuration.RequestPathRewriterConfigurer;
+import com.github.mkopylec.charon.configuration.ForwardingStartInterceptorConfigurer;
 
-public class RegexRequestPathRewriterConfigurer extends RequestPathRewriterConfigurer<RegexRequestPathRewriter> {
+public class RegexRequestPathRewriterConfigurer extends ForwardingStartInterceptorConfigurer<RegexRequestPathRewriter> {
 
     protected RegexRequestPathRewriterConfigurer() {
         super(new RegexRequestPathRewriter());

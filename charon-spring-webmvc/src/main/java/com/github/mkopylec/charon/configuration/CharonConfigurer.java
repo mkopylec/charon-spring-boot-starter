@@ -17,13 +17,13 @@ public class CharonConfigurer {
         return this;
     }
 
-    public CharonConfigurer configure(RequestPathRewriterConfigurer<?> requestPathRewriterConfigurer) {
-        charonConfiguration.setRequestPathRewriter(requestPathRewriterConfigurer.getRequestPathRewriter());
+    public CharonConfigurer configure(ForwardingStartInterceptorConfigurer<?> forwardingStartInterceptorConfigurer) {
+        charonConfiguration.setRequestPathRewriter(forwardingStartInterceptorConfigurer.getForwardingStartInterceptor());
         return this;
     }
 
-    public CharonConfigurer configure(ResponseCookieRewriterConfigurer<?> responseCookieRewriterConfigurer) {
-        charonConfiguration.setResponseCookieRewriter(responseCookieRewriterConfigurer.getResponseCookieRewriter());
+    public CharonConfigurer configure(ForwardingCompleteInterceptorConfigurer<?> forwardingCompleteInterceptorConfigurer) {
+        charonConfiguration.setResponseCookieRewriter(forwardingCompleteInterceptorConfigurer.getForwardingCompleteInterceptor());
         return this;
     }
 

@@ -3,18 +3,15 @@ package com.github.mkopylec.charon.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.mkopylec.charon.core.RequestPathRewriter;
-import com.github.mkopylec.charon.core.ResponseCookieRewriter;
-
-import static com.github.mkopylec.charon.core.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
-import static com.github.mkopylec.charon.core.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
+import static com.github.mkopylec.charon.core.interceptors.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.core.interceptors.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
-// TODO every config/interceptor must be global and per mapping
 public class CharonConfiguration {
 
     private int filterOrder;
+    // TODO Interceptor configurations list
     private RequestPathRewriter requestPathRewriter;
     private ResponseCookieRewriter responseCookieRewriter;
     private TimeoutConfiguration timeoutConfiguration;
@@ -26,8 +23,8 @@ public class CharonConfiguration {
 
     CharonConfiguration() {
         filterOrder = LOWEST_PRECEDENCE;
-        requestPathRewriter = ((RequestPathRewriterConfigurer<?>) regexRequestPathRewriter()).getRequestPathRewriter();
-        responseCookieRewriter = ((ResponseCookieRewriterConfigurer<?>) rootPathResponseCookieRewriter()).getResponseCookieRewriter();
+        requestPathRewriter = ((ForwardingStartInterceptorConfigurer<?>) regexRequestPathRewriter()).getForwardingStartInterceptor();
+        responseCookieRewriter = ((ForwardingCompleteInterceptorConfigurer<?>) rootPathResponseCookieRewriter()).getForwardingCompleteInterceptor();
         timeoutConfiguration = new TimeoutConfiguration();
         asynchronousForwardingConfiguration = new AsynchronousForwardingConfiguration();
         retryConfiguration = new RetryConfiguration();

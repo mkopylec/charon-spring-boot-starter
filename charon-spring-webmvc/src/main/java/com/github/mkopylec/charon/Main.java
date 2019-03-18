@@ -14,7 +14,7 @@ import static com.github.mkopylec.charon.configuration.CharonConfigurer.charon;
 import static com.github.mkopylec.charon.configuration.RateLimiterConfigurer.rateLimiter;
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
 import static com.github.mkopylec.charon.configuration.ThreadPoolConfigurer.threadPool;
-import static com.github.mkopylec.charon.core.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.core.interceptors.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 
 public class Main {
 

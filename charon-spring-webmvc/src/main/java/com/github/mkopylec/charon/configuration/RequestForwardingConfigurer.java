@@ -16,13 +16,13 @@ public class RequestForwardingConfigurer {
         return new RequestForwardingConfigurer(name);
     }
 
-    public RequestForwardingConfigurer configure(RequestPathRewriterConfigurer<?> requestPathRewriterConfigurer) {
-        requestForwardingConfiguration.setRequestPathRewriter(requestPathRewriterConfigurer.getRequestPathRewriter());
+    public RequestForwardingConfigurer configure(ForwardingStartInterceptorConfigurer<?> forwardingStartInterceptorConfigurer) {
+        requestForwardingConfiguration.setRequestPathRewriter(forwardingStartInterceptorConfigurer.getForwardingStartInterceptor());
         return this;
     }
 
-    public RequestForwardingConfigurer configure(ResponseCookieRewriterConfigurer<?> responseCookieRewriterConfigurer) {
-        requestForwardingConfiguration.setResponseCookieRewriter(responseCookieRewriterConfigurer.getResponseCookieRewriter());
+    public RequestForwardingConfigurer configure(ForwardingCompleteInterceptorConfigurer<?> forwardingCompleteInterceptorConfigurer) {
+        requestForwardingConfiguration.setResponseCookieRewriter(forwardingCompleteInterceptorConfigurer.getForwardingCompleteInterceptor());
         return this;
     }
 

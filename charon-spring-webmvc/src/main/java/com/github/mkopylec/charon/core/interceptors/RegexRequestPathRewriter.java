@@ -1,10 +1,12 @@
-package com.github.mkopylec.charon.core;
+package com.github.mkopylec.charon.core.interceptors;
 
 import java.util.regex.Pattern;
 
+import com.github.mkopylec.charon.core.HttpRequest;
+
 import static java.util.regex.Pattern.compile;
 
-public class RegexRequestPathRewriter implements RequestPathRewriter {
+public class RegexRequestPathRewriter implements ForwardingStartInterceptor {
 
     protected Pattern incomingRequestPathRegex;
     protected String outgoingRequestPathTemplate;
@@ -15,9 +17,8 @@ public class RegexRequestPathRewriter implements RequestPathRewriter {
     }
 
     @Override
-    public String rewrite(String incomingRequestPath) {
+    public void onStart(String traceId, HttpRequest outgoingRequest) {
         // TODO Implement
-        return null;
     }
 
     protected void setPaths(String incomingRequestPathRegex, String outgoingRequestPathTemplate) {

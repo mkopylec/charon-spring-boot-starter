@@ -3,9 +3,6 @@ package com.github.mkopylec.charon.configuration;
 import java.net.URI;
 import java.util.List;
 
-import com.github.mkopylec.charon.core.RequestPathRewriter;
-import com.github.mkopylec.charon.core.ResponseCookieRewriter;
-
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static org.springframework.util.Assert.hasText;
@@ -14,6 +11,7 @@ import static org.springframework.util.Assert.isTrue;
 public class RequestForwardingConfiguration {
 
     private String name;
+    // TODO Interceptor configurations list
     private RequestPathRewriter requestPathRewriter;
     private ResponseCookieRewriter responseCookieRewriter;
     private List<URI> outgoingServers;
@@ -26,7 +24,6 @@ public class RequestForwardingConfiguration {
     private boolean rateLimited;
     private RateLimiterConfiguration rateLimiterConfiguration;
     private CustomConfiguration customConfiguration;
-    // TODO Interceptors configuration
 
     RequestForwardingConfiguration(String name) {
         this.name = name;
