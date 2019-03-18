@@ -17,6 +17,21 @@ public class CharonConfigurer {
         return this;
     }
 
+    public CharonConfigurer configure(RequestPathRewriterConfigurer<?> requestPathRewriterConfigurer) {
+        charonConfiguration.setRequestPathRewriter(requestPathRewriterConfigurer.getRequestPathRewriter());
+        return this;
+    }
+
+    public CharonConfigurer configure(ResponseCookieRewriterConfigurer<?> responseCookieRewriterConfigurer) {
+        charonConfiguration.setResponseCookieRewriter(responseCookieRewriterConfigurer.getResponseCookieRewriter());
+        return this;
+    }
+
+    public CharonConfigurer configure(TimeoutConfigurer timeoutConfigurer) {
+        charonConfiguration.setTimeoutConfiguration(timeoutConfigurer.getConfiguration());
+        return this;
+    }
+
     public CharonConfigurer configure(AsynchronousForwardingConfigurer asynchronousForwardingConfigurer) {
         charonConfiguration.setAsynchronousForwardingConfiguration(asynchronousForwardingConfigurer.getConfiguration());
         return this;
@@ -34,6 +49,11 @@ public class CharonConfigurer {
 
     public CharonConfigurer configure(RateLimiterConfigurer rateLimiterConfigurer) {
         charonConfiguration.setRateLimiterConfiguration(rateLimiterConfigurer.getConfiguration());
+        return this;
+    }
+
+    public CharonConfigurer add(RequestForwardingConfigurer requestForwardingConfigurer) {
+        charonConfiguration.addRequestForwardingConfiguration(requestForwardingConfigurer.getConfiguration());
         return this;
     }
 

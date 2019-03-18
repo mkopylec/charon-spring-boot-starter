@@ -13,7 +13,9 @@ class CharonAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    CharonProxyFilter charonProxyFilter(CharonConfigurer charonConfigurer) {
-        return new CharonProxyFilter(charonConfigurer.getConfiguration());
+    CharonProxyFilter charonProxyFilter(CharonConfigurer configurer) {
+        CharonConfiguration configuration = configurer.getConfiguration();
+        configuration.validate();
+        return new CharonProxyFilter(configuration);
     }
 }

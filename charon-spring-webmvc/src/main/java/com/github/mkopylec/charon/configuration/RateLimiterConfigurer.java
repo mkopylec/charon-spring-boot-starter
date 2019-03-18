@@ -19,8 +19,8 @@ public class RateLimiterConfigurer {
         return this;
     }
 
-    public RateLimiterConfigurer metricsEnabled(boolean metricsEnabled) {
-        rateLimiterConfiguration.setMetricsEnabled(metricsEnabled);
+    public RateLimiterConfigurer measured(boolean measured) {
+        rateLimiterConfiguration.setMeasured(measured);
         return this;
     }
 

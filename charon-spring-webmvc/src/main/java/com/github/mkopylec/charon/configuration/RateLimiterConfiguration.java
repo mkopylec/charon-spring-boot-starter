@@ -7,7 +7,7 @@ import static io.github.resilience4j.ratelimiter.RateLimiterConfig.custom;
 public class RateLimiterConfiguration {
 
     private RateLimiterConfig rateLimiterConfig;
-    private boolean metricsEnabled;
+    private boolean measured;
 
     RateLimiterConfiguration() {
         rateLimiterConfig = custom().build();
@@ -21,11 +21,11 @@ public class RateLimiterConfiguration {
         this.rateLimiterConfig = rateLimiterConfig;
     }
 
-    public boolean isMetricsEnabled() {
-        return metricsEnabled;
+    public boolean isMeasured() {
+        return measured;
     }
 
-    void setMetricsEnabled(boolean metricsEnabled) {
-        this.metricsEnabled = metricsEnabled;
+    void setMeasured(boolean measured) {
+        this.measured = measured;
     }
 }

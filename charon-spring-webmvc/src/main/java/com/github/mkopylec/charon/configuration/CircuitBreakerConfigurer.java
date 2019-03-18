@@ -19,8 +19,8 @@ public class CircuitBreakerConfigurer {
         return this;
     }
 
-    public CircuitBreakerConfigurer metricsEnabled(boolean metricsEnabled) {
-        circuitBreakerConfiguration.setMetricsEnabled(metricsEnabled);
+    public CircuitBreakerConfigurer measured(boolean measured) {
+        circuitBreakerConfiguration.setMeasured(measured);
         return this;
     }
 

@@ -8,6 +8,10 @@ public class AsynchronousForwardingConfiguration {
         threadPoolConfiguration = new ThreadPoolConfiguration();
     }
 
+    void validate() {
+        threadPoolConfiguration.validate();
+    }
+
     public ThreadPoolConfiguration getThreadPoolConfiguration() {
         return threadPoolConfiguration;
     }

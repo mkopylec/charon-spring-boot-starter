@@ -1,9 +1,8 @@
 package com.github.mkopylec.charon.configuration;
 
 import java.util.List;
-import java.util.Map;
 
-import static java.util.Arrays.asList;
+import static com.github.mkopylec.charon.utils.UriUtils.toUris;
 
 public class RequestForwardingConfigurer {
 
@@ -17,23 +16,23 @@ public class RequestForwardingConfigurer {
         return new RequestForwardingConfigurer(name);
     }
 
-    public RequestForwardingConfigurer incomingPathAntPattern(String incomingPathAntPattern) {
-        requestForwardingConfiguration.setIncomingPathAntPattern(incomingPathAntPattern);
+    public RequestForwardingConfigurer configure(RequestPathRewriterConfigurer<?> requestPathRewriterConfigurer) {
+        requestForwardingConfiguration.setRequestPathRewriter(requestPathRewriterConfigurer.getRequestPathRewriter());
         return this;
     }
 
-    public RequestForwardingConfigurer configure(PathRewriteConfigurer pathRewriteConfigurer) {
-        requestForwardingConfiguration.setPathRewriteConfiguration(pathRewriteConfigurer.getConfiguration());
+    public RequestForwardingConfigurer configure(ResponseCookieRewriterConfigurer<?> responseCookieRewriterConfigurer) {
+        requestForwardingConfiguration.setResponseCookieRewriter(responseCookieRewriterConfigurer.getResponseCookieRewriter());
         return this;
     }
 
-    public RequestForwardingConfigurer outgoingHosts(String... outgoingHosts) {
-        requestForwardingConfiguration.setOutgoingHosts(asList(outgoingHosts));
+    public RequestForwardingConfigurer outgoingServers(String... outgoingServers) {
+        requestForwardingConfiguration.setOutgoingServers(toUris(outgoingServers));
         return this;
     }
 
-    public RequestForwardingConfigurer outgoingHosts(List<String> outgoingHosts) {
-        requestForwardingConfiguration.setOutgoingHosts(outgoingHosts);
+    public RequestForwardingConfigurer outgoingServers(List<String> outgoingServers) {
+        requestForwardingConfiguration.setOutgoingServers(toUris(outgoingServers));
         return this;
     }
 
@@ -47,27 +46,43 @@ public class RequestForwardingConfigurer {
         return this;
     }
 
-    public RequestForwardingConfigurer configure(RequestForwardingRetryConfigurer requestForwardingRetryConfigurer) {
-        requestForwardingConfiguration.setRequestForwardingRetryConfiguration(requestForwardingRetryConfigurer.getConfiguration());
+    public RequestForwardingConfigurer retryable(boolean retryable) {
+        requestForwardingConfiguration.setRetryable(retryable);
         return this;
     }
 
-    public RequestForwardingConfigurer configure(RequestForwardingCircuitBreakerConfigurer requestForwardingCircuitBreakerConfigurer) {
-        requestForwardingConfiguration.setRequestForwardingCircuitBreakerConfiguration(requestForwardingCircuitBreakerConfigurer.getConfiguration());
+    public RequestForwardingConfigurer configure(RetryConfigurer retryConfigurer) {
+        requestForwardingConfiguration.setRetryConfiguration(retryConfigurer.getConfiguration());
         return this;
     }
 
-    public RequestForwardingConfigurer configure(RequestForwardingRateLimiterConfigurer requestForwardingRateLimiterConfigurer) {
-        requestForwardingConfiguration.setRequestForwardingRateLimiterConfiguration(requestForwardingRateLimiterConfigurer.getConfiguration());
+    public RequestForwardingConfigurer circuitBreakable(boolean circuitBreakable) {
+        requestForwardingConfiguration.setCircuitBreakable(circuitBreakable);
         return this;
     }
 
-    public RequestForwardingConfigurer customConfiguration(Map<String, Object> customConfiguration) {
-        requestForwardingConfiguration.setCustomConfiguration(customConfiguration);
+    public RequestForwardingConfigurer configure(CircuitBreakerConfigurer circuitBreakerConfigurer) {
+        requestForwardingConfiguration.setCircuitBreakerConfiguration(circuitBreakerConfigurer.getConfiguration());
+        return this;
+    }
+
+    public RequestForwardingConfigurer rateLimited(boolean rateLimited) {
+        requestForwardingConfiguration.setRateLimited(rateLimited);
+        return this;
+    }
+
+    public RequestForwardingConfigurer configure(RateLimiterConfigurer rateLimiterConfigurer) {
+        requestForwardingConfiguration.setRateLimiterConfiguration(rateLimiterConfigurer.getConfiguration());
+        return this;
+    }
+
+    public RequestForwardingConfigurer configure(CustomConfigurer customConfigurer) {
+        requestForwardingConfiguration.setCustomConfiguration(customConfigurer.getConfiguration());
         return this;
     }
 
     RequestForwardingConfiguration getConfiguration() {
+        requestForwardingConfiguration.validate();
         return requestForwardingConfiguration;
     }
 }

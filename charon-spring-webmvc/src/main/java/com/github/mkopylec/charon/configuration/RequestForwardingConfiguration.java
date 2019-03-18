@@ -1,64 +1,82 @@
 package com.github.mkopylec.charon.configuration;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Map;
+
+import com.github.mkopylec.charon.core.RequestPathRewriter;
+import com.github.mkopylec.charon.core.ResponseCookieRewriter;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+import static org.springframework.util.Assert.hasText;
+import static org.springframework.util.Assert.isTrue;
 
 public class RequestForwardingConfiguration {
 
     private String name;
-    private String incomingPathAntPattern;
-    private PathRewriteConfiguration pathRewriteConfiguration;
-    private List<String> outgoingHosts;
+    private RequestPathRewriter requestPathRewriter;
+    private ResponseCookieRewriter responseCookieRewriter;
+    private List<URI> outgoingServers;
     private TimeoutConfiguration timeoutConfiguration;
     private boolean asynchronous;
-    private RequestForwardingRetryConfiguration requestForwardingRetryConfiguration;
-    private RequestForwardingCircuitBreakerConfiguration requestForwardingCircuitBreakerConfiguration;
-    private RequestForwardingRateLimiterConfiguration requestForwardingRateLimiterConfiguration;
-    private Map<String, Object> customConfiguration;
+    private boolean retryable;
+    private RetryConfiguration retryConfiguration;
+    private boolean circuitBreakable;
+    private CircuitBreakerConfiguration circuitBreakerConfiguration;
+    private boolean rateLimited;
+    private RateLimiterConfiguration rateLimiterConfiguration;
+    private CustomConfiguration customConfiguration;
+    // TODO Interceptors configuration
 
     RequestForwardingConfiguration(String name) {
         this.name = name;
-        incomingPathAntPattern = "/**";
-        pathRewriteConfiguration = new PathRewriteConfiguration();
-        outgoingHosts = emptyList();
-        timeoutConfiguration = new TimeoutConfiguration();
-        requestForwardingRetryConfiguration = new RequestForwardingRetryConfiguration();
-        requestForwardingCircuitBreakerConfiguration = new RequestForwardingCircuitBreakerConfiguration();
-        requestForwardingRateLimiterConfiguration = new RequestForwardingRateLimiterConfiguration();
-        customConfiguration = emptyMap();
+        outgoingServers = emptyList();
+    }
+
+    void validate() {
+        hasText(name, "No request forwarding name set");
+        isTrue(!outgoingServers.isEmpty(), "No outgoing servers set");
+        timeoutConfiguration.validate();
     }
 
     public String getName() {
         return name;
     }
 
-    public String getIncomingPathAntPattern() {
-        return incomingPathAntPattern;
+    public RequestPathRewriter getRequestPathRewriter() {
+        return requestPathRewriter;
     }
 
-    void setIncomingPathAntPattern(String incomingPathAntPattern) {
-        this.incomingPathAntPattern = incomingPathAntPattern;
+    void setRequestPathRewriter(RequestPathRewriter requestPathRewriter) {
+        this.requestPathRewriter = requestPathRewriter;
     }
 
-    public PathRewriteConfiguration getPathRewriteConfiguration() {
-        return pathRewriteConfiguration;
+    void mergeRequestPathRewriter(RequestPathRewriter requestPathRewriter) {
+        if (this.requestPathRewriter == null) {
+            this.requestPathRewriter = requestPathRewriter;
+        }
     }
 
-    void setPathRewriteConfiguration(PathRewriteConfiguration pathRewriteConfiguration) {
-        this.pathRewriteConfiguration = pathRewriteConfiguration;
+    public ResponseCookieRewriter getResponseCookieRewriter() {
+        return responseCookieRewriter;
     }
 
-    public List<String> getOutgoingHosts() {
-        return outgoingHosts;
+    void setResponseCookieRewriter(ResponseCookieRewriter responseCookieRewriter) {
+        this.responseCookieRewriter = responseCookieRewriter;
     }
 
-    void setOutgoingHosts(List<String> outgoingHosts) {
-        this.outgoingHosts = unmodifiableList(outgoingHosts);
+    void mergeResponseCookieRewriter(ResponseCookieRewriter responseCookieRewriter) {
+        if (this.responseCookieRewriter == null) {
+            this.responseCookieRewriter = responseCookieRewriter;
+        }
+    }
+
+    public List<URI> getOutgoingServers() {
+        return outgoingServers;
+    }
+
+    void setOutgoingServers(List<URI> outgoingServers) {
+        this.outgoingServers = emptyIfNull(outgoingServers);
     }
 
     public TimeoutConfiguration getTimeoutConfiguration() {
@@ -69,6 +87,12 @@ public class RequestForwardingConfiguration {
         this.timeoutConfiguration = timeoutConfiguration;
     }
 
+    void mergeTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
+        if (this.timeoutConfiguration == null) {
+            this.timeoutConfiguration = timeoutConfiguration;
+        }
+    }
+
     public boolean isAsynchronous() {
         return asynchronous;
     }
@@ -77,35 +101,77 @@ public class RequestForwardingConfiguration {
         this.asynchronous = asynchronous;
     }
 
-    public RequestForwardingRetryConfiguration getRequestForwardingRetryConfiguration() {
-        return requestForwardingRetryConfiguration;
+    public boolean isRetryable() {
+        return retryable;
     }
 
-    void setRequestForwardingRetryConfiguration(RequestForwardingRetryConfiguration requestForwardingRetryConfiguration) {
-        this.requestForwardingRetryConfiguration = requestForwardingRetryConfiguration;
+    void setRetryable(boolean retryable) {
+        this.retryable = retryable;
     }
 
-    public RequestForwardingCircuitBreakerConfiguration getRequestForwardingCircuitBreakerConfiguration() {
-        return requestForwardingCircuitBreakerConfiguration;
+    public RetryConfiguration getRetryConfiguration() {
+        return retryConfiguration;
     }
 
-    void setRequestForwardingCircuitBreakerConfiguration(RequestForwardingCircuitBreakerConfiguration requestForwardingCircuitBreakerConfiguration) {
-        this.requestForwardingCircuitBreakerConfiguration = requestForwardingCircuitBreakerConfiguration;
+    void setRetryConfiguration(RetryConfiguration retryConfiguration) {
+        this.retryConfiguration = retryConfiguration;
     }
 
-    public RequestForwardingRateLimiterConfiguration getRequestForwardingRateLimiterConfiguration() {
-        return requestForwardingRateLimiterConfiguration;
+    void mergeRetryConfiguration(RetryConfiguration retryConfiguration) {
+        if (this.retryConfiguration == null) {
+            this.retryConfiguration = retryConfiguration;
+        }
     }
 
-    void setRequestForwardingRateLimiterConfiguration(RequestForwardingRateLimiterConfiguration requestForwardingRateLimiterConfiguration) {
-        this.requestForwardingRateLimiterConfiguration = requestForwardingRateLimiterConfiguration;
+    public boolean isCircuitBreakable() {
+        return circuitBreakable;
     }
 
-    public Map<String, Object> getCustomConfiguration() {
+    void setCircuitBreakable(boolean circuitBreakable) {
+        this.circuitBreakable = circuitBreakable;
+    }
+
+    public CircuitBreakerConfiguration getCircuitBreakerConfiguration() {
+        return circuitBreakerConfiguration;
+    }
+
+    void setCircuitBreakerConfiguration(CircuitBreakerConfiguration circuitBreakerConfiguration) {
+        this.circuitBreakerConfiguration = circuitBreakerConfiguration;
+    }
+
+    void mergeCircuitBreakerConfiguration(CircuitBreakerConfiguration circuitBreakerConfiguration) {
+        if (this.circuitBreakerConfiguration == null) {
+            this.circuitBreakerConfiguration = circuitBreakerConfiguration;
+        }
+    }
+
+    public boolean isRateLimited() {
+        return rateLimited;
+    }
+
+    void setRateLimited(boolean rateLimited) {
+        this.rateLimited = rateLimited;
+    }
+
+    public RateLimiterConfiguration getRateLimiterConfiguration() {
+        return rateLimiterConfiguration;
+    }
+
+    void setRateLimiterConfiguration(RateLimiterConfiguration rateLimiterConfiguration) {
+        this.rateLimiterConfiguration = rateLimiterConfiguration;
+    }
+
+    void mergeRateLimiterConfiguration(RateLimiterConfiguration rateLimiterConfiguration) {
+        if (this.rateLimiterConfiguration == null) {
+            this.rateLimiterConfiguration = rateLimiterConfiguration;
+        }
+    }
+
+    public CustomConfiguration getCustomConfiguration() {
         return customConfiguration;
     }
 
-    void setCustomConfiguration(Map<String, Object> customConfiguration) {
-        this.customConfiguration = unmodifiableMap(customConfiguration);
+    void setCustomConfiguration(CustomConfiguration customConfiguration) {
+        this.customConfiguration = customConfiguration;
     }
 }

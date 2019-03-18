@@ -19,8 +19,8 @@ public class RetryConfigurer {
         return this;
     }
 
-    public RetryConfigurer metricsEnabled(boolean metricsEnabled) {
-        retryConfiguration.setMetricsEnabled(metricsEnabled);
+    public RetryConfigurer measured(boolean measured) {
+        retryConfiguration.setMeasured(measured);
         return this;
     }
 

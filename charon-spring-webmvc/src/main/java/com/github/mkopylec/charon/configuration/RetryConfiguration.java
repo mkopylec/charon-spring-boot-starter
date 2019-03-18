@@ -2,18 +2,20 @@ package com.github.mkopylec.charon.configuration;
 
 import io.github.resilience4j.retry.RetryConfig;
 
+import org.springframework.web.client.HttpClientErrorException;
+
 import static io.github.resilience4j.retry.RetryConfig.custom;
-import static java.time.Duration.ZERO;
+import static java.time.Duration.ofMillis;
 
 public class RetryConfiguration {
 
     private RetryConfig retryConfig;
-    private boolean metricsEnabled;
+    private boolean measured;
 
     RetryConfiguration() {
         retryConfig = custom()
-                .waitDuration(ZERO)
-                // TODO Handle retry on 4xx and 5xx ?
+                .waitDuration(ofMillis(10))
+                .ignoreExceptions(HttpClientErrorException.class)
                 .build();
     }
 
@@ -25,11 +27,11 @@ public class RetryConfiguration {
         this.retryConfig = retryConfig;
     }
 
-    public boolean isMetricsEnabled() {
-        return metricsEnabled;
+    public boolean isMeasured() {
+        return measured;
     }
 
-    void setMetricsEnabled(boolean metricsEnabled) {
-        this.metricsEnabled = metricsEnabled;
+    void setMeasured(boolean measured) {
+        this.measured = measured;
     }
 }

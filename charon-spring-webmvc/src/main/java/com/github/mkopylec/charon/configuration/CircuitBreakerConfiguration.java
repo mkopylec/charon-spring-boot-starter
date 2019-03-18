@@ -7,7 +7,7 @@ import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
 public class CircuitBreakerConfiguration {
 
     private CircuitBreakerConfig circuitBreakerConfig;
-    private boolean metricsEnabled;
+    private boolean measured;
 
     CircuitBreakerConfiguration() {
         circuitBreakerConfig = custom().build();
@@ -22,11 +22,11 @@ public class CircuitBreakerConfiguration {
         this.circuitBreakerConfig = circuitBreakerConfig;
     }
 
-    public boolean isMetricsEnabled() {
-        return metricsEnabled;
+    public boolean isMeasured() {
+        return measured;
     }
 
-    void setMetricsEnabled(boolean metricsEnabled) {
-        this.metricsEnabled = metricsEnabled;
+    void setMeasured(boolean measured) {
+        this.measured = measured;
     }
 }

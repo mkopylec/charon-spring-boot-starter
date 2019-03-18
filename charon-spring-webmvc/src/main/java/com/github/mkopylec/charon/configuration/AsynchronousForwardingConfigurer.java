@@ -18,6 +18,11 @@ public class AsynchronousForwardingConfigurer {
     }
 
     AsynchronousForwardingConfiguration getConfiguration() {
+        validateConfiguration();
         return asynchronousForwardingConfiguration;
+    }
+
+    private void validateConfiguration() {
+
     }
 }
