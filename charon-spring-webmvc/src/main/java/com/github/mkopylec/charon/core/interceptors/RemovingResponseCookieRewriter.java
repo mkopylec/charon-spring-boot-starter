@@ -5,12 +5,12 @@ import com.github.mkopylec.charon.core.HttpResponse;
 import com.github.mkopylec.charon.core.RequestForwarder;
 import com.github.mkopylec.charon.core.RequestForwarding;
 
-public class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
+public class RemovingResponseCookieRewriter implements RequestForwardingInterceptor {
 
     @Override
     public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
         HttpResponse response = forwarder.forward(request, forwarding);
-        // TODO Rewrite response cookies
+        // TODO Remove response cookies
         return response;
     }
 

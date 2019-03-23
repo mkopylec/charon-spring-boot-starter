@@ -8,7 +8,7 @@ public class CharonConfigurer {
         charonConfiguration = new CharonConfiguration();
     }
 
-    public static CharonConfigurer charon() {
+    public static CharonConfigurer charonConfiguration() {
         return new CharonConfigurer();
     }
 
@@ -17,43 +17,23 @@ public class CharonConfigurer {
         return this;
     }
 
-    public CharonConfigurer configure(ForwardingStartInterceptorConfigurer<?> forwardingStartInterceptorConfigurer) {
-        charonConfiguration.setRequestPathRewriter(forwardingStartInterceptorConfigurer.getForwardingStartInterceptor());
-        return this;
-    }
-
-    public CharonConfigurer configure(ForwardingCompleteInterceptorConfigurer<?> forwardingCompleteInterceptorConfigurer) {
-        charonConfiguration.setResponseCookieRewriter(forwardingCompleteInterceptorConfigurer.getForwardingCompleteInterceptor());
-        return this;
-    }
-
-    public CharonConfigurer configure(TimeoutConfigurer timeoutConfigurer) {
+    public CharonConfigurer set(TimeoutConfigurer timeoutConfigurer) {
         charonConfiguration.setTimeoutConfiguration(timeoutConfigurer.getConfiguration());
         return this;
     }
 
-    public CharonConfigurer configure(AsynchronousForwardingConfigurer asynchronousForwardingConfigurer) {
-        charonConfiguration.setAsynchronousForwardingConfiguration(asynchronousForwardingConfigurer.getConfiguration());
-        return this;
-    }
-
-    public CharonConfigurer configure(RetryConfigurer retryConfigurer) {
-        charonConfiguration.setRetryConfiguration(retryConfigurer.getConfiguration());
-        return this;
-    }
-
-    public CharonConfigurer configure(CircuitBreakerConfigurer circuitBreakerConfigurer) {
-        charonConfiguration.setCircuitBreakerConfiguration(circuitBreakerConfigurer.getConfiguration());
-        return this;
-    }
-
-    public CharonConfigurer configure(RateLimiterConfigurer rateLimiterConfigurer) {
-        charonConfiguration.setRateLimiterConfiguration(rateLimiterConfigurer.getConfiguration());
+    public CharonConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
+        charonConfiguration.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.getRequestForwardingInterceptor());
         return this;
     }
 
     public CharonConfigurer add(RequestForwardingConfigurer requestForwardingConfigurer) {
         charonConfiguration.addRequestForwardingConfiguration(requestForwardingConfigurer.getConfiguration());
+        return this;
+    }
+
+    public CharonConfigurer set(CustomConfigurer customConfigurer) {
+        charonConfiguration.setCustomConfiguration(customConfigurer.getConfiguration());
         return this;
     }
 

@@ -1,9 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.List;
-
-import static com.github.mkopylec.charon.utils.UriUtils.toUris;
-
 public class RequestForwardingConfigurer {
 
     private RequestForwardingConfiguration requestForwardingConfiguration;
@@ -16,67 +12,17 @@ public class RequestForwardingConfigurer {
         return new RequestForwardingConfigurer(name);
     }
 
-    public RequestForwardingConfigurer configure(ForwardingStartInterceptorConfigurer<?> forwardingStartInterceptorConfigurer) {
-        requestForwardingConfiguration.setRequestPathRewriter(forwardingStartInterceptorConfigurer.getForwardingStartInterceptor());
+    public RequestForwardingConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
+        requestForwardingConfiguration.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.getRequestForwardingInterceptor());
         return this;
     }
 
-    public RequestForwardingConfigurer configure(ForwardingCompleteInterceptorConfigurer<?> forwardingCompleteInterceptorConfigurer) {
-        requestForwardingConfiguration.setResponseCookieRewriter(forwardingCompleteInterceptorConfigurer.getForwardingCompleteInterceptor());
-        return this;
-    }
-
-    public RequestForwardingConfigurer outgoingServers(String... outgoingServers) {
-        requestForwardingConfiguration.setOutgoingServers(toUris(outgoingServers));
-        return this;
-    }
-
-    public RequestForwardingConfigurer outgoingServers(List<String> outgoingServers) {
-        requestForwardingConfiguration.setOutgoingServers(toUris(outgoingServers));
-        return this;
-    }
-
-    public RequestForwardingConfigurer configure(TimeoutConfigurer timeoutConfigurer) {
+    public RequestForwardingConfigurer set(TimeoutConfigurer timeoutConfigurer) {
         requestForwardingConfiguration.setTimeoutConfiguration(timeoutConfigurer.getConfiguration());
         return this;
     }
 
-    public RequestForwardingConfigurer asynchronous(boolean asynchronous) {
-        requestForwardingConfiguration.setAsynchronous(asynchronous);
-        return this;
-    }
-
-    public RequestForwardingConfigurer retryable(boolean retryable) {
-        requestForwardingConfiguration.setRetryable(retryable);
-        return this;
-    }
-
-    public RequestForwardingConfigurer configure(RetryConfigurer retryConfigurer) {
-        requestForwardingConfiguration.setRetryConfiguration(retryConfigurer.getConfiguration());
-        return this;
-    }
-
-    public RequestForwardingConfigurer circuitBreakable(boolean circuitBreakable) {
-        requestForwardingConfiguration.setCircuitBreakable(circuitBreakable);
-        return this;
-    }
-
-    public RequestForwardingConfigurer configure(CircuitBreakerConfigurer circuitBreakerConfigurer) {
-        requestForwardingConfiguration.setCircuitBreakerConfiguration(circuitBreakerConfigurer.getConfiguration());
-        return this;
-    }
-
-    public RequestForwardingConfigurer rateLimited(boolean rateLimited) {
-        requestForwardingConfiguration.setRateLimited(rateLimited);
-        return this;
-    }
-
-    public RequestForwardingConfigurer configure(RateLimiterConfigurer rateLimiterConfigurer) {
-        requestForwardingConfiguration.setRateLimiterConfiguration(rateLimiterConfigurer.getConfiguration());
-        return this;
-    }
-
-    public RequestForwardingConfigurer configure(CustomConfigurer customConfigurer) {
+    public RequestForwardingConfigurer set(CustomConfigurer customConfigurer) {
         requestForwardingConfiguration.setCustomConfiguration(customConfigurer.getConfiguration());
         return this;
     }

@@ -1,79 +1,46 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+import com.github.mkopylec.charon.core.interceptors.RequestForwardingInterceptor;
+
+import org.springframework.core.Ordered;
+
+import static java.util.Collections.unmodifiableList;
+import static java.util.Comparator.comparingInt;
 import static org.springframework.util.Assert.hasText;
-import static org.springframework.util.Assert.isTrue;
 
 public class RequestForwardingConfiguration {
 
     private String name;
-    // TODO Interceptor configurations list
-    private RequestPathRewriter requestPathRewriter;
-    private ResponseCookieRewriter responseCookieRewriter;
-    private List<URI> outgoingServers;
+    private String path;
     private TimeoutConfiguration timeoutConfiguration;
-    private boolean asynchronous;
-    private boolean retryable;
-    private RetryConfiguration retryConfiguration;
-    private boolean circuitBreakable;
-    private CircuitBreakerConfiguration circuitBreakerConfiguration;
-    private boolean rateLimited;
-    private RateLimiterConfiguration rateLimiterConfiguration;
+    private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private CustomConfiguration customConfiguration;
 
     RequestForwardingConfiguration(String name) {
         this.name = name;
-        outgoingServers = emptyList();
+        path = "/";
+        requestForwardingInterceptors = new ArrayList<>();
     }
 
     void validate() {
         hasText(name, "No request forwarding name set");
-        isTrue(!outgoingServers.isEmpty(), "No outgoing servers set");
         timeoutConfiguration.validate();
+        requestForwardingInterceptors.forEach(RequestForwardingInterceptor::validate);
     }
 
     public String getName() {
         return name;
     }
 
-    public RequestPathRewriter getRequestPathRewriter() {
-        return requestPathRewriter;
+    public String getPath() {
+        return path;
     }
 
-    void setRequestPathRewriter(RequestPathRewriter requestPathRewriter) {
-        this.requestPathRewriter = requestPathRewriter;
-    }
-
-    void mergeRequestPathRewriter(RequestPathRewriter requestPathRewriter) {
-        if (this.requestPathRewriter == null) {
-            this.requestPathRewriter = requestPathRewriter;
-        }
-    }
-
-    public ResponseCookieRewriter getResponseCookieRewriter() {
-        return responseCookieRewriter;
-    }
-
-    void setResponseCookieRewriter(ResponseCookieRewriter responseCookieRewriter) {
-        this.responseCookieRewriter = responseCookieRewriter;
-    }
-
-    void mergeResponseCookieRewriter(ResponseCookieRewriter responseCookieRewriter) {
-        if (this.responseCookieRewriter == null) {
-            this.responseCookieRewriter = responseCookieRewriter;
-        }
-    }
-
-    public List<URI> getOutgoingServers() {
-        return outgoingServers;
-    }
-
-    void setOutgoingServers(List<URI> outgoingServers) {
-        this.outgoingServers = emptyIfNull(outgoingServers);
+    void setPath(String path) {
+        this.path = path;
     }
 
     public TimeoutConfiguration getTimeoutConfiguration() {
@@ -90,78 +57,18 @@ public class RequestForwardingConfiguration {
         }
     }
 
-    public boolean isAsynchronous() {
-        return asynchronous;
+    public List<RequestForwardingInterceptor> getRequestForwardingInterceptors() {
+        return unmodifiableList(requestForwardingInterceptors);
     }
 
-    void setAsynchronous(boolean asynchronous) {
-        this.asynchronous = asynchronous;
+    void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == requestForwardingInterceptor.getOrder());
+        requestForwardingInterceptors.add(requestForwardingInterceptor);
+        requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
     }
 
-    public boolean isRetryable() {
-        return retryable;
-    }
-
-    void setRetryable(boolean retryable) {
-        this.retryable = retryable;
-    }
-
-    public RetryConfiguration getRetryConfiguration() {
-        return retryConfiguration;
-    }
-
-    void setRetryConfiguration(RetryConfiguration retryConfiguration) {
-        this.retryConfiguration = retryConfiguration;
-    }
-
-    void mergeRetryConfiguration(RetryConfiguration retryConfiguration) {
-        if (this.retryConfiguration == null) {
-            this.retryConfiguration = retryConfiguration;
-        }
-    }
-
-    public boolean isCircuitBreakable() {
-        return circuitBreakable;
-    }
-
-    void setCircuitBreakable(boolean circuitBreakable) {
-        this.circuitBreakable = circuitBreakable;
-    }
-
-    public CircuitBreakerConfiguration getCircuitBreakerConfiguration() {
-        return circuitBreakerConfiguration;
-    }
-
-    void setCircuitBreakerConfiguration(CircuitBreakerConfiguration circuitBreakerConfiguration) {
-        this.circuitBreakerConfiguration = circuitBreakerConfiguration;
-    }
-
-    void mergeCircuitBreakerConfiguration(CircuitBreakerConfiguration circuitBreakerConfiguration) {
-        if (this.circuitBreakerConfiguration == null) {
-            this.circuitBreakerConfiguration = circuitBreakerConfiguration;
-        }
-    }
-
-    public boolean isRateLimited() {
-        return rateLimited;
-    }
-
-    void setRateLimited(boolean rateLimited) {
-        this.rateLimited = rateLimited;
-    }
-
-    public RateLimiterConfiguration getRateLimiterConfiguration() {
-        return rateLimiterConfiguration;
-    }
-
-    void setRateLimiterConfiguration(RateLimiterConfiguration rateLimiterConfiguration) {
-        this.rateLimiterConfiguration = rateLimiterConfiguration;
-    }
-
-    void mergeRateLimiterConfiguration(RateLimiterConfiguration rateLimiterConfiguration) {
-        if (this.rateLimiterConfiguration == null) {
-            this.rateLimiterConfiguration = rateLimiterConfiguration;
-        }
+    void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
+        // TODO Merge, mind the enabled flag and joining lists
     }
 
     public CustomConfiguration getCustomConfiguration() {

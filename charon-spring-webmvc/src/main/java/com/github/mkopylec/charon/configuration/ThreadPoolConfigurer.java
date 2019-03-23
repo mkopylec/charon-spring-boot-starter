@@ -1,11 +1,13 @@
 package com.github.mkopylec.charon.configuration;
 
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
 public class ThreadPoolConfigurer {
 
-    private ThreadPoolConfiguration threadPoolConfiguration;
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     private ThreadPoolConfigurer() {
-        threadPoolConfiguration = new ThreadPoolConfiguration();
+        threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
     }
 
     public static ThreadPoolConfigurer threadPool() {
@@ -13,21 +15,21 @@ public class ThreadPoolConfigurer {
     }
 
     public ThreadPoolConfigurer queueCapacity(int queueCapacity) {
-        threadPoolConfiguration.setQueueCapacity(queueCapacity);
+        threadPoolTaskExecutor.setQueueCapacity(queueCapacity);
         return this;
     }
 
     public ThreadPoolConfigurer initialSize(int initialSize) {
-        threadPoolConfiguration.setInitialSize(initialSize);
+        threadPoolTaskExecutor.setCorePoolSize(initialSize);
         return this;
     }
 
     public ThreadPoolConfigurer maximumSize(int maximumSize) {
-        threadPoolConfiguration.setMaximumSize(maximumSize);
+        threadPoolTaskExecutor.setMaxPoolSize(maximumSize);
         return this;
     }
 
-    ThreadPoolConfiguration getConfiguration() {
-        return threadPoolConfiguration;
+    ThreadPoolTaskExecutor getThreadPool() {
+        return threadPoolTaskExecutor;
     }
 }
