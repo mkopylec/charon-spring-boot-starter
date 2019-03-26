@@ -1,11 +1,9 @@
 package com.github.mkopylec.charon.configuration;
 
-public class CustomConfigurer {
-
-    private CustomConfiguration customConfiguration;
+public class CustomConfigurer extends Configurer<CustomConfiguration> {
 
     private CustomConfigurer() {
-        customConfiguration = new CustomConfiguration();
+        super(new CustomConfiguration());
     }
 
     public static CustomConfigurer custom() {
@@ -13,11 +11,7 @@ public class CustomConfigurer {
     }
 
     public CustomConfigurer set(String name, Object value) {
-        customConfiguration.setProperty(name, value);
+        configuredObject.setProperty(name, value);
         return this;
-    }
-
-    CustomConfiguration getConfiguration() {
-        return customConfiguration;
     }
 }

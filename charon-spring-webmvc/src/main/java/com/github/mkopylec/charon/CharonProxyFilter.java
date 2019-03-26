@@ -24,6 +24,12 @@ public class CharonProxyFilter extends OncePerRequestFilter implements Ordered {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-
+        // TODO
+        // Choose request forwarding
+        // Create HttpRequest
+        // Apply all interceptors
+        // Forward HttpRequest
+        // Map incoming response to HttpResponse
+        // Map HttpResponse to HttpServletResponse
     }
 }

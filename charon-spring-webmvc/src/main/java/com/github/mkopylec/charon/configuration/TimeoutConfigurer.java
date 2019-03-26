@@ -2,12 +2,10 @@ package com.github.mkopylec.charon.configuration;
 
 import java.time.Duration;
 
-public class TimeoutConfigurer {
-
-    private TimeoutConfiguration timeoutConfiguration;
+public class TimeoutConfigurer extends Configurer<TimeoutConfiguration> {
 
     private TimeoutConfigurer() {
-        timeoutConfiguration = new TimeoutConfiguration();
+        super(new TimeoutConfiguration());
     }
 
     public static TimeoutConfigurer timeout() {
@@ -15,21 +13,17 @@ public class TimeoutConfigurer {
     }
 
     public TimeoutConfigurer connection(Duration connection) {
-        timeoutConfiguration.setConnection(connection);
+        configuredObject.setConnection(connection);
         return this;
     }
 
     public TimeoutConfigurer read(Duration read) {
-        timeoutConfiguration.setRead(read);
+        configuredObject.setRead(read);
         return this;
     }
 
     public TimeoutConfigurer write(Duration write) {
-        timeoutConfiguration.setWrite(write);
+        configuredObject.setWrite(write);
         return this;
-    }
-
-    TimeoutConfiguration getConfiguration() {
-        return timeoutConfiguration;
     }
 }

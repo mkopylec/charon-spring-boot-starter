@@ -3,18 +3,21 @@ package com.github.mkopylec.charon.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.mkopylec.charon.core.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.utils.Valid;
 
 import org.springframework.core.Ordered;
 
-import static com.github.mkopylec.charon.configuration.CopyRequestPathRewriterConfigurer.copyRequestPathRewriter;
-import static com.github.mkopylec.charon.configuration.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
+import static com.github.mkopylec.charon.configuration.CustomConfigurer.custom;
+import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
 import static com.github.mkopylec.charon.configuration.TimeoutConfigurer.timeout;
+import static com.github.mkopylec.charon.interceptors.rewrite.CopyRequestPathRewriterConfigurer.copyRequestPathRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Comparator.comparingInt;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
-public class CharonConfiguration {
+public class CharonConfiguration implements Valid {
 
     private int filterOrder;
     private TimeoutConfiguration timeoutConfiguration;
@@ -24,18 +27,13 @@ public class CharonConfiguration {
 
     CharonConfiguration() {
         filterOrder = LOWEST_PRECEDENCE;
-        timeoutConfiguration = timeout().getConfiguration();
+        timeoutConfiguration = timeout().configure();
         requestForwardingInterceptors = new ArrayList<>();
-        requestForwardingInterceptors.add(copyRequestPathRewriter().getRequestForwardingInterceptor());
-        requestForwardingInterceptors.add(rootPathResponseCookieRewriter().getRequestForwardingInterceptor());
+        addRequestForwardingInterceptor(copyRequestPathRewriter().configure());
+        addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
         requestForwardingConfigurations = new ArrayList<>();
-        requestForwardingConfigurations.add(new RequestForwardingConfiguration("default"));
-    }
-
-    void validate() {
-        timeoutConfiguration.validate();
-        requestForwardingInterceptors.forEach(RequestForwardingInterceptor::validate);
-        requestForwardingConfigurations.forEach(RequestForwardingConfiguration::validate);
+        addRequestForwardingConfiguration(requestForwarding("default").configure());
+        customConfiguration = custom().configure();
     }
 
     public int getFilterOrder() {

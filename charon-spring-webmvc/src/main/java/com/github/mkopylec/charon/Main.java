@@ -3,9 +3,8 @@ package com.github.mkopylec.charon;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.mkopylec.charon.core.HttpResponse;
-import com.github.mkopylec.charon.core.RequestForwarder;
-import com.github.mkopylec.charon.core.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.interceptors.resilience.CircuitBreakerHandlerConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -14,14 +13,14 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import org.slf4j.Logger;
 
-import static com.github.mkopylec.charon.configuration.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.CustomConfigurer.custom;
-import static com.github.mkopylec.charon.configuration.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
-import static com.github.mkopylec.charon.configuration.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
-import static com.github.mkopylec.charon.configuration.ThreadPoolConfigurer.threadPool;
 import static com.github.mkopylec.charon.configuration.TimeoutConfigurer.timeout;
+import static com.github.mkopylec.charon.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
+import static com.github.mkopylec.charon.interceptors.async.ThreadPoolConfigurer.threadPool;
+import static com.github.mkopylec.charon.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
 import static java.time.Duration.ofMillis;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -45,6 +44,10 @@ public class Main {
         CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.of(circuitBreakerConfig);
         circuitBreakerRegistry.circuitBreaker("d");
 
+        CircuitBreakerHandlerConfigurer.circuitBreakerHandler()
+                .enabled(true)
+                .configuration(null)
+                .measured(false);
         charonConfiguration()
                 .set(removingResponseCookieRewriter())
                 .set(regexRequestPathRewriter())

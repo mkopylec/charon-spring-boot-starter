@@ -1,11 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-public class CharonConfigurer {
+import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
-    private CharonConfiguration charonConfiguration;
+public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
     private CharonConfigurer() {
-        charonConfiguration = new CharonConfiguration();
+        super(new CharonConfiguration());
     }
 
     public static CharonConfigurer charonConfiguration() {
@@ -13,31 +13,27 @@ public class CharonConfigurer {
     }
 
     public CharonConfigurer filterOrder(int filterOrder) {
-        charonConfiguration.setFilterOrder(filterOrder);
+        configuredObject.setFilterOrder(filterOrder);
         return this;
     }
 
     public CharonConfigurer set(TimeoutConfigurer timeoutConfigurer) {
-        charonConfiguration.setTimeoutConfiguration(timeoutConfigurer.getConfiguration());
+        configuredObject.setTimeoutConfiguration(timeoutConfigurer.configure());
         return this;
     }
 
     public CharonConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
-        charonConfiguration.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.getRequestForwardingInterceptor());
+        configuredObject.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.configure());
         return this;
     }
 
     public CharonConfigurer add(RequestForwardingConfigurer requestForwardingConfigurer) {
-        charonConfiguration.addRequestForwardingConfiguration(requestForwardingConfigurer.getConfiguration());
+        configuredObject.addRequestForwardingConfiguration(requestForwardingConfigurer.configure());
         return this;
     }
 
     public CharonConfigurer set(CustomConfigurer customConfigurer) {
-        charonConfiguration.setCustomConfiguration(customConfigurer.getConfiguration());
+        configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
-    }
-
-    CharonConfiguration getConfiguration() {
-        return charonConfiguration;
     }
 }

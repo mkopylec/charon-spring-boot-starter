@@ -1,34 +1,40 @@
 package com.github.mkopylec.charon.configuration;
 
-public class RequestForwardingConfigurer {
+import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
-    private RequestForwardingConfiguration requestForwardingConfiguration;
+public class RequestForwardingConfigurer extends Configurer<RequestForwardingConfiguration> {
 
     private RequestForwardingConfigurer(String name) {
-        requestForwardingConfiguration = new RequestForwardingConfiguration(name);
+        super(new RequestForwardingConfiguration(name));
     }
 
     public static RequestForwardingConfigurer requestForwarding(String name) {
         return new RequestForwardingConfigurer(name);
     }
 
-    public RequestForwardingConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
-        requestForwardingConfiguration.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.getRequestForwardingInterceptor());
+    public RequestForwardingConfigurer pathRegex(String pathRegex) {
+        configuredObject.setPathRegex(pathRegex);
         return this;
     }
 
     public RequestForwardingConfigurer set(TimeoutConfigurer timeoutConfigurer) {
-        requestForwardingConfiguration.setTimeoutConfiguration(timeoutConfigurer.getConfiguration());
+        configuredObject.setTimeoutConfiguration(timeoutConfigurer.configure());
+        return this;
+    }
+
+    public RequestForwardingConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
+        configuredObject.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.configure());
         return this;
     }
 
     public RequestForwardingConfigurer set(CustomConfigurer customConfigurer) {
-        requestForwardingConfiguration.setCustomConfiguration(customConfigurer.getConfiguration());
+        configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
     }
 
-    RequestForwardingConfiguration getConfiguration() {
-        requestForwardingConfiguration.validate();
-        return requestForwardingConfiguration;
+    @Override
+    protected RequestForwardingConfiguration configure() {
+        configuredObject.validate(); // TODO Extract Valid interface for all configs and interceptors, validate them in base Configurer
+        return super.configure();
     }
 }

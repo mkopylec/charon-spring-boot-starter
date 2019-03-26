@@ -14,8 +14,8 @@ class CharonAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     CharonProxyFilter charonProxyFilter(CharonConfigurer configurer) {
-        CharonConfiguration configuration = configurer.getConfiguration();
-        configuration.validate();
+        CharonConfiguration configuration = configurer.configure();
+        configuration.validate(); // TODO Remove after extracting Valid interface
         return new CharonProxyFilter(configuration);
     }
 }

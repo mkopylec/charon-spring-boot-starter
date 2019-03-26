@@ -2,11 +2,13 @@ package com.github.mkopylec.charon.configuration;
 
 import java.time.Duration;
 
+import com.github.mkopylec.charon.utils.Valid;
+
 import static java.time.Duration.ofMillis;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.util.Assert.notNull;
 
-public class TimeoutConfiguration {
+public class TimeoutConfiguration implements Valid {
 
     private Duration connection;
     private Duration read;
@@ -18,7 +20,8 @@ public class TimeoutConfiguration {
         write = ofMillis(1000);
     }
 
-    void validate() {
+    @Override
+    public void validate() {
         notNull(connection, "No connection timeout set");
         isTrue(!connection.isNegative(), "Invalid connection timeout value: " + connection.toMillis() + " ms");
         notNull(read, "No read timeout set");

@@ -2,45 +2,47 @@ package com.github.mkopylec.charon.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import com.github.mkopylec.charon.core.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.utils.Valid;
 
 import org.springframework.core.Ordered;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Comparator.comparingInt;
+import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.hasText;
 
-public class RequestForwardingConfiguration {
+public class RequestForwardingConfiguration implements Valid {
 
     private String name;
-    private String path;
+    private Pattern pathRegex;
     private TimeoutConfiguration timeoutConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private CustomConfiguration customConfiguration;
 
     RequestForwardingConfiguration(String name) {
         this.name = name;
-        path = "/";
+        pathRegex = compile("/.*");
         requestForwardingInterceptors = new ArrayList<>();
     }
 
-    void validate() {
+    @Override
+    public void validate() {
         hasText(name, "No request forwarding name set");
-        timeoutConfiguration.validate();
-        requestForwardingInterceptors.forEach(RequestForwardingInterceptor::validate);
     }
 
     public String getName() {
         return name;
     }
 
-    public String getPath() {
-        return path;
+    public Pattern getPathRegex() {
+        return pathRegex;
     }
 
-    void setPath(String path) {
-        this.path = path;
+    void setPathRegex(String pathRegex) {
+        this.pathRegex = compile(pathRegex);
     }
 
     public TimeoutConfiguration getTimeoutConfiguration() {
@@ -62,13 +64,14 @@ public class RequestForwardingConfiguration {
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
-        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == requestForwardingInterceptor.getOrder());
+        removeRequestForwardingInterceptor(requestForwardingInterceptors, requestForwardingInterceptor.getOrder());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
         requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
     }
 
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
-        // TODO Merge, mind the enabled flag and joining lists
+        this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(requestForwardingInterceptors, interceptor.getOrder()));
+        this.requestForwardingInterceptors.addAll(requestForwardingInterceptors);
     }
 
     public CustomConfiguration getCustomConfiguration() {
@@ -77,5 +80,15 @@ public class RequestForwardingConfiguration {
 
     void setCustomConfiguration(CustomConfiguration customConfiguration) {
         this.customConfiguration = customConfiguration;
+    }
+
+    void mergeCustomConfiguration(CustomConfiguration customConfiguration) {
+        if (this.customConfiguration == null) {
+            this.customConfiguration = customConfiguration;
+        }
+    }
+
+    private void removeRequestForwardingInterceptor(List<RequestForwardingInterceptor> requestForwardingInterceptors, int order) {
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == order);
     }
 }

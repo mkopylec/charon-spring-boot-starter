@@ -3,7 +3,9 @@ package com.github.mkopylec.charon.configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CustomConfiguration {
+import com.github.mkopylec.charon.utils.Valid;
+
+public class CustomConfiguration implements Valid {
 
     private Map<String, Object> properties;
 
