@@ -31,10 +31,4 @@ public class RequestForwardingConfigurer extends Configurer<RequestForwardingCon
         configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
     }
-
-    @Override
-    protected RequestForwardingConfiguration configure() {
-        configuredObject.validate(); // TODO Extract Valid interface for all configs and interceptors, validate them in base Configurer
-        return super.configure();
-    }
 }

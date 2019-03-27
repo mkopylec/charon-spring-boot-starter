@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.interceptors.resilience;
 
-import com.github.mkopylec.charon.HttpRequest;
-import com.github.mkopylec.charon.HttpResponse;
-import com.github.mkopylec.charon.RequestForwarder;
-import com.github.mkopylec.charon.RequestForwarding;
+import com.github.mkopylec.charon.forwarding.HttpRequest;
+import com.github.mkopylec.charon.forwarding.HttpResponse;
+import com.github.mkopylec.charon.forwarding.RequestForwarder;
+import com.github.mkopylec.charon.forwarding.RequestForwarding;
 import io.github.resilience4j.retry.RetryConfig;
 
 import org.springframework.web.client.HttpClientErrorException;

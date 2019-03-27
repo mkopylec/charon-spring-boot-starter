@@ -37,6 +37,10 @@ public class RequestForwardingConfiguration implements Valid {
         return name;
     }
 
+    public String getLoggedName() {
+        return "'" + name + "'";
+    }
+
     public Pattern getPathRegex() {
         return pathRegex;
     }
@@ -70,7 +74,8 @@ public class RequestForwardingConfiguration implements Valid {
     }
 
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
-        this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(requestForwardingInterceptors, interceptor.getOrder()));
+        List<RequestForwardingInterceptor> globalInterceptors = new ArrayList<>(requestForwardingInterceptors);
+        this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getOrder()));
         this.requestForwardingInterceptors.addAll(requestForwardingInterceptors);
     }
 

@@ -3,10 +3,10 @@ package com.github.mkopylec.charon.interceptors.rewrite;
 import java.net.URI;
 import java.util.List;
 
-import com.github.mkopylec.charon.HttpRequest;
-import com.github.mkopylec.charon.HttpResponse;
-import com.github.mkopylec.charon.RequestForwarder;
-import com.github.mkopylec.charon.RequestForwarding;
+import com.github.mkopylec.charon.forwarding.HttpRequest;
+import com.github.mkopylec.charon.forwarding.HttpResponse;
+import com.github.mkopylec.charon.forwarding.RequestForwarder;
+import com.github.mkopylec.charon.forwarding.RequestForwarding;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static com.github.mkopylec.charon.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;

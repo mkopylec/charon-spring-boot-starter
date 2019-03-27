@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon.configuration;
 
+import com.github.mkopylec.charon.forwarding.HttpClientFactoryConfigurer;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
 public class CharonConfigurer extends Configurer<CharonConfiguration> {
@@ -19,6 +20,11 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
     public CharonConfigurer set(TimeoutConfigurer timeoutConfigurer) {
         configuredObject.setTimeoutConfiguration(timeoutConfigurer.configure());
+        return this;
+    }
+
+    public CharonConfigurer set(HttpClientFactoryConfigurer<?> httpClientFactoryConfigurer) {
+        configuredObject.setHttpClientFactory(httpClientFactoryConfigurer.configure());
         return this;
     }
 

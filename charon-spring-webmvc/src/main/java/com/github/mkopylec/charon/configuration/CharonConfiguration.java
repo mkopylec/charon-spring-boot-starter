@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.mkopylec.charon.forwarding.HttpClientFactory;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.utils.Valid;
 
@@ -21,6 +22,7 @@ public class CharonConfiguration implements Valid {
 
     private int filterOrder;
     private TimeoutConfiguration timeoutConfiguration;
+    private HttpClientFactory httpClientFactory;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestForwardingConfiguration> requestForwardingConfigurations;
     private CustomConfiguration customConfiguration;
@@ -44,16 +46,16 @@ public class CharonConfiguration implements Valid {
         this.filterOrder = filterOrder;
     }
 
-    public TimeoutConfiguration getTimeoutConfiguration() {
-        return timeoutConfiguration;
-    }
-
     void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
         this.timeoutConfiguration = timeoutConfiguration;
     }
 
-    public List<RequestForwardingInterceptor> getRequestForwardingInterceptors() {
-        return unmodifiableList(requestForwardingInterceptors);
+    public HttpClientFactory getHttpClientFactory() {
+        return httpClientFactory;
+    }
+
+    void setHttpClientFactory(HttpClientFactory httpClientFactory) {
+        this.httpClientFactory = httpClientFactory;
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
@@ -70,11 +72,15 @@ public class CharonConfiguration implements Valid {
         requestForwardingConfigurations.add(requestForwardingConfiguration);
     }
 
-    public CustomConfiguration getCustomConfiguration() {
-        return customConfiguration;
-    }
-
     void setCustomConfiguration(CustomConfiguration customConfiguration) {
         this.customConfiguration = customConfiguration;
+    }
+
+    private void mergeWithRequestForwardingConfigurations() {
+        requestForwardingConfigurations.forEach(configuration -> {
+            configuration.mergeTimeoutConfiguration(timeoutConfiguration);
+            configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
+            configuration.mergeCustomConfiguration(customConfiguration);
+        });
     }
 }

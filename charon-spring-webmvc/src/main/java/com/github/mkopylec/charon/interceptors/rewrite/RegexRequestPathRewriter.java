@@ -2,10 +2,10 @@ package com.github.mkopylec.charon.interceptors.rewrite;
 
 import java.util.regex.Pattern;
 
-import com.github.mkopylec.charon.HttpRequest;
-import com.github.mkopylec.charon.HttpResponse;
-import com.github.mkopylec.charon.RequestForwarder;
-import com.github.mkopylec.charon.RequestForwarding;
+import com.github.mkopylec.charon.forwarding.HttpRequest;
+import com.github.mkopylec.charon.forwarding.HttpResponse;
+import com.github.mkopylec.charon.forwarding.RequestForwarder;
+import com.github.mkopylec.charon.forwarding.RequestForwarding;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static java.util.regex.Pattern.compile;
