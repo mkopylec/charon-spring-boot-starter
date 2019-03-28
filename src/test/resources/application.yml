@@ -1,5 +1,5 @@
 charon:
-  filter-order: 2147483647
+  filter-order: -2147483648
   retrying:
     max-attempts: 3
     retry-on:

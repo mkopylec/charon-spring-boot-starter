@@ -320,7 +320,7 @@ The following list contains all available configuration properties with their de
 
 ```yaml
 charon:
-    filter-order: Ordered.LOWEST_PRECEDENCE # Charon servlet filter order.
+    filter-order: Ordered.HIGHEST_PRECEDENCE # Charon servlet filter order.
     retrying:
         max-attempts: 3 # Maximum number of HTTP request forward tries.
         retry-on:

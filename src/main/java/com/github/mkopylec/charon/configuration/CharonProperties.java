@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
 /**
  * Charon configuration properties.
@@ -17,7 +17,7 @@ public class CharonProperties {
     /**
      * Charon servlet filter order.
      */
-    private int filterOrder = LOWEST_PRECEDENCE;
+    private int filterOrder = HIGHEST_PRECEDENCE;
     /**
      * Properties responsible for retrying of HTTP requests forwarding.
      */
