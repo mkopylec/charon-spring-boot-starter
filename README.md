@@ -18,9 +18,6 @@ This tool tries to get the best of them joining their features into a one Spring
 - forward HTTP headers support
 - intercepting and tracing
 
-## Contribution
-Please use **pull-requests branch** as a destination branch for all pull requests.
-
 ## Migrating from 1.x.x to 2.x.x
 
 - remove `@EnableCharon` annotation
