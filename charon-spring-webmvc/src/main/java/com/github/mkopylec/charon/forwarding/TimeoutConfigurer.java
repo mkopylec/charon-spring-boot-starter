@@ -1,6 +1,8 @@
-package com.github.mkopylec.charon.configuration;
+package com.github.mkopylec.charon.forwarding;
 
 import java.time.Duration;
+
+import com.github.mkopylec.charon.configuration.Configurer;
 
 public class TimeoutConfigurer extends Configurer<TimeoutConfiguration> {
 

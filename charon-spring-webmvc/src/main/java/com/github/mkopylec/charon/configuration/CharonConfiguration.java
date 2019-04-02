@@ -3,26 +3,25 @@ package com.github.mkopylec.charon.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.mkopylec.charon.forwarding.HttpClientFactory;
+import com.github.mkopylec.charon.forwarding.CustomConfiguration;
+import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
+import com.github.mkopylec.charon.forwarding.TimeoutConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
-import com.github.mkopylec.charon.utils.Valid;
 
-import org.springframework.core.Ordered;
-
-import static com.github.mkopylec.charon.configuration.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
-import static com.github.mkopylec.charon.configuration.TimeoutConfigurer.timeout;
+import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
+import static com.github.mkopylec.charon.forwarding.OkHttpRestTemplateConfigurer.okHttpRestTemplate;
+import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.interceptors.rewrite.CopyRequestPathRewriterConfigurer.copyRequestPathRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
-import static java.util.Comparator.comparingInt;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
 public class CharonConfiguration implements Valid {
 
     private int filterOrder;
     private TimeoutConfiguration timeoutConfiguration;
-    private HttpClientFactory httpClientFactory;
+    private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestForwardingConfiguration> requestForwardingConfigurations;
     private CustomConfiguration customConfiguration;
@@ -30,15 +29,17 @@ public class CharonConfiguration implements Valid {
     CharonConfiguration() {
         filterOrder = LOWEST_PRECEDENCE;
         timeoutConfiguration = timeout().configure();
+        restTemplateConfiguration = okHttpRestTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(copyRequestPathRewriter().configure());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
+        // TODO Think about more default interceptors
         requestForwardingConfigurations = new ArrayList<>();
         addRequestForwardingConfiguration(requestForwarding("default").configure());
         customConfiguration = custom().configure();
     }
 
-    public int getFilterOrder() {
+    int getFilterOrder() {
         return filterOrder;
     }
 
@@ -50,21 +51,20 @@ public class CharonConfiguration implements Valid {
         this.timeoutConfiguration = timeoutConfiguration;
     }
 
-    public HttpClientFactory getHttpClientFactory() {
-        return httpClientFactory;
+    RestTemplateConfiguration getRestTemplateConfiguration() {
+        return restTemplateConfiguration;
     }
 
-    void setHttpClientFactory(HttpClientFactory httpClientFactory) {
-        this.httpClientFactory = httpClientFactory;
+    void setRestTemplateConfiguration(RestTemplateConfiguration restTemplateConfiguration) {
+        this.restTemplateConfiguration = restTemplateConfiguration;
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
         requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == requestForwardingInterceptor.getOrder());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
-        requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
     }
 
-    public List<RequestForwardingConfiguration> getRequestForwardingConfigurations() {
+    List<RequestForwardingConfiguration> getRequestForwardingConfigurations() {
         return unmodifiableList(requestForwardingConfigurations);
     }
 

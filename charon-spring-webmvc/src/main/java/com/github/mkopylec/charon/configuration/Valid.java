@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.utils;
+package com.github.mkopylec.charon.configuration;
 
 public interface Valid {
 

@@ -1,6 +1,8 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.forwarding.HttpClientFactoryConfigurer;
+import com.github.mkopylec.charon.forwarding.CustomConfigurer;
+import com.github.mkopylec.charon.forwarding.RestTemplateConfigurer;
+import com.github.mkopylec.charon.forwarding.TimeoutConfigurer;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
 public class CharonConfigurer extends Configurer<CharonConfiguration> {
@@ -23,8 +25,8 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
         return this;
     }
 
-    public CharonConfigurer set(HttpClientFactoryConfigurer<?> httpClientFactoryConfigurer) {
-        configuredObject.setHttpClientFactory(httpClientFactoryConfigurer.configure());
+    public CharonConfigurer set(RestTemplateConfigurer<?> restTemplateConfigurer) {
+        configuredObject.setRestTemplateConfiguration(restTemplateConfigurer.configure());
         return this;
     }
 

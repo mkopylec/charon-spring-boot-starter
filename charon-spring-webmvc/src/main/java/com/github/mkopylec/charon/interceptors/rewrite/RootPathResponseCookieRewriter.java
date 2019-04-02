@@ -1,9 +1,10 @@
 package com.github.mkopylec.charon.interceptors.rewrite;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import java.io.IOException;
+
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
@@ -12,8 +13,8 @@ class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
-        HttpResponse response = forwarder.forward(request, forwarding);
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) throws IOException {
+        HttpResponse response = execution.execute(request);
         // TODO Rewrite response cookies
         return response;
     }

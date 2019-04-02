@@ -1,9 +1,8 @@
 package com.github.mkopylec.charon.interceptors.resilience;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import io.github.resilience4j.retry.RetryConfig;
 
 import org.springframework.web.client.HttpClientErrorException;
@@ -21,7 +20,7 @@ class RetryingHandler extends ResilienceHandler<RetryConfig> {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         // TODO Implement retrying
         return null;
     }

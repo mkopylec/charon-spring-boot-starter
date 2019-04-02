@@ -1,4 +1,6 @@
-package com.github.mkopylec.charon.configuration;
+package com.github.mkopylec.charon.forwarding;
+
+import com.github.mkopylec.charon.configuration.Configurer;
 
 public class CustomConfigurer extends Configurer<CustomConfiguration> {
 

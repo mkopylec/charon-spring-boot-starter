@@ -1,11 +1,12 @@
 package com.github.mkopylec.charon.interceptors.async;
 
-import com.github.mkopylec.charon.utils.Valid;
+import com.github.mkopylec.charon.configuration.Valid;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static org.springframework.util.Assert.isTrue;
 
+// TODO use ThreadPoolExecutor instead to be compatible with Reactor's subscribeOn(scheduler)
 class ThreadPool extends ThreadPoolTaskExecutor implements Valid {
 
     private boolean initialized;

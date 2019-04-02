@@ -11,21 +11,24 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.mkopylec.charon.configuration.RequestForwardingConfiguration;
 
 import org.springframework.core.Ordered;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-public class CharonProxyFilter extends OncePerRequestFilter implements Ordered {
+public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered {
 
     private int order;
     private RequestForwardingResolver requestForwardingResolver;
     private HttpRequestMapper httpRequestMapper;
-    private HttpClientProvider httpClientProvider;
+    private RestTemplateProvider restTemplateProvider;
     private HttpResponseMapper httpResponseMapper;
 
-    public CharonProxyFilter(int order, List<RequestForwardingConfiguration> requestForwardingConfigurations, HttpClientFactory httpClientFactory) {
+    public ReverseProxyFilter(int order, List<RequestForwardingConfiguration> requestForwardingConfigurations, RestTemplateConfiguration restTemplateConfiguration) {
         this.order = order;
         requestForwardingResolver = new RequestForwardingResolver(requestForwardingConfigurations);
         httpRequestMapper = new HttpRequestMapper();
-        httpClientProvider = new HttpClientProvider(httpClientFactory);
+        restTemplateProvider = new RestTemplateProvider(restTemplateConfiguration);
         httpResponseMapper = new HttpResponseMapper();
     }
 
@@ -41,10 +44,9 @@ public class CharonProxyFilter extends OncePerRequestFilter implements Ordered {
             filterChain.doFilter(request, response);
             return;
         }
-        HttpRequest httpRequest = httpRequestMapper.map(request);
-        RequestForwarding forwarding = new RequestForwarding(configuration.getName(), configuration.getTimeoutConfiguration(), configuration.getCustomConfiguration());
-        RequestForwarder forwarder = new RequestForwarder(configuration.getRequestForwardingInterceptors(), httpClientProvider);
-        HttpResponse httpResponse = forwarder.forward(httpRequest, forwarding);
-        httpResponseMapper.map(httpResponse, response);
+        RequestEntity<byte[]> requestEntity = httpRequestMapper.map(request);
+        RestTemplate restTemplate = restTemplateProvider.getRestTemplate(configuration);
+        ResponseEntity<byte[]> responseEntity = restTemplate.exchange(requestEntity, byte[].class);
+        httpResponseMapper.map(responseEntity, response);
     }
 }

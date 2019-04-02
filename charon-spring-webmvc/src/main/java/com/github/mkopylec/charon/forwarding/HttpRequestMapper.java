@@ -19,16 +19,12 @@ import static org.springframework.http.HttpMethod.resolve;
 
 class HttpRequestMapper {
 
-    HttpRequest map(HttpServletRequest request) throws IOException {
-        URI uri = extractUri(request);
-        HttpMethod method = extractMethod(request);
-        HttpHeaders headers = extractHeaders(request);
+    RequestEntity<byte[]> map(HttpServletRequest request) throws IOException {
         byte[] body = extractBody(request);
-        return new HttpRequest(uri, method, headers, body);
-    }
-
-    RequestEntity<byte[]> map(HttpRequest request) {
-        return new RequestEntity<>(request.getBody(), request.getHeaders(), request.getMethod(), request.getUri());
+        HttpHeaders headers = extractHeaders(request);
+        HttpMethod method = extractMethod(request);
+        URI uri = extractUri(request);
+        return new RequestEntity<>(body, headers, method, uri);
     }
 
     private URI extractUri(HttpServletRequest request) {

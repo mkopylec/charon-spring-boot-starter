@@ -1,11 +1,11 @@
 package com.github.mkopylec.charon.interceptors.rewrite;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static java.util.regex.Pattern.compile;
@@ -21,9 +21,9 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) throws IOException {
         // TODO Rewrite request path
-        return forwarder.forward(request, forwarding);
+        return execution.execute(request);
     }
 
     @Override

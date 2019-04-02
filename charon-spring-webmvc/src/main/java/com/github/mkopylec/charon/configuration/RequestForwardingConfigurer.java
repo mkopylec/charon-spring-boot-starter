@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.configuration;
 
+import com.github.mkopylec.charon.forwarding.CustomConfigurer;
+import com.github.mkopylec.charon.forwarding.TimeoutConfigurer;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
 public class RequestForwardingConfigurer extends Configurer<RequestForwardingConfiguration> {

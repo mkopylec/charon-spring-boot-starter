@@ -1,9 +1,9 @@
-package com.github.mkopylec.charon.configuration;
+package com.github.mkopylec.charon.forwarding;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.mkopylec.charon.utils.Valid;
+import com.github.mkopylec.charon.configuration.Valid;
 
 public class CustomConfiguration implements Valid {
 

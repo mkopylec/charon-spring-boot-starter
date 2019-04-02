@@ -1,9 +1,8 @@
 package com.github.mkopylec.charon.interceptors.async;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -19,7 +18,7 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         // TODO Implement async forwarding
         return null;
     }

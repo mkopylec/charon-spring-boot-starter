@@ -1,9 +1,8 @@
 package com.github.mkopylec.charon.interceptors.resilience;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
@@ -15,8 +14,8 @@ class CircuitBreakerHandler extends ResilienceHandler<CircuitBreakerConfig> {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
-        // TODO Implement circuit breaker
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+        // TODO Implement circuit breaker with fallback
         return null;
     }
 

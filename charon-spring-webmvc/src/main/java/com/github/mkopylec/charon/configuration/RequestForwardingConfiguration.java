@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.github.mkopylec.charon.forwarding.CustomConfiguration;
+import com.github.mkopylec.charon.forwarding.TimeoutConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
-import com.github.mkopylec.charon.utils.Valid;
-
-import org.springframework.core.Ordered;
 
 import static java.util.Collections.unmodifiableList;
-import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.hasText;
 
@@ -70,7 +68,6 @@ public class RequestForwardingConfiguration implements Valid {
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
         removeRequestForwardingInterceptor(requestForwardingInterceptors, requestForwardingInterceptor.getOrder());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
-        requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
     }
 
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {

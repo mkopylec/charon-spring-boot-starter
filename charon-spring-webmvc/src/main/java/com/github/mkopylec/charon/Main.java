@@ -11,13 +11,17 @@ import io.github.resilience4j.retry.RetryConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.client.ClientHttpResponse;
+
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
-import static com.github.mkopylec.charon.configuration.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
-import static com.github.mkopylec.charon.configuration.TimeoutConfigurer.timeout;
-import static com.github.mkopylec.charon.forwarding.OkHttpClientFactoryConfigurer.okHttpClientFactory;
+import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
+import static com.github.mkopylec.charon.forwarding.OkHttpRestTemplateConfigurer.okHttpRestTemplate;
+import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
 import static com.github.mkopylec.charon.interceptors.async.ThreadPoolConfigurer.threadPool;
+import static com.github.mkopylec.charon.interceptors.resilience.RetryingHandlerConfigurer.retryingHandler;
 import static com.github.mkopylec.charon.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
 import static java.time.Duration.ofMillis;
@@ -29,7 +33,7 @@ public class Main {
     private static final Logger log = getLogger(Main.class);
 
     public static void main(String[] args) {
-        CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(5).build();
+        CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(1).build();
         RetryConfig retryConfig = RetryConfig.custom().build();
         RateLimiterConfig rateLimiterConfig = RateLimiterConfig.custom().build();
 
@@ -51,9 +55,10 @@ public class Main {
                 .enabled(true)
                 .measured(false);
         charonConfiguration()
-                .set(okHttpClientFactory())
+                .set(okHttpRestTemplate().configuration(new RestTemplateBuilder()))
                 .set(removingResponseCookieRewriter())
                 .set(regexRequestPathRewriter())
+                .set(retryingHandler())
                 .set(asynchronousForwardingHandler()
                         .set(threadPool().initialSize(3)))
                 .add(requestForwarding("proxy 1")
@@ -61,9 +66,38 @@ public class Main {
                         .set(custom().set("name", "value")))
                 .add(requestForwarding("proxy 2"));
 
-        Retry.decorateSupplier(retry, () -> {
-            throw new IllegalArgumentException("dupa");
-        }).get();
+//        Retry.decorateSupplier(retry, () -> {
+//            throw new IllegalArgumentException("dupa");
+//        }).get();
+
+//        try {
+//            CircuitBreaker.decorateRunnable(circuitBreaker, () -> {
+//                throw new IllegalArgumentException("dupa");
+//            }).run();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        CircuitBreaker.decorateRunnable(circuitBreaker, () -> {
+//            throw new IllegalArgumentException("dupa");
+//        }).run();
+
+        new RestTemplateBuilder().additionalInterceptors(
+                (request, body, execution) -> {
+                    System.out.println("start 1");
+                    ClientHttpResponse execute = execution.execute(request, body);
+                    System.out.println("end 1");
+                    return execute;
+                }, (request, body, execution) -> {
+                    System.out.println("start 2");
+                    ClientHttpResponse execute = execution.execute(request, body);
+                    System.out.println("end 2");
+                    return execute;
+                }, (request, body, execution) -> {
+                    System.out.println("start 3");
+                    ClientHttpResponse execute = execution.execute(request, body);
+                    System.out.println("end 3");
+                    return execute;
+                }).build().getForEntity("http://wykop.pl", String.class);
 
 //        List<RequestForwardingInterceptor> interceptors = new ArrayList<>();
 //        interceptors.add((request, forwarder) -> {

@@ -1,6 +1,6 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.forwarding.CharonProxyFilter;
+import com.github.mkopylec.charon.forwarding.ReverseProxyFilter;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -13,8 +13,8 @@ class CharonAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    CharonProxyFilter charonProxyFilter(CharonConfigurer configurer) {
+    ReverseProxyFilter reverseProxyFilter(CharonConfigurer configurer) {
         CharonConfiguration configuration = configurer.configure();
-        return new CharonProxyFilter(configuration.getFilterOrder(), configuration.getRequestForwardingConfigurations(), configuration.getHttpClientFactory());
+        return new ReverseProxyFilter(configuration.getFilterOrder(), configuration.getRequestForwardingConfigurations(), configuration.getRestTemplateConfiguration());
     }
 }

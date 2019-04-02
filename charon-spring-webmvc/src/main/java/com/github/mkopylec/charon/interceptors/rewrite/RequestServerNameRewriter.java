@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.interceptors.rewrite;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import com.github.mkopylec.charon.forwarding.HttpRequest;
-import com.github.mkopylec.charon.forwarding.HttpResponse;
-import com.github.mkopylec.charon.forwarding.RequestForwarder;
-import com.github.mkopylec.charon.forwarding.RequestForwarding;
+import com.github.mkopylec.charon.interceptors.HttpRequest;
+import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static com.github.mkopylec.charon.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
@@ -24,9 +24,9 @@ class RequestServerNameRewriter implements RequestForwardingInterceptor {
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, RequestForwarding forwarding, RequestForwarder forwarder) {
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) throws IOException {
         // TODO Implement server name rewrite
-        return forwarder.forward(request, forwarding);
+        return execution.execute(request);
     }
 
     @Override
