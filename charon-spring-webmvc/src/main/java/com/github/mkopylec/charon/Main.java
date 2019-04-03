@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon;
 
+import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.resilience.CircuitBreakerHandlerConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -17,7 +18,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
-import static com.github.mkopylec.charon.forwarding.OkHttpRestTemplateConfigurer.okHttpRestTemplate;
+import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
 import static com.github.mkopylec.charon.interceptors.async.ThreadPoolConfigurer.threadPool;
@@ -55,14 +56,14 @@ public class Main {
                 .enabled(true)
                 .measured(false);
         charonConfiguration()
-                .set(okHttpRestTemplate().configuration(new RestTemplateBuilder()))
+                .set(restTemplate()
+                        .set(timeout().connection(ofMillis(100)).read(ofMillis(500))))
                 .set(removingResponseCookieRewriter())
                 .set(regexRequestPathRewriter())
-                .set(retryingHandler())
+                .set(retryingHandler().configuration(RetryConfig.<HttpResponse>custom().retryOnResult(null)))
                 .set(asynchronousForwardingHandler()
-                        .set(threadPool().initialSize(3)))
+                        .set(threadPool().coreSize(3)))
                 .add(requestForwarding("proxy 1")
-                        .set(timeout().connection(ofMillis(100)).read(ofMillis(500)))
                         .set(custom().set("name", "value")))
                 .add(requestForwarding("proxy 2"));
 

@@ -5,8 +5,6 @@ import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.interceptors.HttpResponse;
 import io.github.resilience4j.retry.RetryConfig;
 
-import org.springframework.web.client.HttpClientErrorException;
-
 import static io.github.resilience4j.retry.RetryConfig.custom;
 import static java.time.Duration.ofMillis;
 
@@ -15,7 +13,10 @@ class RetryingHandler extends ResilienceHandler<RetryConfig> {
     RetryingHandler() {
         super(custom()
                 .waitDuration(ofMillis(10))
-                .ignoreExceptions(HttpClientErrorException.class)
+                .retryOnResult(result -> {
+                    HttpResponse response = (HttpResponse) result;
+                    return response.getStatusCode().is5xxServerError();
+                })
                 .build());
     }
 

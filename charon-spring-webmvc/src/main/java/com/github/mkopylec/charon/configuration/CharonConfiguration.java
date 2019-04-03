@@ -5,13 +5,11 @@ import java.util.List;
 
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
-import com.github.mkopylec.charon.forwarding.TimeoutConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
-import static com.github.mkopylec.charon.forwarding.OkHttpRestTemplateConfigurer.okHttpRestTemplate;
-import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
+import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.interceptors.rewrite.CopyRequestPathRewriterConfigurer.copyRequestPathRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
@@ -20,7 +18,6 @@ import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 public class CharonConfiguration implements Valid {
 
     private int filterOrder;
-    private TimeoutConfiguration timeoutConfiguration;
     private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestForwardingConfiguration> requestForwardingConfigurations;
@@ -28,8 +25,7 @@ public class CharonConfiguration implements Valid {
 
     CharonConfiguration() {
         filterOrder = LOWEST_PRECEDENCE;
-        timeoutConfiguration = timeout().configure();
-        restTemplateConfiguration = okHttpRestTemplate().configure();
+        restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(copyRequestPathRewriter().configure());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
@@ -45,14 +41,6 @@ public class CharonConfiguration implements Valid {
 
     void setFilterOrder(int filterOrder) {
         this.filterOrder = filterOrder;
-    }
-
-    void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
-        this.timeoutConfiguration = timeoutConfiguration;
-    }
-
-    RestTemplateConfiguration getRestTemplateConfiguration() {
-        return restTemplateConfiguration;
     }
 
     void setRestTemplateConfiguration(RestTemplateConfiguration restTemplateConfiguration) {
@@ -78,7 +66,7 @@ public class CharonConfiguration implements Valid {
 
     private void mergeWithRequestForwardingConfigurations() {
         requestForwardingConfigurations.forEach(configuration -> {
-            configuration.mergeTimeoutConfiguration(timeoutConfiguration);
+            configuration.mergeRestTemplateConfiguration(restTemplateConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
             configuration.mergeCustomConfiguration(customConfiguration);
         });

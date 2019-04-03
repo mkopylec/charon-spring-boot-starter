@@ -2,17 +2,23 @@ package com.github.mkopylec.charon.forwarding;
 
 import com.github.mkopylec.charon.configuration.Configurer;
 
-import org.springframework.boot.web.client.RestTemplateBuilder;
+public class RestTemplateConfigurer extends Configurer<RestTemplateConfiguration> {
 
-public abstract class RestTemplateConfigurer<C extends RestTemplateConfigurer<C>> extends Configurer<RestTemplateConfiguration> {
-
-    protected RestTemplateConfigurer(RestTemplateConfiguration configuredObject) {
-        super(configuredObject);
+    private RestTemplateConfigurer() {
+        super(new RestTemplateConfiguration());
     }
 
-    @SuppressWarnings("unchecked")
-    public C configuration(RestTemplateBuilder restTemplateBuilder) {
-        configuredObject.setConfiguration(restTemplateBuilder);
-        return (C) this;
+    public static RestTemplateConfigurer restTemplate() {
+        return new RestTemplateConfigurer();
+    }
+
+    public RestTemplateConfigurer set(TimeoutConfigurer timeoutConfigurer) {
+        configuredObject.setTimeoutConfiguration(timeoutConfigurer.configure());
+        return this;
+    }
+
+    public RestTemplateConfigurer set(ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator) {
+        configuredObject.setClientHttpRequestFactoryCreator(clientHttpRequestFactoryCreator);
+        return this;
     }
 }

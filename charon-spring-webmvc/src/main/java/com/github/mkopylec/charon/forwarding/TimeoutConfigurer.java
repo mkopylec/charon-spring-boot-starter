@@ -28,4 +28,9 @@ public class TimeoutConfigurer extends Configurer<TimeoutConfiguration> {
         configuredObject.setWrite(write);
         return this;
     }
+
+    @Override
+    protected TimeoutConfiguration configure() {
+        return super.configure();
+    }
 }

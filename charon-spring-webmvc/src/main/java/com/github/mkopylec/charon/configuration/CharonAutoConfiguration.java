@@ -15,6 +15,6 @@ class CharonAutoConfiguration {
     @ConditionalOnMissingBean
     ReverseProxyFilter reverseProxyFilter(CharonConfigurer configurer) {
         CharonConfiguration configuration = configurer.configure();
-        return new ReverseProxyFilter(configuration.getFilterOrder(), configuration.getRequestForwardingConfigurations(), configuration.getRestTemplateConfiguration());
+        return new ReverseProxyFilter(configuration.getFilterOrder(), configuration.getRequestForwardingConfigurations());
     }
 }

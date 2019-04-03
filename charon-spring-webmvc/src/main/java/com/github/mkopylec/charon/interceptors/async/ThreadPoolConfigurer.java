@@ -12,25 +12,18 @@ public class ThreadPoolConfigurer extends Configurer<ThreadPool> {
         return new ThreadPoolConfigurer();
     }
 
-    public ThreadPoolConfigurer queueCapacity(int queueCapacity) {
-        configuredObject.setQueueCapacity(queueCapacity);
-        return this;
-    }
-
-    public ThreadPoolConfigurer initialSize(int initialSize) {
-        configuredObject.setCorePoolSize(initialSize);
+    public ThreadPoolConfigurer coreSize(int coreSize) {
+        configuredObject.setCorePoolSize(coreSize);
         return this;
     }
 
     public ThreadPoolConfigurer maximumSize(int maximumSize) {
-        configuredObject.setMaxPoolSize(maximumSize);
+        configuredObject.setMaximumPoolSize(maximumSize);
         return this;
     }
 
     @Override
     protected ThreadPool configure() {
-        ThreadPool threadPool = super.configure();
-        threadPool.initialize();
-        return threadPool;
+        return super.configure();
     }
 }

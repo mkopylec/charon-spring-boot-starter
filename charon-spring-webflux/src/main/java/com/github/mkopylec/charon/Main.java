@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import reactor.core.scheduler.Schedulers;
 
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,6 +20,7 @@ public class Main {
         CircuitBreaker circuitBreaker = CircuitBreaker.of("c1", circuitBreakerConfig);
         ServerWebExchange exchange;
         WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector())
                 .filter((request, next) -> {
                     System.out.println("start 1");
                     return next.exchange(request)

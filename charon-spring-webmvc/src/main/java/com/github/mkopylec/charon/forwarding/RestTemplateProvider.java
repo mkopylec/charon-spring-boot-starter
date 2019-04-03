@@ -9,15 +9,13 @@ import org.springframework.web.client.RestTemplate;
 
 class RestTemplateProvider {
 
-    private RestTemplateConfiguration restTemplateConfiguration;
     private ConcurrentMap<String, RestTemplate> restTemplates;
 
-    RestTemplateProvider(RestTemplateConfiguration restTemplateConfiguration) {
-        this.restTemplateConfiguration = restTemplateConfiguration;
+    RestTemplateProvider() {
         restTemplates = new ConcurrentHashMap<>();
     }
 
     RestTemplate getRestTemplate(RequestForwardingConfiguration configuration) {
-        return restTemplates.computeIfAbsent(configuration.getName(), forwardingName -> restTemplateConfiguration.configure(configuration));
+        return restTemplates.computeIfAbsent(configuration.getName(), forwardingName -> configuration.getRestTemplateConfiguration().configure(configuration));
     }
 }

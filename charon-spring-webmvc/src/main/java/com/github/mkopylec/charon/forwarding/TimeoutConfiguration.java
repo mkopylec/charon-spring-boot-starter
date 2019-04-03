@@ -15,7 +15,7 @@ public class TimeoutConfiguration implements Valid {
     private Duration write;
 
     TimeoutConfiguration() {
-        connection = ofMillis(200);
+        connection = ofMillis(100);
         read = ofMillis(1000);
         write = ofMillis(1000);
     }

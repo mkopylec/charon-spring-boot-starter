@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
-import com.github.mkopylec.charon.forwarding.TimeoutConfiguration;
+import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
 import static java.util.Collections.unmodifiableList;
@@ -16,7 +16,7 @@ public class RequestForwardingConfiguration implements Valid {
 
     private String name;
     private Pattern pathRegex;
-    private TimeoutConfiguration timeoutConfiguration;
+    private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private CustomConfiguration customConfiguration;
 
@@ -47,17 +47,17 @@ public class RequestForwardingConfiguration implements Valid {
         this.pathRegex = compile(pathRegex);
     }
 
-    public TimeoutConfiguration getTimeoutConfiguration() {
-        return timeoutConfiguration;
+    public RestTemplateConfiguration getRestTemplateConfiguration() {
+        return restTemplateConfiguration;
     }
 
-    void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
-        this.timeoutConfiguration = timeoutConfiguration;
+    void setRestTemplateConfiguration(RestTemplateConfiguration restTemplateConfiguration) {
+        this.restTemplateConfiguration = restTemplateConfiguration;
     }
 
-    void mergeTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
-        if (this.timeoutConfiguration == null) {
-            this.timeoutConfiguration = timeoutConfiguration;
+    void mergeRestTemplateConfiguration(RestTemplateConfiguration restTemplateConfiguration) {
+        if (this.restTemplateConfiguration == null) {
+            this.restTemplateConfiguration = restTemplateConfiguration;
         }
     }
 

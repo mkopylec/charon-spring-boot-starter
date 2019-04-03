@@ -24,11 +24,11 @@ public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered 
     private RestTemplateProvider restTemplateProvider;
     private HttpResponseMapper httpResponseMapper;
 
-    public ReverseProxyFilter(int order, List<RequestForwardingConfiguration> requestForwardingConfigurations, RestTemplateConfiguration restTemplateConfiguration) {
+    public ReverseProxyFilter(int order, List<RequestForwardingConfiguration> requestForwardingConfigurations) {
         this.order = order;
         requestForwardingResolver = new RequestForwardingResolver(requestForwardingConfigurations);
         httpRequestMapper = new HttpRequestMapper();
-        restTemplateProvider = new RestTemplateProvider(restTemplateConfiguration);
+        restTemplateProvider = new RestTemplateProvider();
         httpResponseMapper = new HttpResponseMapper();
     }
 

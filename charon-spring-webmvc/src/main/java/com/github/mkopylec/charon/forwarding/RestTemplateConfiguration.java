@@ -11,33 +11,37 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.util.Assert.notNull;
 
 public class RestTemplateConfiguration implements Valid {
 
-    private RestTemplateBuilder restTemplateBuilder;
+    private TimeoutConfiguration timeoutConfiguration;
     private ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator;
 
-    public RestTemplateConfiguration(ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator) {
-        restTemplateBuilder = new RestTemplateBuilder();
-        this.clientHttpRequestFactoryCreator = clientHttpRequestFactoryCreator;
+    RestTemplateConfiguration() {
+        this.timeoutConfiguration = timeout().configure();
+        this.clientHttpRequestFactoryCreator = new SimpleHttpRequestFactoryCreator();
     }
 
     @Override
     public void validate() {
-        notNull(restTemplateBuilder, "No rest template builder set");
         notNull(clientHttpRequestFactoryCreator, "No client HTTP request factory creator set");
     }
 
-    void setConfiguration(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplateBuilder = restTemplateBuilder;
+    void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
+        this.timeoutConfiguration = timeoutConfiguration;
+    }
+
+    void setClientHttpRequestFactoryCreator(ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator) {
+        this.clientHttpRequestFactoryCreator = clientHttpRequestFactoryCreator;
     }
 
     RestTemplate configure(RequestForwardingConfiguration configuration) {
-        Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(configuration.getTimeoutConfiguration());
+        Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(timeoutConfiguration);
         List<HttpRequestInterceptor> interceptors = createHttpRequestInterceptors(configuration);
-        return restTemplateBuilder
+        return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
                 .additionalInterceptors(interceptors)
                 .build();

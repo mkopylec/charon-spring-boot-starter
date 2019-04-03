@@ -6,7 +6,6 @@ import com.github.mkopylec.charon.configuration.Valid;
 
 import org.springframework.core.Ordered;
 
-// TODO WebClient will not support that kind of interceptors? Need to use WebClient and RestTemplate build-in intercepting mechanism?
 public interface RequestForwardingInterceptor extends Ordered, Valid {
 
     int ASYNCHRONOUS_FORWARDING_HANDLER_ORDER = 100;

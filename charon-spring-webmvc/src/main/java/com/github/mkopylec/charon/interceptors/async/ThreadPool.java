@@ -1,31 +1,15 @@
 package com.github.mkopylec.charon.interceptors.async;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import com.github.mkopylec.charon.configuration.Valid;
 
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-import static org.springframework.util.Assert.isTrue;
-
-// TODO use ThreadPoolExecutor instead to be compatible with Reactor's subscribeOn(scheduler)
-class ThreadPool extends ThreadPoolTaskExecutor implements Valid {
-
-    private boolean initialized;
+class ThreadPool extends ThreadPoolExecutor implements Valid {
 
     ThreadPool() {
-    }
-
-    @Override
-    public void validate() {
-        isTrue(getCorePoolSize() >= 0, "Invalid thread pool initial size: " + getCorePoolSize());
-        isTrue(getMaxPoolSize() > 0, "Invalid thread pool maximum size: " + getMaxPoolSize());
-        isTrue(getCorePoolSize() <= getMaxPoolSize(), "Thread pool initial size: " + getCorePoolSize() + " is greater than maximum size: " + getMaxPoolSize());
-    }
-
-    @Override
-    public void initialize() {
-        if (!initialized) {
-            super.initialize();
-            initialized = true;
-        }
+        super(3, 20, 60, SECONDS, new LinkedBlockingQueue<>(50));
     }
 }

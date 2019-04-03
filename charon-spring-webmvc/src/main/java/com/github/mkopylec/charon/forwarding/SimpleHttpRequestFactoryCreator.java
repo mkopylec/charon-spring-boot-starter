@@ -3,16 +3,15 @@ package com.github.mkopylec.charon.forwarding;
 import java.time.Duration;
 
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
-class OkHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
+class SimpleHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
 
     @Override
     public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {
-        OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(toMillis(configuration.getConnection()));
         requestFactory.setReadTimeout(toMillis(configuration.getRead()));
-        requestFactory.setWriteTimeout(toMillis(configuration.getWrite()));
         return requestFactory;
     }
 

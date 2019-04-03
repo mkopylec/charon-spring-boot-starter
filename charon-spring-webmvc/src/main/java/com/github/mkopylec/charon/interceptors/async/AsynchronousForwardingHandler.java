@@ -5,16 +5,14 @@ import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
 class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
 
     private boolean enabled;
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private ThreadPool threadPool;
 
     AsynchronousForwardingHandler() {
         enabled = true;
-        threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+        threadPool = new ThreadPool();
     }
 
     @Override
@@ -32,7 +30,7 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
         this.enabled = enabled;
     }
 
-    void setThreadPoolTaskExecutor(ThreadPoolTaskExecutor threadPoolTaskExecutor) {
-        this.threadPoolTaskExecutor = threadPoolTaskExecutor;
+    void setThreadPool(ThreadPool threadPool) {
+        this.threadPool = threadPool;
     }
 }
