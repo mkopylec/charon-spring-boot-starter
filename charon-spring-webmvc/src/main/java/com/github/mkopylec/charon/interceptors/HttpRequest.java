@@ -2,28 +2,31 @@ package com.github.mkopylec.charon.interceptors;
 
 import java.net.URI;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+
+import static java.net.URI.create;
+import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
 
 public class HttpRequest implements org.springframework.http.HttpRequest {
 
     private URI uri;
+    private URI originalUri;
     private HttpMethod method;
+    private HttpMethod originalMethod;
     private HttpHeaders headers;
+    private HttpHeaders originalHeaders;
     private byte[] body;
-    private String name;
-    private CustomConfiguration customConfiguration;
 
-    HttpRequest(org.springframework.http.HttpRequest request, byte[] body, String name, CustomConfiguration customConfiguration) {
+    HttpRequest(org.springframework.http.HttpRequest request, byte[] body) {
         uri = request.getURI();
+        originalUri = create(uri.toString());
+        method = request.getMethod();
         method = request.getMethod();
         headers = new HttpHeaders();
         headers.putAll(request.getHeaders());
+        originalHeaders = readOnlyHttpHeaders(request.getHeaders());
         this.body = body;
-        this.name = name;
-        this.customConfiguration = customConfiguration;
     }
 
     @Override
@@ -31,8 +34,12 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         return uri;
     }
 
-    public void setURI(URI uri) {
+    public void setUri(URI uri) {
         this.uri = uri;
+    }
+
+    public URI getOriginalUri() {
+        return originalUri;
     }
 
     @Override
@@ -40,8 +47,17 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         return method.name();
     }
 
+    @Override
+    public HttpMethod getMethod() {
+        return method;
+    }
+
     public void setMethod(HttpMethod method) {
         this.method = method;
+    }
+
+    public HttpMethod getOriginalMethod() {
+        return originalMethod;
     }
 
     @Override
@@ -53,19 +69,15 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         this.headers = headers;
     }
 
+    public HttpHeaders getOriginalHeaders() {
+        return originalHeaders;
+    }
+
     public byte[] getBody() {
         return body;
     }
 
     public void setBody(byte[] body) {
         this.body = body;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public <P> P getCustomProperty(String name) {
-        return customConfiguration.getProperty(name);
     }
 }

@@ -2,6 +2,8 @@ package com.github.mkopylec.charon.interceptors.resilience;
 
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 
+import static io.github.resilience4j.ratelimiter.RateLimiterRegistry.of;
+
 public class RateLimitingHandlerConfigurer extends ResilienceHandlerConfigurer<RateLimitingHandler, RateLimitingHandlerConfigurer> {
 
     private RateLimitingHandlerConfigurer() {
@@ -13,7 +15,7 @@ public class RateLimitingHandlerConfigurer extends ResilienceHandlerConfigurer<R
     }
 
     public RateLimitingHandlerConfigurer configuration(RateLimiterConfig.Builder rateLimiterConfigBuilder) {
-        configuredObject.setConfiguration(rateLimiterConfigBuilder.build());
+        configuredObject.setRegistry(of(rateLimiterConfigBuilder.build()));
         return this;
     }
 }

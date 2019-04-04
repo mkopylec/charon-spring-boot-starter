@@ -9,18 +9,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
+import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
 
 public class HttpResponse implements ClientHttpResponse {
 
     private HttpStatus status;
+    private HttpStatus originalStatus;
     private HttpHeaders headers;
+    private HttpHeaders originalHeaders;
     private byte[] body;
     private Runnable closeHandler;
 
+    public HttpResponse() {
+    }
+
     HttpResponse(ClientHttpResponse response) throws IOException {
         status = response.getStatusCode();
+        originalStatus = response.getStatusCode();
         headers = new HttpHeaders();
         headers.putAll(response.getHeaders());
+        originalHeaders = readOnlyHttpHeaders(response.getHeaders());
         body = toByteArray(response.getBody());
         closeHandler = response::close;
     }
@@ -44,6 +52,10 @@ public class HttpResponse implements ClientHttpResponse {
         this.status = status;
     }
 
+    public HttpStatus getOriginalStatus() {
+        return originalStatus;
+    }
+
     @Override
     public HttpHeaders getHeaders() {
         return headers;
@@ -51,6 +63,10 @@ public class HttpResponse implements ClientHttpResponse {
 
     public void setHeaders(HttpHeaders headers) {
         this.headers = headers;
+    }
+
+    public HttpHeaders getOriginalHeaders() {
+        return originalHeaders;
     }
 
     @Override

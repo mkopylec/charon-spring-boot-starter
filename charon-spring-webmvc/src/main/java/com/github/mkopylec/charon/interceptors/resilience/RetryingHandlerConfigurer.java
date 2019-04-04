@@ -2,6 +2,8 @@ package com.github.mkopylec.charon.interceptors.resilience;
 
 import io.github.resilience4j.retry.RetryConfig;
 
+import static io.github.resilience4j.retry.RetryRegistry.of;
+
 public class RetryingHandlerConfigurer extends ResilienceHandlerConfigurer<RetryingHandler, RetryingHandlerConfigurer> {
 
     private RetryingHandlerConfigurer() {
@@ -13,7 +15,7 @@ public class RetryingHandlerConfigurer extends ResilienceHandlerConfigurer<Retry
     }
 
     public RetryingHandlerConfigurer configuration(RetryConfig.Builder retryConfigBuilder) {
-        configuredObject.setConfiguration(retryConfigBuilder.build());
+        configuredObject.setRegistry(of(retryConfigBuilder.build()));
         return this;
     }
 }

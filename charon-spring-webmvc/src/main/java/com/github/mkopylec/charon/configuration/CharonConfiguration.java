@@ -6,11 +6,11 @@ import java.util.List;
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.interceptors.log.Logger;
 
 import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
-import static com.github.mkopylec.charon.interceptors.rewrite.CopyRequestPathRewriterConfigurer.copyRequestPathRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -27,7 +27,7 @@ public class CharonConfiguration implements Valid {
         filterOrder = LOWEST_PRECEDENCE;
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
-        addRequestForwardingInterceptor(copyRequestPathRewriter().configure());
+        addRequestForwardingInterceptor(new Logger());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
         // TODO Think about more default interceptors
         requestForwardingConfigurations = new ArrayList<>();

@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.interceptors;
 
-import java.io.IOException;
-
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 
 import org.springframework.core.Ordered;
@@ -11,22 +9,24 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ordered {
 
-    private String name;
+    private String forwardingName;
     private CustomConfiguration customConfiguration;
     private RequestForwardingInterceptor requestForwardingInterceptor;
 
-    public HttpRequestInterceptor(String name, CustomConfiguration customConfiguration, RequestForwardingInterceptor requestForwardingInterceptor) {
-        this.name = name;
+    public HttpRequestInterceptor(String forwardingName, CustomConfiguration customConfiguration, RequestForwardingInterceptor requestForwardingInterceptor) {
+        this.forwardingName = forwardingName;
         this.customConfiguration = customConfiguration;
         this.requestForwardingInterceptor = requestForwardingInterceptor;
     }
 
     @Override
-    public ClientHttpResponse intercept(org.springframework.http.HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+    public ClientHttpResponse intercept(org.springframework.http.HttpRequest request, byte[] body, ClientHttpRequestExecution execution) {
         HttpRequest httpRequest = request instanceof HttpRequest
                 ? (HttpRequest) request
-                : new HttpRequest(request, body, name, customConfiguration);
-        HttpRequestExecution requestExecution = new HttpRequestExecution(execution);
+                : new HttpRequest(request, body);
+        HttpRequestExecution requestExecution = execution instanceof HttpRequestExecution
+                ? (HttpRequestExecution) execution
+                : new HttpRequestExecution(forwardingName, customConfiguration, execution);
         return requestForwardingInterceptor.forward(httpRequest, requestExecution);
     }
 

@@ -35,10 +35,6 @@ public class RequestForwardingConfiguration implements Valid {
         return name;
     }
 
-    public String getLoggedName() {
-        return "'" + name + "'";
-    }
-
     public Pattern getPathRegex() {
         return pathRegex;
     }
@@ -73,7 +69,7 @@ public class RequestForwardingConfiguration implements Valid {
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
         List<RequestForwardingInterceptor> globalInterceptors = new ArrayList<>(requestForwardingInterceptors);
         this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getOrder()));
-        this.requestForwardingInterceptors.addAll(requestForwardingInterceptors);
+        this.requestForwardingInterceptors.addAll(globalInterceptors);
     }
 
     public CustomConfiguration getCustomConfiguration() {
@@ -88,6 +84,11 @@ public class RequestForwardingConfiguration implements Valid {
         if (this.customConfiguration == null) {
             this.customConfiguration = customConfiguration;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "'" + name + "'";
     }
 
     private void removeRequestForwardingInterceptor(List<RequestForwardingInterceptor> requestForwardingInterceptors, int order) {

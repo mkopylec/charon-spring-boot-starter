@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.interceptors.resilience;
 
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
+import io.micrometer.core.instrument.MeterRegistry;
 
 public abstract class ResilienceHandlerConfigurer<H extends ResilienceHandler<?>, C extends ResilienceHandlerConfigurer<H, C>> extends RequestForwardingInterceptorConfigurer<H> {
 
@@ -15,8 +16,8 @@ public abstract class ResilienceHandlerConfigurer<H extends ResilienceHandler<?>
     }
 
     @SuppressWarnings("unchecked")
-    public C measured(boolean measured) {
-        configuredObject.setMeasured(measured);
+    public C meterRegistry(MeterRegistry meterRegistry) {
+        configuredObject.setMeterRegistry(meterRegistry);
         return (C) this;
     }
 }

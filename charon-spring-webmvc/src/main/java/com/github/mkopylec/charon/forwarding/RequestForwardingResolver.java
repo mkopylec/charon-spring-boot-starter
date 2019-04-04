@@ -33,9 +33,9 @@ class RequestForwardingResolver {
         }
         isTrue(configurations.size() == 1, () -> "More than one request forwarding matches "
                 + requestURI + " incoming request. Matching forwardings are "
-                + configurations.stream().map(RequestForwardingConfiguration::getLoggedName).collect(joining(", ")));
+                + configurations.stream().map(RequestForwardingConfiguration::toString).collect(joining(", ")));
         RequestForwardingConfiguration configuration = configurations.get(0);
-        log.debug("Request forwarding {} matches {} incoming request", configuration.getLoggedName(), requestURI);
+        log.debug("Request forwarding {} matches {} incoming request", configuration, requestURI);
         return configuration;
     }
 }

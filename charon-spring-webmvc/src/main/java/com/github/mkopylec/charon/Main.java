@@ -53,8 +53,7 @@ public class Main {
         metrics.bindTo(new SimpleMeterRegistry());
 
         CircuitBreakerHandlerConfigurer.circuitBreakerHandler()
-                .enabled(true)
-                .measured(false);
+                .enabled(true);
         charonConfiguration()
                 .set(restTemplate()
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(500))))
