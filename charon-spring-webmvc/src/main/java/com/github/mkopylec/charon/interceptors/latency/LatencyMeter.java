@@ -56,8 +56,8 @@ class LatencyMeter implements RequestForwardingInterceptor {
         this.enabled = enabled;
     }
 
-    private void captureLatencyMetric(String forwardingName, long startingTime) {
-        String metricName = metricName(forwardingName, "latency"); // TODO If timers collect more than only latency the class and metric names must be changed
+    private void captureLatencyMetric(String mappingName, long startingTime) {
+        String metricName = metricName(mappingName, "latency");
         Duration responseTime = ofNanos(nanoTime() - startingTime);
         meterRegistry.timer(metricName).record(responseTime);
     }

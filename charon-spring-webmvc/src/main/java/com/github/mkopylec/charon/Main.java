@@ -51,8 +51,18 @@ public class Main {
             System.out.println("dupa");
             throw new RuntimeException();
         });
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Runnable runnable1 = Retry.decorateRunnable(retry, runnable);
-//        runnable1.run();
+        runnable1.run();
         CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.of(circuitBreakerConfig);
         circuitBreakerRegistry.circuitBreaker("d");
 

@@ -11,6 +11,9 @@ import com.github.mkopylec.charon.interceptors.log.Logger;
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
+import static com.github.mkopylec.charon.interceptors.rewrite.RequestHeadersRewriterConfigurer.requestHeadersRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.ResponseHeadersRewriterConfigurer.responseHeadersRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
@@ -28,8 +31,10 @@ public class CharonConfiguration implements Valid {
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(new Logger());
+        addRequestForwardingInterceptor(requestServerNameRewriter().configure());
+        addRequestForwardingInterceptor(requestHeadersRewriter().configure());
+        addRequestForwardingInterceptor(responseHeadersRewriter().configure());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
-        // TODO Think about more default interceptors
         requestMappingConfigurations = new ArrayList<>();
         addRequestForwardingConfiguration(requestMapping("default").configure());
         customConfiguration = custom().configure();

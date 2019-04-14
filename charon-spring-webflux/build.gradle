@@ -2,4 +2,6 @@ dependencies {
     compile project(':charon-common')
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
     compile group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
+
+    testCompile project(':charon-test')
 }

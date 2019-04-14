@@ -1,7 +1,8 @@
 package com.github.mkopylec.charon.interceptors.resilience;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+
+import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.of;
 
 public class CircuitBreakerHandlerConfigurer extends ResilienceHandlerConfigurer<CircuitBreakerHandler, CircuitBreakerHandlerConfigurer> {
 
@@ -14,12 +15,7 @@ public class CircuitBreakerHandlerConfigurer extends ResilienceHandlerConfigurer
     }
 
     public CircuitBreakerHandlerConfigurer configuration(CircuitBreakerConfig.Builder circuitBreakerConfigBuilder) {
-        configuredObject.setRegistry(CircuitBreakerRegistry.of(circuitBreakerConfigBuilder.build()));
-        return this;
-    }
-
-    public CircuitBreakerHandlerConfigurer circuitBreakerFallback(CircuitBreakerFallback circuitBreakerFallback) {
-        configuredObject.setCircuitBreakerFallback(circuitBreakerFallback);
+        configuredObject.setRegistry(of(circuitBreakerConfigBuilder.build()));
         return this;
     }
 }
