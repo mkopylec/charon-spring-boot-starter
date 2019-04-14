@@ -31,10 +31,10 @@ class RequestHeadersRewriter implements RequestForwardingInterceptor {
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Request headers rewriting for '{}' forwarding", execution.getForwardingName());
+        log.trace("[Start] Request headers rewriting for '{}' request mapping", execution.getMappingName());
         rewriteHeaders(request);
         HttpResponse response = execution.execute(request);
-        log.trace("[End] Request headers rewriting for '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Request headers rewriting for '{}' request mapping", execution.getMappingName());
         return response;
     }
 

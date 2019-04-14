@@ -29,8 +29,8 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
         return this;
     }
 
-    public CharonConfigurer add(RequestForwardingConfigurer requestForwardingConfigurer) {
-        configuredObject.addRequestForwardingConfiguration(requestForwardingConfigurer.configure());
+    public CharonConfigurer add(RequestMappingConfigurer requestMappingConfigurer) {
+        configuredObject.addRequestForwardingConfiguration(requestMappingConfigurer.configure());
         return this;
     }
 

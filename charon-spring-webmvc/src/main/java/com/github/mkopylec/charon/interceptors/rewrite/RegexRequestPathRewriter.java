@@ -30,10 +30,10 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Regex request path rewriting for '{}' forwarding", execution.getForwardingName());
+        log.trace("[Start] Regex request path rewriting for '{}' request mapping", execution.getMappingName());
         rewritePath(request);
         HttpResponse response = execution.execute(request);
-        log.trace("[End] Regex request path rewriting for '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Regex request path rewriting for '{}' request mapping", execution.getMappingName());
         return response;
     }
 
@@ -53,11 +53,12 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
     }
 
     private void rewritePath(HttpRequest request) {
-        String requestPath = request.getOriginalUri().getPath();
+        URI requestUri = request.getOriginalUri();
+        String requestPath = requestUri.getPath();
         Matcher matcher = incomingRequestPathRegex.matcher(requestPath);
         requestForwardingErrorIf(!matcher.find(), "Incoming request path " + requestPath + " does not match path rewriter regex pattern " + incomingRequestPathRegex);
         String rewrittenRequestPath = outgoingRequestPathTemplate.fill(matcher);
-        URI rewrittenRequestUri = fromUri(request.getURI())
+        URI rewrittenRequestUri = fromUri(requestUri)
                 .replacePath(rewrittenRequestPath)
                 .build(true)
                 .toUri();

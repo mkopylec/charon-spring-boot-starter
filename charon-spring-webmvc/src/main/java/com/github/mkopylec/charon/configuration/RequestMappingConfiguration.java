@@ -12,7 +12,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.hasText;
 
-public class RequestForwardingConfiguration implements Valid {
+public class RequestMappingConfiguration implements Valid {
 
     private String name;
     private Pattern pathRegex;
@@ -20,7 +20,7 @@ public class RequestForwardingConfiguration implements Valid {
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private CustomConfiguration customConfiguration;
 
-    RequestForwardingConfiguration(String name) {
+    RequestMappingConfiguration(String name) {
         this.name = name;
         pathRegex = compile("/.*");
         requestForwardingInterceptors = new ArrayList<>();

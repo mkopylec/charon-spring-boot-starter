@@ -22,11 +22,11 @@ class RemovingResponseCookieRewriter implements RequestForwardingInterceptor {
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Removing response cookies for '{}' forwarding", execution.getForwardingName());
+        log.trace("[Start] Removing response cookies for '{}' request mapping", execution.getMappingName());
         HttpResponse response = execution.execute(request);
         removeCookies(response, SET_COOKIE);
         removeCookies(response, SET_COOKIE2);
-        log.trace("[End] Removing response cookies for '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Removing response cookies for '{}' request mapping", execution.getMappingName());
         return response;
     }
 
@@ -35,8 +35,8 @@ class RemovingResponseCookieRewriter implements RequestForwardingInterceptor {
         return RESPONSE_COOKIE_REWRITER_ORDER;
     }
 
-    private void removeCookies(HttpResponse response, String header) {
-        List<String> removedCookies = response.getHeaders().remove(header);
+    private void removeCookies(HttpResponse response, String cookieHeaderName) {
+        List<String> removedCookies = response.getHeaders().remove(cookieHeaderName);
         if (isNotEmpty(removedCookies)) {
             log.debug("Cookies {} removed from response", removedCookies);
         }

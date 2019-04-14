@@ -23,11 +23,11 @@ class RateLimitingHandler extends ResilienceHandler<RateLimiterRegistry> {
 
     @Override
     protected HttpResponse forwardRequest(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Rate limiting of '{}' forwarding", execution.getForwardingName());
-        RateLimiter rateLimiter = registry.rateLimiter(execution.getForwardingName());
+        log.trace("[Start] Rate limiting of '{}' request mapping", execution.getMappingName());
+        RateLimiter rateLimiter = registry.rateLimiter(execution.getMappingName());
         setupMetrics(this::createMetrics);
         HttpResponse response = rateLimiter.executeSupplier(() -> execution.execute(request));
-        log.trace("[End] Rate limiting of '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Rate limiting of '{}' request mapping", execution.getMappingName());
         return response;
     }
 

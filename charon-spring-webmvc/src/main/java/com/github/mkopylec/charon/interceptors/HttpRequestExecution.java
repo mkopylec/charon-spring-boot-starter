@@ -11,12 +11,12 @@ import static com.github.mkopylec.charon.interceptors.RequestForwardingException
 
 public class HttpRequestExecution {
 
-    private String forwardingName;
+    private String mappingName;
     private CustomConfiguration customConfiguration;
     private ClientHttpRequestExecution requestExecution;
 
-    HttpRequestExecution(String forwardingName, CustomConfiguration customConfiguration, ClientHttpRequestExecution requestExecution) {
-        this.forwardingName = forwardingName;
+    HttpRequestExecution(String mappingName, CustomConfiguration customConfiguration, ClientHttpRequestExecution requestExecution) {
+        this.mappingName = mappingName;
         this.customConfiguration = customConfiguration;
         this.requestExecution = requestExecution;
     }
@@ -32,8 +32,8 @@ public class HttpRequestExecution {
         }
     }
 
-    public String getForwardingName() {
-        return forwardingName;
+    public String getMappingName() {
+        return mappingName;
     }
 
     public <P> P getCustomProperty(String name) {

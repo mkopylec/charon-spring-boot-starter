@@ -4,32 +4,32 @@ import com.github.mkopylec.charon.forwarding.CustomConfigurer;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfigurer;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
 
-public class RequestForwardingConfigurer extends Configurer<RequestForwardingConfiguration> {
+public class RequestMappingConfigurer extends Configurer<RequestMappingConfiguration> {
 
-    private RequestForwardingConfigurer(String name) {
-        super(new RequestForwardingConfiguration(name));
+    private RequestMappingConfigurer(String name) {
+        super(new RequestMappingConfiguration(name));
     }
 
-    public static RequestForwardingConfigurer requestForwarding(String name) {
-        return new RequestForwardingConfigurer(name);
+    public static RequestMappingConfigurer requestMapping(String name) {
+        return new RequestMappingConfigurer(name);
     }
 
-    public RequestForwardingConfigurer pathRegex(String pathRegex) {
+    public RequestMappingConfigurer pathRegex(String pathRegex) {
         configuredObject.setPathRegex(pathRegex);
         return this;
     }
 
-    public RequestForwardingConfigurer set(RestTemplateConfigurer restTemplateConfigurer) {
+    public RequestMappingConfigurer set(RestTemplateConfigurer restTemplateConfigurer) {
         configuredObject.setRestTemplateConfiguration(restTemplateConfigurer.configure());
         return this;
     }
 
-    public RequestForwardingConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
+    public RequestMappingConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
         configuredObject.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.configure());
         return this;
     }
 
-    public RequestForwardingConfigurer set(CustomConfigurer customConfigurer) {
+    public RequestMappingConfigurer set(CustomConfigurer customConfigurer) {
         configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
     }

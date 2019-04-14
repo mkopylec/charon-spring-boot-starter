@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.mkopylec.charon.configuration.RequestForwardingConfiguration;
+import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 
 import org.springframework.core.Ordered;
 import org.springframework.http.RequestEntity;
@@ -19,14 +19,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered {
 
     private int order;
-    private RequestForwardingResolver requestForwardingResolver;
+    private RequestMappingResolver requestMappingResolver;
     private HttpRequestMapper httpRequestMapper;
     private RestTemplateProvider restTemplateProvider;
     private HttpResponseMapper httpResponseMapper;
 
-    public ReverseProxyFilter(int order, List<RequestForwardingConfiguration> requestForwardingConfigurations) {
+    public ReverseProxyFilter(int order, List<RequestMappingConfiguration> requestMappingConfigurations) {
         this.order = order;
-        requestForwardingResolver = new RequestForwardingResolver(requestForwardingConfigurations);
+        requestMappingResolver = new RequestMappingResolver(requestMappingConfigurations);
         httpRequestMapper = new HttpRequestMapper();
         restTemplateProvider = new RestTemplateProvider();
         httpResponseMapper = new HttpResponseMapper();
@@ -39,7 +39,7 @@ public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        RequestForwardingConfiguration configuration = requestForwardingResolver.resolveRequestForwarding(request);
+        RequestMappingConfiguration configuration = requestMappingResolver.resolveRequestMapping(request);
         if (configuration == null) {
             filterChain.doFilter(request, response);
             return;

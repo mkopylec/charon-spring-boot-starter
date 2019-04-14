@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.forwarding;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.github.mkopylec.charon.configuration.RequestForwardingConfiguration;
+import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.interceptors.HttpRequestInterceptor;
 
@@ -38,7 +38,7 @@ public class RestTemplateConfiguration implements Valid {
         this.clientHttpRequestFactoryCreator = clientHttpRequestFactoryCreator;
     }
 
-    RestTemplate configure(RequestForwardingConfiguration configuration) {
+    RestTemplate configure(RequestMappingConfiguration configuration) {
         Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(timeoutConfiguration);
         List<HttpRequestInterceptor> interceptors = createHttpRequestInterceptors(configuration);
         return new RestTemplateBuilder()
@@ -51,7 +51,7 @@ public class RestTemplateConfiguration implements Valid {
         return () -> clientHttpRequestFactoryCreator.createRequestFactory(timeoutConfiguration);
     }
 
-    private List<HttpRequestInterceptor> createHttpRequestInterceptors(RequestForwardingConfiguration configuration) {
+    private List<HttpRequestInterceptor> createHttpRequestInterceptors(RequestMappingConfiguration configuration) {
         return configuration.getRequestForwardingInterceptors().stream()
                 .map(interceptor -> new HttpRequestInterceptor(configuration.getName(), configuration.getCustomConfiguration(), interceptor))
                 .collect(toList());

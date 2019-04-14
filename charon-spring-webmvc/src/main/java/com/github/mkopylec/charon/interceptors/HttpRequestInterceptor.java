@@ -9,12 +9,12 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ordered {
 
-    private String forwardingName;
+    private String mappingName;
     private CustomConfiguration customConfiguration;
     private RequestForwardingInterceptor requestForwardingInterceptor;
 
-    public HttpRequestInterceptor(String forwardingName, CustomConfiguration customConfiguration, RequestForwardingInterceptor requestForwardingInterceptor) {
-        this.forwardingName = forwardingName;
+    public HttpRequestInterceptor(String mappingName, CustomConfiguration customConfiguration, RequestForwardingInterceptor requestForwardingInterceptor) {
+        this.mappingName = mappingName;
         this.customConfiguration = customConfiguration;
         this.requestForwardingInterceptor = requestForwardingInterceptor;
     }
@@ -26,7 +26,7 @@ public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ord
                 : new HttpRequest(request, body);
         HttpRequestExecution requestExecution = execution instanceof HttpRequestExecution
                 ? (HttpRequestExecution) execution
-                : new HttpRequestExecution(forwardingName, customConfiguration, execution);
+                : new HttpRequestExecution(mappingName, customConfiguration, execution);
         return requestForwardingInterceptor.forward(httpRequest, requestExecution);
     }
 

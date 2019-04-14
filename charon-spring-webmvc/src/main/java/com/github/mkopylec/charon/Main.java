@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon;
 
+import java.net.URI;
+
 import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.resilience.CircuitBreakerHandlerConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -16,7 +18,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.ClientHttpResponse;
 
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
-import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -34,6 +36,11 @@ public class Main {
     private static final Logger log = getLogger(Main.class);
 
     public static void main(String[] args) {
+        URI uri = URI.create("http://localhost/");
+        System.out.println(uri.getAuthority());
+        System.out.println(uri.getUserInfo());
+        System.out.println(uri.getSchemeSpecificPart());
+        System.out.println(uri.getScheme());
         CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(1).build();
         RetryConfig retryConfig = RetryConfig.custom().build();
         RateLimiterConfig rateLimiterConfig = RateLimiterConfig.custom().build();
@@ -62,9 +69,9 @@ public class Main {
                 .set(retryingHandler().configuration(RetryConfig.<HttpResponse>custom().retryOnResult(null)))
                 .set(asynchronousForwardingHandler()
                         .set(threadPool().coreSize(3)))
-                .add(requestForwarding("proxy 1")
+                .add(requestMapping("proxy 1")
                         .set(custom().set("name", "value")))
-                .add(requestForwarding("proxy 2"));
+                .add(requestMapping("proxy 2"));
 
 //        Retry.decorateSupplier(retry, () -> {
 //            throw new IllegalArgumentException("dupa");

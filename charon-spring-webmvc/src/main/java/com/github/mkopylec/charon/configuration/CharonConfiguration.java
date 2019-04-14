@@ -8,7 +8,7 @@ import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.interceptors.log.Logger;
 
-import static com.github.mkopylec.charon.configuration.RequestForwardingConfigurer.requestForwarding;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
@@ -20,7 +20,7 @@ public class CharonConfiguration implements Valid {
     private int filterOrder;
     private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
-    private List<RequestForwardingConfiguration> requestForwardingConfigurations;
+    private List<RequestMappingConfiguration> requestMappingConfigurations;
     private CustomConfiguration customConfiguration;
 
     CharonConfiguration() {
@@ -30,8 +30,8 @@ public class CharonConfiguration implements Valid {
         addRequestForwardingInterceptor(new Logger());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
         // TODO Think about more default interceptors
-        requestForwardingConfigurations = new ArrayList<>();
-        addRequestForwardingConfiguration(requestForwarding("default").configure());
+        requestMappingConfigurations = new ArrayList<>();
+        addRequestForwardingConfiguration(requestMapping("default").configure());
         customConfiguration = custom().configure();
     }
 
@@ -52,12 +52,12 @@ public class CharonConfiguration implements Valid {
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
-    List<RequestForwardingConfiguration> getRequestForwardingConfigurations() {
-        return unmodifiableList(requestForwardingConfigurations);
+    List<RequestMappingConfiguration> getRequestMappingConfigurations() {
+        return unmodifiableList(requestMappingConfigurations);
     }
 
-    void addRequestForwardingConfiguration(RequestForwardingConfiguration requestForwardingConfiguration) {
-        requestForwardingConfigurations.add(requestForwardingConfiguration);
+    void addRequestForwardingConfiguration(RequestMappingConfiguration requestMappingConfiguration) {
+        requestMappingConfigurations.add(requestMappingConfiguration);
     }
 
     void setCustomConfiguration(CustomConfiguration customConfiguration) {
@@ -65,7 +65,7 @@ public class CharonConfiguration implements Valid {
     }
 
     private void mergeWithRequestForwardingConfigurations() {
-        requestForwardingConfigurations.forEach(configuration -> {
+        requestMappingConfigurations.forEach(configuration -> {
             configuration.mergeRestTemplateConfiguration(restTemplateConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
             configuration.mergeCustomConfiguration(customConfiguration);

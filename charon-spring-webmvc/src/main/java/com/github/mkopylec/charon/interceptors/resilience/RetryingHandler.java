@@ -27,11 +27,11 @@ class RetryingHandler extends ResilienceHandler<RetryRegistry> {
 
     @Override
     protected HttpResponse forwardRequest(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Retrying of '{}' forwarding", execution.getForwardingName());
-        Retry retry = registry.retry(execution.getForwardingName());
+        log.trace("[Start] Retrying of '{}' request mapping", execution.getMappingName());
+        Retry retry = registry.retry(execution.getMappingName());
         setupMetrics(this::createMetrics);
         HttpResponse response = retry.executeSupplier(() -> execution.execute(request));
-        log.trace("[End] Retrying of '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Retrying of '{}' request mapping", execution.getMappingName());
         return response;
     }
 

@@ -26,7 +26,7 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
         if (!enabled) {
             return execution.execute(request);
         }
-        log.trace("[Start] Asynchronous execution of '{}' forwarding", execution.getForwardingName());
+        log.trace("[Start] Asynchronous execution of '{}' request mapping", execution.getMappingName());
         threadPool.execute(() -> forwardAsynchronously(request, execution));
         return getResponse();
     }
@@ -47,18 +47,18 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
     private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
         try {
             HttpResponse response = execution.execute(request);
-            String logMessage = "Asynchronous execution of '{}' forwarding resulted in {} response status";
+            String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
             if (response.getStatusCode().is5xxServerError()) {
-                log.error(logMessage, execution.getForwardingName(), response.getRawStatusCode());
+                log.error(logMessage, execution.getMappingName(), response.getRawStatusCode());
             } else if (response.getStatusCode().is4xxClientError()) {
-                log.info(logMessage, execution.getForwardingName(), response.getRawStatusCode());
+                log.info(logMessage, execution.getMappingName(), response.getRawStatusCode());
             } else {
-                log.debug(logMessage, execution.getForwardingName(), response.getRawStatusCode());
+                log.debug(logMessage, execution.getMappingName(), response.getRawStatusCode());
             }
         } catch (RuntimeException e) {
-            log.error("Error executing '{}' forwarding asynchronously", execution.getForwardingName(), e);
+            log.error("Error executing '{}' request mapping asynchronously", execution.getMappingName(), e);
         }
-        log.trace("[End] Asynchronous execution of '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Asynchronous execution of '{}' request mapping", execution.getMappingName());
     }
 
     private HttpResponse getResponse() {

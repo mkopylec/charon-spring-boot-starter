@@ -26,11 +26,11 @@ class CircuitBreakerHandler extends ResilienceHandler<CircuitBreakerRegistry> {
 
     @Override
     protected HttpResponse forwardRequest(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Circuit breaker for '{}' forwarding", execution.getForwardingName());
-        CircuitBreaker circuitBreaker = registry.circuitBreaker(execution.getForwardingName());
+        log.trace("[Start] Circuit breaker for '{}' request mapping", execution.getMappingName());
+        CircuitBreaker circuitBreaker = registry.circuitBreaker(execution.getMappingName());
         setupMetrics(this::createMetrics);
         HttpResponse response = getResponse(request, execution, circuitBreaker);
-        log.trace("[End] Circuit breaker for '{}' forwarding", execution.getForwardingName());
+        log.trace("[End] Circuit breaker for '{}' request mapping", execution.getMappingName());
         return response;
     }
 
@@ -53,14 +53,14 @@ class CircuitBreakerHandler extends ResilienceHandler<CircuitBreakerRegistry> {
         try {
             response = circuitBreaker.executeSupplier(() -> execution.execute(request));
         } catch (RuntimeException e) { // TODO Check what exception type is thrown
-            response = handleError(e, execution.getForwardingName());
+            response = handleError(e, execution.getMappingName());
         }
         return response;
     }
 
     private HttpResponse handleError(RuntimeException e, String forwardingName) {
         if (circuitBreakerFallback != null) {
-            log.debug("Executing circuit breaker fallback of '{}' forwarding", forwardingName);
+            log.debug("Executing circuit breaker fallback of '{}' request mapping", forwardingName);
             return circuitBreakerFallback.run(e);
         }
         throw e;

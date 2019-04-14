@@ -9,7 +9,7 @@ import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 
-import static com.github.mkopylec.charon.interceptors.Metrics.metricName;
+import static com.github.mkopylec.charon.interceptors.MetricsUtils.metricName;
 import static java.lang.System.nanoTime;
 import static java.time.Duration.ofNanos;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -32,13 +32,13 @@ class LatencyMeter implements RequestForwardingInterceptor {
         if (!enabled) {
             return execution.execute(request);
         }
-        log.trace("[Start] Collect metrics of '{}' forwarding", execution.getForwardingName());
+        log.trace("[Start] Collect metrics of '{}' request mapping", execution.getMappingName());
         long startingTime = nanoTime();
         try {
             return execution.execute(request);
         } finally {
-            captureLatencyMetric(execution.getForwardingName(), startingTime);
-            log.trace("[End] Collect metrics of '{}' forwarding", execution.getForwardingName());
+            captureLatencyMetric(execution.getMappingName(), startingTime);
+            log.trace("[End] Collect metrics of '{}' request mapping", execution.getMappingName());
         }
     }
 
