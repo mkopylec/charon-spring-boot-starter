@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import static org.springframework.http.HttpStatus.OK
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class BasicSpec extends Specification {
@@ -19,11 +20,19 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private TestRestTemplate restTemplate
 
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers = [:], String body = '') {
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String path) {
+        return sendRequest(method, path, [:], '')
+    }
+
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers, String body) {
         def httpHeaders = new HttpHeaders()
         headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
         def request = new HttpEntity<>(body, httpHeaders)
         return restTemplate.exchange(path, method, request, String)
+    }
+
+    void setup() {
+        outgoingServers.stubResponse(OK)
     }
 
     void cleanup() {

@@ -58,6 +58,7 @@ public class CharonConfiguration implements Valid {
         requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == requestForwardingInterceptor.getOrder());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
+    // TODO Remove interceptor
 
     List<RequestMappingConfiguration> getRequestMappingConfigurations() {
         return unmodifiableList(requestMappingConfigurations);

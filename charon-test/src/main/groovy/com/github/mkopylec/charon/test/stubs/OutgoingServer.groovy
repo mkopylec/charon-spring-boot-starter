@@ -9,7 +9,6 @@ import static org.mockserver.model.Delay.seconds
 import static org.mockserver.model.Header.header
 import static org.mockserver.model.HttpRequest.request
 import static org.mockserver.model.HttpResponse.response
-import static org.springframework.http.HttpStatus.OK
 
 class OutgoingServer {
 
@@ -19,48 +18,24 @@ class OutgoingServer {
         server = startClientAndServer(port)
     }
 
-    protected void stubResponse(boolean responseTimedOut) {
-        stub(OK, [:], null, responseTimedOut)
+    protected void stubResponse(HttpStatus status, Map<String, String> headers, String body, boolean timedOut) {
+        def responseHeaders = headers.collect { header(it.key, it.value) }
+        server.when(request('.*'))
+                .respond(response(body)
+                .withStatusCode(status.value())
+                .withHeaders(responseHeaders)
+                .withDelay(seconds(timedOut ? 1 : 0)))
     }
 
-    protected void stubResponse(HttpStatus responseStatus) {
-        stub(responseStatus, [:], null, false)
-    }
-
-    protected void stubResponse(Map<String, String> responseHeaders) {
-        stub(OK, responseHeaders, null, false)
-    }
-
-    protected void stubResponse(HttpStatus responseStatus, Map<String, String> responseHeaders) {
-        stub(responseStatus, responseHeaders, null, false)
-    }
-
-    protected void stubResponse(String responseBody) {
-        stub(OK, [:], responseBody, false)
-    }
-
-    protected void stubResponse(HttpStatus responseStatus, String responseBody) {
-        stub(responseStatus, [:], responseBody, false)
-    }
-
-    protected void verifyRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody) {
-        def headers = requestHeaders.collect { header(it.key, it.value) }
-        server.verify(request(requestPath)
-                .withMethod(requestMethod.name())
-                .withHeaders(headers)
-                .withBody(requestBody))
+    protected void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body) {
+        def requestHeaders = headers.collect { header(it.key, it.value) }
+        server.verify(request(path)
+                .withMethod(method.name())
+                .withHeaders(requestHeaders)
+                .withBody(body))
     }
 
     protected void reset() {
         server.reset()
-    }
-
-    private void stub(HttpStatus responseStatus, Map<String, String> responseHeaders, String responseBody, boolean responseTimedOut) {
-        def headers = responseHeaders.collect { header(it.key, it.value) }
-        server.when(request('.*'))
-                .respond(response(responseBody)
-                .withStatusCode(responseStatus.value())
-                .withHeaders(headers)
-                .withDelay(seconds(responseTimedOut ? 1 : 0)))
     }
 }
