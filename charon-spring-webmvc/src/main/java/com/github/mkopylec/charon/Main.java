@@ -36,16 +36,19 @@ public class Main {
     private static final Logger log = getLogger(Main.class);
 
     public static void main(String[] args) {
-        URI uri = URI.create("http://localhost/");
+        URI uri = URI.create("service://localhost/test");
         System.out.println(uri.getAuthority());
         System.out.println(uri.getUserInfo());
         System.out.println(uri.getSchemeSpecificPart());
         System.out.println(uri.getScheme());
-        CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(1).build();
+        System.out.println(uri.getPath());
+        System.out.println(uri);
+        CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(2).build();
         RetryConfig retryConfig = RetryConfig.custom().build();
         RateLimiterConfig rateLimiterConfig = RateLimiterConfig.custom().build();
 
         CircuitBreaker circuitBreaker = CircuitBreaker.of("c1", circuitBreakerConfig);
+        circuitBreaker.onError(1, null);
         Retry retry = Retry.ofDefaults("r1");
         Runnable runnable = CircuitBreaker.decorateRunnable(circuitBreaker, () -> {
             System.out.println("dupa");

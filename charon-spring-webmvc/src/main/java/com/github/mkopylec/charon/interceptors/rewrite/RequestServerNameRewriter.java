@@ -10,6 +10,7 @@ import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
+import static java.net.URI.create;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -54,20 +55,21 @@ class RequestServerNameRewriter implements RequestForwardingInterceptor {
     void setOutgoingServers(List<String> outgoingServers) {
         this.outgoingServers = outgoingServers.stream()
                 .map(URI::create)
+                .map(uri -> uri.getScheme() == null ? create("http://" + uri) : uri)
                 .collect(toList());
     }
 
     private void rewriteServerName(HttpRequest request) {
-        URI requestUri = request.getOriginalUri();
-        String requestServerName = requestUri.getScheme() + "://" + requestUri.getAuthority();
-        URI rewrittenRequestServerName = loadBalancer.chooseServer(outgoingServers);
-        URI rewrittenRequestUri = fromUri(requestUri)
-                .scheme(rewrittenRequestServerName.getScheme())
-                .host(rewrittenRequestServerName.getHost())
-                .port(rewrittenRequestServerName.getPort())
+        URI oldUri = request.getURI();
+        String oldServerName = oldUri.getScheme() + "://" + oldUri.getAuthority();
+        URI rewrittenServerName = loadBalancer.chooseServer(outgoingServers);
+        URI rewrittenUri = fromUri(oldUri)
+                .scheme(rewrittenServerName.getScheme())
+                .host(rewrittenServerName.getHost())
+                .port(rewrittenServerName.getPort())
                 .build(true)
                 .toUri();
-        request.setUri(rewrittenRequestUri);
-        log.debug("Request server name rewritten from {} to {}", requestServerName, rewrittenRequestServerName);
+        request.setUri(rewrittenUri);
+        log.debug("Request server name rewritten from {} to {}", oldServerName, rewrittenServerName);
     }
 }

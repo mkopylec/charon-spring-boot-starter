@@ -6,32 +6,32 @@ import com.github.mkopylec.charon.interceptors.HttpRequest;
 import com.github.mkopylec.charon.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.interceptors.HttpResponse;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class Logger implements RequestForwardingInterceptor {
+public class ForwardingLogger implements RequestForwardingInterceptor {
 
-    private static final org.slf4j.Logger log = getLogger(Logger.class);
+    private static final Logger log = getLogger(ForwardingLogger.class);
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        String method = request.getMethodValue();
-        URI originalUri = request.getOriginalUri();
+        String oldMethod = request.getMethodValue();
+        URI oldUri = request.getURI();
         String forwardingName = execution.getMappingName();
-        log.debug("Forwarding: {} {} -> '{}' -> ...", method, originalUri, forwardingName);
         try {
             HttpResponse response = execution.execute(request);
-            String logMessage = "Forwarding: {} {} -> '{}' -> {} {}";
+            String logMessage = "Forwarding: {} {} -> '{}' -> {} {} {}";
             if (response.getStatusCode().is5xxServerError()) {
-                log.error(logMessage, method, originalUri, forwardingName, request.getURI(), response.getRawStatusCode());
+                log.error(logMessage, oldMethod, oldUri, forwardingName, request.getMethodValue(), request.getURI(), response.getRawStatusCode());
             } else if (response.getStatusCode().is4xxClientError()) {
-                log.info(logMessage, method, originalUri, forwardingName, request.getURI(), response.getRawStatusCode());
+                log.info(logMessage, oldMethod, oldUri, forwardingName, request.getMethodValue(), request.getURI(), response.getRawStatusCode());
             } else {
-                log.debug(logMessage, method, originalUri, forwardingName, request.getURI(), response.getRawStatusCode());
+                log.debug(logMessage, oldMethod, oldUri, forwardingName, request.getMethodValue(), request.getURI(), response.getRawStatusCode());
             }
             return response;
         } catch (RuntimeException e) {
-            log.error("Forwarding: {} {} -> '{}' -> Error: {}", method, originalUri, forwardingName, e.getMessage());
+            log.error("Forwarding: {} {} -> '{}' -> Error: {}", oldMethod, oldUri, forwardingName, e.getMessage());
             throw e;
         }
     }

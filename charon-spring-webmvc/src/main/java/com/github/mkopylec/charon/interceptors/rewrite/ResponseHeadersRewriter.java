@@ -12,6 +12,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.SERVER;
 import static org.springframework.http.HttpHeaders.TRANSFER_ENCODING;
+import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
 
 class ResponseHeadersRewriter implements RequestForwardingInterceptor {
 
@@ -38,12 +39,13 @@ class ResponseHeadersRewriter implements RequestForwardingInterceptor {
     }
 
     private void rewriteHeaders(HttpResponse response) {
+        HttpHeaders oldHeaders = readOnlyHttpHeaders(response.getHeaders());
         HttpHeaders headers = response.getHeaders();
         headers.remove(TRANSFER_ENCODING);
         headers.remove(CONNECTION);
         headers.remove(PUBLIC_KEY_PINS);
         headers.remove(SERVER);
         headers.remove(STRICT_TRANSPORT_SECURITY);
-        log.debug("Response headers rewritten from {} to {}", response.getOriginalHeaders(), response.getHeaders());
+        log.debug("Response headers rewritten from {} to {}", oldHeaders, headers);
     }
 }

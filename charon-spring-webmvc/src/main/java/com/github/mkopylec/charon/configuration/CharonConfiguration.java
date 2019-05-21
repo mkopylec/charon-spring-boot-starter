@@ -6,12 +6,13 @@ import java.util.List;
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
-import com.github.mkopylec.charon.interceptors.log.Logger;
+import com.github.mkopylec.charon.interceptors.log.ForwardingLogger;
 
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
-import static com.github.mkopylec.charon.interceptors.rewrite.RequestHeadersRewriterConfigurer.requestHeadersRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.AfterServerNameRequestHeadersRewriterConfigurer.afterServerNameRequestHeadersRewriter;
+import static com.github.mkopylec.charon.interceptors.rewrite.BeforeServerNameRequestHeadersRewriterConfigurer.beforeServerNameRequestHeadersRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.ResponseHeadersRewriterConfigurer.responseHeadersRewriter;
 import static com.github.mkopylec.charon.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
@@ -30,9 +31,10 @@ public class CharonConfiguration implements Valid {
         filterOrder = LOWEST_PRECEDENCE;
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
-        addRequestForwardingInterceptor(new Logger());
+        addRequestForwardingInterceptor(new ForwardingLogger()); // TODO Why no configurer?
+        addRequestForwardingInterceptor(beforeServerNameRequestHeadersRewriter().configure());
         addRequestForwardingInterceptor(requestServerNameRewriter().configure());
-        addRequestForwardingInterceptor(requestHeadersRewriter().configure());
+        addRequestForwardingInterceptor(afterServerNameRequestHeadersRewriter().configure());
         addRequestForwardingInterceptor(responseHeadersRewriter().configure());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
         requestMappingConfigurations = new ArrayList<>();

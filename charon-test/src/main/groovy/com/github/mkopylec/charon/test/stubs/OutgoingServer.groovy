@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test.stubs
 
 import org.mockserver.integration.ClientAndServer
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 import static org.mockserver.integration.ClientAndServer.startClientAndServer
@@ -18,8 +19,8 @@ class OutgoingServer {
         server = startClientAndServer(port)
     }
 
-    protected void stubResponse(boolean timedOut) {
-        stub(OK, [:], null, timedOut)
+    protected void stubResponse(boolean responseTimedOut) {
+        stub(OK, [:], null, responseTimedOut)
     }
 
     protected void stubResponse(HttpStatus responseStatus) {
@@ -42,16 +43,24 @@ class OutgoingServer {
         stub(responseStatus, [:], responseBody, false)
     }
 
-    private void stub(HttpStatus responseStatus, Map<String, String> responseHeaders, String responseBody, boolean timedOut) {
+    protected void verifyRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody) {
+        def headers = requestHeaders.collect { header(it.key, it.value) }
+        server.verify(request(requestPath)
+                .withMethod(requestMethod.name())
+                .withHeaders(headers)
+                .withBody(requestBody))
+    }
+
+    protected void reset() {
+        server.reset()
+    }
+
+    private void stub(HttpStatus responseStatus, Map<String, String> responseHeaders, String responseBody, boolean responseTimedOut) {
         def headers = responseHeaders.collect { header(it.key, it.value) }
         server.when(request('.*'))
                 .respond(response(responseBody)
                 .withStatusCode(responseStatus.value())
                 .withHeaders(headers)
-                .withDelay(seconds(timedOut ? 1 : 0)))
-    }
-
-    protected void reset() {
-        server.reset()
+                .withDelay(seconds(responseTimedOut ? 1 : 0)))
     }
 }

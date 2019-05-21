@@ -53,16 +53,16 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
     }
 
     private void rewritePath(HttpRequest request) {
-        URI requestUri = request.getOriginalUri();
-        String requestPath = requestUri.getPath();
+        URI oldUri = request.getURI();
+        String requestPath = oldUri.getPath();
         Matcher matcher = incomingRequestPathRegex.matcher(requestPath);
         requestForwardingErrorIf(!matcher.find(), "Incoming request path " + requestPath + " does not match path rewriter regex pattern " + incomingRequestPathRegex);
-        String rewrittenRequestPath = outgoingRequestPathTemplate.fill(matcher);
-        URI rewrittenRequestUri = fromUri(requestUri)
-                .replacePath(rewrittenRequestPath)
+        String rewrittenPath = outgoingRequestPathTemplate.fill(matcher);
+        URI rewrittenUri = fromUri(oldUri)
+                .replacePath(rewrittenPath)
                 .build(true)
                 .toUri();
-        request.setUri(rewrittenRequestUri);
-        log.debug("Request path rewritten from {} to {}", requestPath, rewrittenRequestPath);
+        request.setUri(rewrittenUri);
+        log.debug("Request path rewritten from {} to {}", requestPath, rewrittenPath);
     }
 }
