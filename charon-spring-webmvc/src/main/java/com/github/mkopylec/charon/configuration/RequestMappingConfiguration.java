@@ -6,9 +6,12 @@ import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
-import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
+
+import org.springframework.core.Ordered;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.hasText;
 
@@ -65,12 +68,12 @@ public class RequestMappingConfiguration implements Valid {
         removeRequestForwardingInterceptor(requestForwardingInterceptors, requestForwardingInterceptor.getOrder());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
-    // TODO Remove interceptor
 
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
         List<RequestForwardingInterceptor> globalInterceptors = new ArrayList<>(requestForwardingInterceptors);
         this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getOrder()));
         this.requestForwardingInterceptors.addAll(globalInterceptors);
+        this.requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
     }
 
     public CustomConfiguration getCustomConfiguration() {

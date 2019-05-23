@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
-import com.github.mkopylec.charon.interceptors.HttpRequestInterceptor;
+import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.ClientHttpRequestFactory;

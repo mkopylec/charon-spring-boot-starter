@@ -20,8 +20,8 @@ abstract class BasicSpec extends Specification {
     @Autowired
     private TestRestTemplate restTemplate
 
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path) {
-        return sendRequest(method, path, [:], '')
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers) {
+        return sendRequest(method, path, headers, '')
     }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers, String body) {

@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.configuration;
 
 import com.github.mkopylec.charon.forwarding.CustomConfigurer;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfigurer;
-import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 
 public class RequestMappingConfigurer extends Configurer<RequestMappingConfiguration> {
 

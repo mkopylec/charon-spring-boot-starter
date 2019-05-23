@@ -7,10 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.util.Assert.isTrue;
 
 class RequestMappingResolver {
 
@@ -31,7 +31,7 @@ class RequestMappingResolver {
             log.debug("No request mapping matches {} incoming request", requestURI);
             return null;
         }
-        isTrue(configurations.size() == 1, () -> "More than one request mapping matches "
+        requestForwardingErrorIf(configurations.size() > 1, () -> "More than one request mapping matches "
                 + requestURI + " incoming request. Matching mappings are "
                 + configurations.stream().map(RequestMappingConfiguration::toString).collect(joining(", ")));
         RequestMappingConfiguration configuration = configurations.get(0);

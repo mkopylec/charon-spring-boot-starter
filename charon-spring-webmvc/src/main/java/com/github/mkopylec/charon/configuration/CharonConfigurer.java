@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.configuration;
 
 import com.github.mkopylec.charon.forwarding.CustomConfigurer;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfigurer;
-import com.github.mkopylec.charon.interceptors.RequestForwardingInterceptorConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 
 public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
@@ -29,6 +29,11 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
         return this;
     }
 
+    public CharonConfigurer unsetRequestForwardingInterceptor(int interceptorOrder) {
+        configuredObject.removeRequestForwardingInterceptor(interceptorOrder);
+        return this;
+    }
+
     public CharonConfigurer add(RequestMappingConfigurer requestMappingConfigurer) {
         configuredObject.addRequestForwardingConfiguration(requestMappingConfigurer.configure());
         return this;
@@ -37,5 +42,11 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
     public CharonConfigurer set(CustomConfigurer customConfigurer) {
         configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
+    }
+
+    @Override
+    protected CharonConfiguration configure() {
+        configuredObject.mergeWithRequestForwardingConfigurations();
+        return super.configure();
     }
 }

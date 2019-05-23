@@ -2,8 +2,8 @@ package com.github.mkopylec.charon;
 
 import java.net.URI;
 
-import com.github.mkopylec.charon.interceptors.HttpResponse;
-import com.github.mkopylec.charon.interceptors.resilience.CircuitBreakerHandlerConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
+import com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerHandlerConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -22,11 +22,11 @@ import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
-import static com.github.mkopylec.charon.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
-import static com.github.mkopylec.charon.interceptors.async.ThreadPoolConfigurer.threadPool;
-import static com.github.mkopylec.charon.interceptors.resilience.RetryingHandlerConfigurer.retryingHandler;
-import static com.github.mkopylec.charon.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
-import static com.github.mkopylec.charon.interceptors.rewrite.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.ThreadPoolConfigurer.threadPool;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingHandlerConfigurer.retryingHandler;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
 import static java.time.Duration.ofMillis;
 import static java.util.Collections.singletonList;
 import static org.slf4j.LoggerFactory.getLogger;
