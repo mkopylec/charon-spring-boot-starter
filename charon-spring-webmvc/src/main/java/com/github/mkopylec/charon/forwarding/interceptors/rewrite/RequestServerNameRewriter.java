@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
 import java.net.URI;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
@@ -10,7 +11,6 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
-import static java.net.URI.create;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -18,6 +18,8 @@ import static org.springframework.util.Assert.isTrue;
 import static org.springframework.web.util.UriComponentsBuilder.fromUri;
 
 class RequestServerNameRewriter implements RequestForwardingInterceptor {
+
+    private static final Pattern outgoingServerPattern = Pattern.compile("\\w+://.+");
 
     private static final Logger log = getLogger(RequestServerNameRewriter.class);
 
@@ -54,8 +56,8 @@ class RequestServerNameRewriter implements RequestForwardingInterceptor {
 
     void setOutgoingServers(List<String> outgoingServers) {
         this.outgoingServers = outgoingServers.stream()
+                .map(server -> outgoingServerPattern.matcher(server).matches() ? server : "http://" + server)
                 .map(URI::create)
-                .map(uri -> uri.getScheme() == null ? create("http://" + uri) : uri)
                 .collect(toList());
     }
 

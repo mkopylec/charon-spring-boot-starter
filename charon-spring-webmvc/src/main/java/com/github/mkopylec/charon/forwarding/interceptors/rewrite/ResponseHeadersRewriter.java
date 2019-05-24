@@ -8,11 +8,11 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.SERVER;
 import static org.springframework.http.HttpHeaders.TRANSFER_ENCODING;
-import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
 
 class ResponseHeadersRewriter implements RequestForwardingInterceptor {
 
@@ -39,7 +39,7 @@ class ResponseHeadersRewriter implements RequestForwardingInterceptor {
     }
 
     private void rewriteHeaders(HttpResponse response) {
-        HttpHeaders oldHeaders = readOnlyHttpHeaders(response.getHeaders());
+        HttpHeaders oldHeaders = copyHeaders(response.getHeaders());
         HttpHeaders headers = response.getHeaders();
         headers.remove(TRANSFER_ENCODING);
         headers.remove(CONNECTION);

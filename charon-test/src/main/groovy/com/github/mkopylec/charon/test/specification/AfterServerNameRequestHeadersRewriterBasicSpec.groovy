@@ -14,6 +14,6 @@ class AfterServerNameRequestHeadersRewriterBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
                 .hasNoBody()
-        outgoingServers.verifyRequest(GET, '/path/1/path', ['Host': 'localhost'])
+        outgoingServers.verifyRequest(GET, '/path/1/path', ['Host': 'localhost']) // TODO Host can be localhost:8080 or localhost:8081
     }
 }

@@ -11,10 +11,11 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static java.lang.String.valueOf;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
+import static org.springframework.http.HttpHeaders.TE;
 
 class BeforeServerNameRequestHeadersRewriter implements RequestForwardingInterceptor {
 
@@ -43,7 +44,7 @@ class BeforeServerNameRequestHeadersRewriter implements RequestForwardingInterce
     }
 
     private void rewriteHeaders(HttpRequest request) {
-        HttpHeaders oldHeaders = readOnlyHttpHeaders(request.getHeaders());
+        HttpHeaders oldHeaders = copyHeaders(request.getHeaders());
         HttpHeaders headers = request.getHeaders();
         List<String> forwardedFor = headers.get(X_FORWARDED_FOR);
         if (isEmpty(forwardedFor)) {
@@ -54,6 +55,7 @@ class BeforeServerNameRequestHeadersRewriter implements RequestForwardingInterce
         headers.set(X_FORWARDED_PROTO, request.getURI().getScheme());
         headers.set(X_FORWARDED_HOST, request.getURI().getHost());
         headers.set(X_FORWARDED_PORT, valueOf(request.getURI().getPort()));
+        headers.remove(TE);
         log.debug("Request headers rewritten from {} to {}", oldHeaders, request.getHeaders());
     }
 }

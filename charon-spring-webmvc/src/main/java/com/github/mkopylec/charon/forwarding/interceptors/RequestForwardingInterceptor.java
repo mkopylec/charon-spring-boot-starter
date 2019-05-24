@@ -6,7 +6,6 @@ import org.springframework.core.Ordered;
 
 public interface RequestForwardingInterceptor extends Ordered, Valid {
 
-    // TODO Reverse order
     int FORWARDING_LOGGER_ORDER = 0;
     int ASYNCHRONOUS_FORWARDING_HANDLER_ORDER = 100;
     int BEFORE_SERVER_NAME_REQUEST_HEADERS_REWRITER_ORDER = 200;

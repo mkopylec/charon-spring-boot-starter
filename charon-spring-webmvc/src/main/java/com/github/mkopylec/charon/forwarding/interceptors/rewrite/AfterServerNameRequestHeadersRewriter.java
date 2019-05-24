@@ -8,10 +8,9 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.HOST;
-import static org.springframework.http.HttpHeaders.TE;
-import static org.springframework.http.HttpHeaders.readOnlyHttpHeaders;
 
 class AfterServerNameRequestHeadersRewriter implements RequestForwardingInterceptor {
 
@@ -35,10 +34,9 @@ class AfterServerNameRequestHeadersRewriter implements RequestForwardingIntercep
     }
 
     private void rewriteHeaders(HttpRequest request) {
-        HttpHeaders oldHeaders = readOnlyHttpHeaders(request.getHeaders());
+        HttpHeaders oldHeaders = copyHeaders(request.getHeaders());
         HttpHeaders headers = request.getHeaders();
         headers.set(HOST, request.getURI().getAuthority());
-        headers.remove(TE);
         log.debug("Request headers rewritten from {} to {}", oldHeaders, request.getHeaders());
     }
 }

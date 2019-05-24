@@ -47,7 +47,7 @@ class ForwardingLogger implements RequestForwardingInterceptor {
             }
             return response;
         } catch (RuntimeException e) {
-            log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> Error: {}", oldMethod, oldUri, forwardingName, e.getMessage());
+            log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> {}", oldMethod, oldUri, forwardingName, e.getMessage());
             throw e;
         }
     }
@@ -85,14 +85,19 @@ class ForwardingLogger implements RequestForwardingInterceptor {
         switch (level) {
             case ERROR:
                 log.error(message, parameters);
+                break;
             case WARN:
                 log.warn(message, parameters);
+                break;
             case INFO:
                 log.info(message, parameters);
+                break;
             case DEBUG:
                 log.debug(message, parameters);
+                break;
             case TRACE:
                 log.trace(message, parameters);
+                break;
         }
     }
 }
