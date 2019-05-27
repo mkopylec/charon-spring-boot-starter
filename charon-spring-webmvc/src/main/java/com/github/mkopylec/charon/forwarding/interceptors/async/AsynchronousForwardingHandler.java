@@ -6,6 +6,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.ASYNCHRONOUS_FORWARDING_HANDLER;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 
@@ -32,7 +33,7 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return ASYNCHRONOUS_FORWARDING_HANDLER_ORDER;
+        return ASYNCHRONOUS_FORWARDING_HANDLER.getOrder();
     }
 
     void setEnabled(boolean enabled) {

@@ -1,6 +1,6 @@
 package com.github.mkopylec.charon.test.specification
 
-import com.github.mkopylec.charon.test.stubs.OutgoingServers
+import com.github.mkopylec.charon.test.stubs.OutgoingServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -16,9 +16,15 @@ import static org.springframework.http.HttpStatus.OK
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class BasicSpec extends Specification {
 
-    protected static OutgoingServers outgoingServers = new OutgoingServers(8080, 8081)
+    protected static OutgoingServer localhost8080 = new OutgoingServer(8080)
+    protected static OutgoingServer localhost8081 = new OutgoingServer(8081)
+
     @Autowired
     private TestRestTemplate restTemplate
+
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String path) {
+        return sendRequest(method, path, [:], '')
+    }
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers) {
         return sendRequest(method, path, headers, '')
@@ -31,11 +37,14 @@ abstract class BasicSpec extends Specification {
         return restTemplate.exchange(path, method, request, String)
     }
 
+    // TODO Maybe not needed
     void setup() {
-        outgoingServers.stubResponse(OK)
+        localhost8080.stubResponse(OK, null, null, false)
+        localhost8081.stubResponse(OK, null, null, false)
     }
 
     void cleanup() {
-        outgoingServers.reset()
+        localhost8080.reset()
+        localhost8081.reset()
     }
 }

@@ -8,6 +8,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
@@ -32,7 +33,7 @@ class RemovingResponseCookieRewriter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return RESPONSE_COOKIE_REWRITER_ORDER;
+        return RESPONSE_COOKIE_REWRITER.getOrder();
     }
 
     private void removeCookies(HttpResponse response, String cookieHeaderName) {

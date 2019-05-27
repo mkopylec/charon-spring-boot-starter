@@ -4,13 +4,13 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.MetricsUtils;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.CIRCUIT_BREAKER_HANDLER;
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.of;
 import static io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.ofCircuitBreakerRegistry;
@@ -39,7 +39,7 @@ class CircuitBreakerHandler extends ResilienceHandler<CircuitBreakerRegistry> {
 
     @Override
     public int getOrder() {
-        return RequestForwardingInterceptor.CIRCUIT_BREAKER_HANDLER_ORDER;
+        return CIRCUIT_BREAKER_HANDLER.getOrder();
     }
 
     private TaggedCircuitBreakerMetrics createMetrics(CircuitBreakerRegistry registry, String mappingName) {

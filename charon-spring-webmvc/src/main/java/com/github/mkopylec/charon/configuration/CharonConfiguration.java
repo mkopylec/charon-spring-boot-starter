@@ -6,12 +6,12 @@ import java.util.List;
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.AfterServerNameRequestHeadersRewriterConfigurer.afterServerNameRequestHeadersRewriter;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.BeforeServerNameRequestHeadersRewriterConfigurer.beforeServerNameRequestHeadersRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHeadersRewriterConfigurer.requestHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseHeadersRewriterConfigurer.responseHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
@@ -30,8 +30,7 @@ public class CharonConfiguration implements Valid {
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(forwardingLogger().configure());
-        addRequestForwardingInterceptor(beforeServerNameRequestHeadersRewriter().configure());
-        addRequestForwardingInterceptor(afterServerNameRequestHeadersRewriter().configure());
+        addRequestForwardingInterceptor(requestHeadersRewriter().configure());
         addRequestForwardingInterceptor(responseHeadersRewriter().configure());
         addRequestForwardingInterceptor(rootPathResponseCookieRewriter().configure());
         requestMappingConfigurations = new ArrayList<>();
@@ -55,8 +54,8 @@ public class CharonConfiguration implements Valid {
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
-    void removeRequestForwardingInterceptor(int interceptorOrder) {
-        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == interceptorOrder);
+    void removeRequestForwardingInterceptor(RequestForwardingInterceptorType requestForwardingInterceptorType) {
+        removeRequestForwardingInterceptor(requestForwardingInterceptorType.getOrder());
     }
 
     List<RequestMappingConfiguration> getRequestMappingConfigurations() {
@@ -77,5 +76,9 @@ public class CharonConfiguration implements Valid {
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
             configuration.mergeCustomConfiguration(customConfiguration);
         });
+    }
+
+    private void removeRequestForwardingInterceptor(int interceptorOrder) {
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == interceptorOrder);
     }
 }

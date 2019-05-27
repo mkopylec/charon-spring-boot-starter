@@ -15,7 +15,8 @@ class ReverseProxyConfiguration {
     @Bean
     CharonConfigurer charonConfigurer() {
         return charonConfiguration()
-                .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
+                .set(requestServerNameRewriter()
+                        .outgoingServers("localhost:8080"))
                 .add(requestMapping("after server name request headers rewriter")
                         .pathRegex("/path/1.*"));
     }

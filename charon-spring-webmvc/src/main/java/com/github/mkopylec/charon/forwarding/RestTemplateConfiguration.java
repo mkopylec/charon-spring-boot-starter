@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon.forwarding;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -9,6 +10,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -40,7 +42,9 @@ public class RestTemplateConfiguration implements Valid {
 
     RestTemplate configure(RequestMappingConfiguration configuration) {
         Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(timeoutConfiguration);
-        List<HttpRequestInterceptor> interceptors = createHttpRequestInterceptors(configuration);
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+        interceptors.add(new RestTemplateHeadersRemover());
+        interceptors.addAll(createHttpRequestInterceptors(configuration));
         return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
                 .additionalInterceptors(interceptors)

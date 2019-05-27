@@ -10,6 +10,7 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RETRYING_HANDLER;
 import static io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.ofRetryRegistry;
 import static io.github.resilience4j.retry.RetryConfig.custom;
 import static io.github.resilience4j.retry.RetryRegistry.of;
@@ -41,7 +42,7 @@ class RetryingHandler extends ResilienceHandler<RetryRegistry> {
 
     @Override
     public int getOrder() {
-        return RETRYING_HANDLER_ORDER;
+        return RETRYING_HANDLER.getOrder();
     }
 
     private TaggedRetryMetrics createMetrics(RetryRegistry registry, String mappingName) {

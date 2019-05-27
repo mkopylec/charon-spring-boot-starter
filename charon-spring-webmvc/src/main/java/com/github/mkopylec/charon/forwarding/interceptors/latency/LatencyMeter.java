@@ -10,6 +10,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.LATENCY_METER;
 import static java.lang.System.nanoTime;
 import static java.time.Duration.ofNanos;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -49,7 +50,7 @@ class LatencyMeter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return LATENCY_METER_ORDER;
+        return LATENCY_METER.getOrder();
     }
 
     void setEnabled(boolean enabled) {

@@ -8,29 +8,30 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_HOST_HEADER_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.HOST;
 
-class AfterServerNameRequestHeadersRewriter implements RequestForwardingInterceptor {
+class RequestHostHeaderRewriter implements RequestForwardingInterceptor {
 
-    private static final Logger log = getLogger(AfterServerNameRequestHeadersRewriter.class);
+    private static final Logger log = getLogger(RequestHostHeaderRewriter.class);
 
-    AfterServerNameRequestHeadersRewriter() {
+    RequestHostHeaderRewriter() {
     }
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] After server name request headers rewriting for '{}' request mapping", execution.getMappingName());
+        log.trace("[Start] Request 'Host' header rewriting for '{}' request mapping", execution.getMappingName());
         rewriteHeaders(request);
         HttpResponse response = execution.execute(request);
-        log.trace("[End] After server name request headers rewriting for '{}' request mapping", execution.getMappingName());
+        log.trace("[End] Request 'Host' header rewriting for '{}' request mapping", execution.getMappingName());
         return response;
     }
 
     @Override
     public int getOrder() {
-        return AFTER_SERVER_NAME_REQUEST_HEADERS_REWRITER_ORDER;
+        return REQUEST_HOST_HEADER_REWRITER.getOrder();
     }
 
     private void rewriteHeaders(HttpRequest request) {

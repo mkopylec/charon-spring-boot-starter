@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static java.net.HttpCookie.parse;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -38,7 +39,7 @@ class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return RESPONSE_COOKIE_REWRITER_ORDER;
+        return RESPONSE_COOKIE_REWRITER.getOrder();
     }
 
     private void rewriteCookies(HttpResponse response, String cookieHeaderName) {

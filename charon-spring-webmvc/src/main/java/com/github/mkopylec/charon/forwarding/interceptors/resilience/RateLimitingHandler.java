@@ -10,6 +10,7 @@ import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RATE_LIMITING_HANDLER;
 import static io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics.ofRateLimiterRegistry;
 import static io.github.resilience4j.ratelimiter.RateLimiterConfig.custom;
 import static io.github.resilience4j.ratelimiter.RateLimiterRegistry.of;
@@ -37,7 +38,7 @@ class RateLimitingHandler extends ResilienceHandler<RateLimiterRegistry> {
 
     @Override
     public int getOrder() {
-        return RATE_LIMITING_HANDLER_ORDER;
+        return RATE_LIMITING_HANDLER.getOrder();
     }
 
     private TaggedRateLimiterMetrics createMetrics(RateLimiterRegistry registry, String mappingName) {

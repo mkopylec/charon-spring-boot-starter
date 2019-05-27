@@ -10,6 +10,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_SERVER_NAME_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -47,7 +48,7 @@ class RequestServerNameRewriter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return REQUEST_SERVER_NAME_REWRITER_ORDER;
+        return REQUEST_SERVER_NAME_REWRITER.getOrder();
     }
 
     void setLoadBalancer(LoadBalancer loadBalancer) {

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONNECTION;
@@ -35,7 +36,7 @@ class ResponseHeadersRewriter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return RESPONSE_HEADERS_REWRITER_ORDER;
+        return RESPONSE_HEADERS_REWRITER.getOrder();
     }
 
     private void rewriteHeaders(HttpResponse response) {

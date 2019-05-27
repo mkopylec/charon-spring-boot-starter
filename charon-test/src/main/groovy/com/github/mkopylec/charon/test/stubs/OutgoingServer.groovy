@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test.stubs
 
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.verify.VerificationTimes
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
@@ -14,11 +15,11 @@ class OutgoingServer {
 
     private ClientAndServer server
 
-    protected OutgoingServer(int port) {
+    OutgoingServer(int port) {
         server = startClientAndServer(port)
     }
 
-    protected void stubResponse(HttpStatus status, Map<String, String> headers, String body, boolean timedOut) {
+    void stubResponse(HttpStatus status, Map<String, String> headers, String body, boolean timedOut) {
         def responseHeaders = headers.collect { header(it.key, it.value) }
         server.when(request('.*'))
                 .respond(response(body)
@@ -27,15 +28,15 @@ class OutgoingServer {
                 .withDelay(seconds(timedOut ? 1 : 0)))
     }
 
-    protected void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body) {
+    void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body, VerificationTimes count) {
         def requestHeaders = headers.collect { header(it.key, it.value) }
         server.verify(request(path)
                 .withMethod(method.name())
                 .withHeaders(requestHeaders)
-                .withBody(body))
+                .withBody(body), count)
     }
 
-    protected void reset() {
+    void reset() {
         server.reset()
     }
 }

@@ -8,6 +8,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.ERROR;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.INFO;
@@ -62,7 +63,7 @@ class ForwardingLogger implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return FORWARDING_LOGGER_ORDER;
+        return FORWARDING_LOGGER.getOrder();
     }
 
     void setSuccessLogLevel(LogLevel successLogLevel) {
