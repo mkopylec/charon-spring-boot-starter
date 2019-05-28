@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test.stubs
 
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.model.Header
 import org.mockserver.verify.VerificationTimes
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -20,19 +21,17 @@ class OutgoingServer {
     }
 
     void stubResponse(HttpStatus status, Map<String, String> headers, String body, boolean timedOut) {
-        def responseHeaders = headers.collect { header(it.key, it.value) }
         server.when(request('.*'))
                 .respond(response(body)
                 .withStatusCode(status.value())
-                .withHeaders(responseHeaders)
+                .withHeaders(toHeaders(headers))
                 .withDelay(seconds(timedOut ? 1 : 0)))
     }
 
     void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body, VerificationTimes count) {
-        def requestHeaders = headers.collect { header(it.key, it.value) }
         server.verify(request(path)
                 .withMethod(method.name())
-                .withHeaders(requestHeaders)
+                .withHeaders(toHeaders(headers))
                 .withBody(body), count)
     }
 
@@ -43,5 +42,9 @@ class OutgoingServer {
     @Override
     String toString() {
         return "localhost:${server.localPort}"
+    }
+
+    private static List<Header> toHeaders(Map<String, String> headers) {
+        return headers.collect { header(it.key, it.value.split(', ')) }
     }
 }

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
 import org.springframework.core.Ordered;
 
@@ -21,12 +22,14 @@ public class RequestMappingConfiguration implements Valid {
     private Pattern pathRegex;
     private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
+    private List<RequestForwardingInterceptorType> unsetRequestForwardingInterceptors;
     private CustomConfiguration customConfiguration;
 
     RequestMappingConfiguration(String name) {
         this.name = name;
         pathRegex = compile("/.*");
         requestForwardingInterceptors = new ArrayList<>();
+        unsetRequestForwardingInterceptors = new ArrayList<>();
     }
 
     @Override
@@ -69,11 +72,16 @@ public class RequestMappingConfiguration implements Valid {
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
+    void removeRequestForwardingInterceptor(RequestForwardingInterceptorType requestForwardingInterceptorType) {
+        unsetRequestForwardingInterceptors.add(requestForwardingInterceptorType);
+    }
+
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
         List<RequestForwardingInterceptor> globalInterceptors = new ArrayList<>(requestForwardingInterceptors);
         this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getOrder()));
         this.requestForwardingInterceptors.addAll(globalInterceptors);
         this.requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
+        unsetRequestForwardingInterceptors.forEach(interceptorType -> removeRequestForwardingInterceptor(this.requestForwardingInterceptors, interceptorType.getOrder()));
     }
 
     public CustomConfiguration getCustomConfiguration() {

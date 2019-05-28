@@ -9,7 +9,7 @@ class Assertions {
         return new ResponseAssertion(response)
     }
 
-    static OutgoingServerAssertion assertThatServers(OutgoingServer... outgoingServers) {
+    static OutgoingServerAssertion assertThatOneOf(OutgoingServer... outgoingServers) {
         return new OutgoingServerAssertion(outgoingServers)
     }
 }

@@ -42,6 +42,7 @@ public class Main {
         System.out.println(uri.getSchemeSpecificPart());
         System.out.println(uri.getScheme());
         System.out.println(uri.getPath());
+        System.out.println(uri.getPort());
         System.out.println(uri);
         CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom().ringBufferSizeInClosedState(2).build();
         RetryConfig retryConfig = RetryConfig.custom().build();

@@ -56,9 +56,17 @@ class RequestHeadersRewriter implements RequestForwardingInterceptor {
         headers.put(X_FORWARDED_FOR, forwardedFor);
         headers.set(X_FORWARDED_PROTO, request.getURI().getScheme());
         headers.set(X_FORWARDED_HOST, request.getURI().getHost());
-        headers.set(X_FORWARDED_PORT, valueOf(request.getURI().getPort()));
+        headers.set(X_FORWARDED_PORT, resolvePort(request));
         headers.set(CONNECTION, "close");
         headers.remove(TE);
         log.debug("Request headers rewritten from {} to {}", oldHeaders, request.getHeaders());
+    }
+
+    private String resolvePort(HttpRequest request) {
+        int port = request.getURI().getPort();
+        if (port < 0) {
+            port = request.getURI().getScheme().equals("https") ? 443 : 80;
+        }
+        return valueOf(port);
     }
 }
