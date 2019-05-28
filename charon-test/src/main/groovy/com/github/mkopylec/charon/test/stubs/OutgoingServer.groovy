@@ -39,4 +39,9 @@ class OutgoingServer {
     void reset() {
         server.reset()
     }
+
+    @Override
+    String toString() {
+        return "localhost:${server.localPort}"
+    }
 }

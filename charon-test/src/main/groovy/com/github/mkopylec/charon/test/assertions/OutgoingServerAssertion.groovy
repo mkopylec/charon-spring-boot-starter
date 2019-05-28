@@ -23,18 +23,18 @@ class OutgoingServerAssertion {
     }
 
     OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody, VerificationTimes count) {
-        def error = ''
+        def error = '\r\n'
         def matchesCount = outgoingServers.count {
             try {
                 it.verifyRequest(requestMethod, requestPath, requestHeaders, requestBody, count)
                 return true
             } catch (AssertionError ex) {
-                error += "$ex.message. "
+                error += "\r\n[$it]\r\n$ex.message\r\n"
                 return false
             }
         }
         if (matchesCount != 1) {
-            throw new AssertionError(error.trim())
+            throw new AssertionError(error)
         }
         return this
     }

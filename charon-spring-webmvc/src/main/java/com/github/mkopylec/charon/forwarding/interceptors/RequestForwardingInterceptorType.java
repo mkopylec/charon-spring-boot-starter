@@ -4,7 +4,6 @@ import org.springframework.core.Ordered;
 
 public enum RequestForwardingInterceptorType implements Ordered {
 
-    REST_TEMPLATE_HEADERS_REMOVER(HIGHEST_PRECEDENCE),
     FORWARDING_LOGGER(0),
     ASYNCHRONOUS_FORWARDING_HANDLER(100),
     REQUEST_HEADERS_REWRITER(200),

@@ -16,6 +16,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.Headers
 import static java.lang.String.valueOf;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.TE;
 
 class RequestHeadersRewriter implements RequestForwardingInterceptor {
@@ -56,6 +57,7 @@ class RequestHeadersRewriter implements RequestForwardingInterceptor {
         headers.set(X_FORWARDED_PROTO, request.getURI().getScheme());
         headers.set(X_FORWARDED_HOST, request.getURI().getHost());
         headers.set(X_FORWARDED_PORT, valueOf(request.getURI().getPort()));
+        headers.set(CONNECTION, "close");
         headers.remove(TE);
         log.debug("Request headers rewritten from {} to {}", oldHeaders, request.getHeaders());
     }

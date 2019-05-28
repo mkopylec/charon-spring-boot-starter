@@ -24,7 +24,7 @@ public class RestTemplateConfiguration implements Valid {
 
     RestTemplateConfiguration() {
         this.timeoutConfiguration = timeout().configure();
-        this.clientHttpRequestFactoryCreator = new SimpleHttpRequestFactoryCreator();
+        this.clientHttpRequestFactoryCreator = new OkHttpRequestFactoryCreator();
     }
 
     @Override
@@ -42,9 +42,7 @@ public class RestTemplateConfiguration implements Valid {
 
     RestTemplate configure(RequestMappingConfiguration configuration) {
         Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(timeoutConfiguration);
-        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
-        interceptors.add(new RestTemplateHeadersRemover());
-        interceptors.addAll(createHttpRequestInterceptors(configuration));
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
         return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
                 .additionalInterceptors(interceptors)
