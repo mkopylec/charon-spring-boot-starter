@@ -16,6 +16,8 @@ class OkHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
     public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(0, 1, MILLISECONDS))
+                .followRedirects(false)
+                .followSslRedirects(false)
                 .build();
         OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory(client);
         requestFactory.setConnectTimeout(toMillis(configuration.getConnection()));
