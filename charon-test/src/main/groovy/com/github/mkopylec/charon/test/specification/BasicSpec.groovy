@@ -13,6 +13,7 @@ import spock.lang.Specification
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpStatus.OK
 
+// TODO Tests for exceptions
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class BasicSpec extends Specification {
 

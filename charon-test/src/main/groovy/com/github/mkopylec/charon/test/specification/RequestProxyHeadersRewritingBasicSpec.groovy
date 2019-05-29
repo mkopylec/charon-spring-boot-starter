@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.test.specification
 import spock.lang.Unroll
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
-import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatOneOf
+import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.OK
 
@@ -18,8 +18,8 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
                 .hasNoBody()
-        assertThatOneOf(localhost8080, localhost8081)
-                .hasReceivedRequest(GET, '/default', rewritenHeaders)
+        assertThatServers(localhost8080, localhost8081)
+                .haveReceivedRequest(GET, '/default', rewritenHeaders)
 
         where:
         originalHeaders                                                           | rewritenHeaders
@@ -41,7 +41,7 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
                 .hasNoBody()
-        assertThatOneOf(localhost8080, localhost8081)
-                .hasReceivedRequest(GET, '/request/proxy/headers', ['Host': 'example.com', 'X-Forwarded-For': 'another-example.com'])
+        assertThatServers(localhost8080, localhost8081)
+                .haveReceivedRequest(GET, '/request/proxy/headers', ['Host': 'example.com', 'X-Forwarded-For': 'another-example.com'])
     }
 }

@@ -14,30 +14,21 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(AsynchronousForwardingHandler.class);
 
-    private boolean enabled;
     private ThreadPool threadPool;
 
     AsynchronousForwardingHandler() {
-        enabled = true;
         threadPool = new ThreadPool();
     }
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        if (!enabled) {
-            return execution.execute(request);
-        }
         threadPool.execute(() -> forwardAsynchronously(request, execution));
-        return getResponse();
+        return new HttpResponse(ACCEPTED);
     }
 
     @Override
     public int getOrder() {
         return ASYNCHRONOUS_FORWARDING_HANDLER.getOrder();
-    }
-
-    void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     void setThreadPool(ThreadPool threadPool) {
@@ -46,8 +37,7 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
 
     private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
         log.trace("[Start] Asynchronous execution of '{}' request mapping", execution.getMappingName());
-        try {
-            HttpResponse response = execution.execute(request);
+        try (HttpResponse response = execution.execute(request)) {
             String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
             if (response.getStatusCode().is5xxServerError()) {
                 log.error(logMessage, execution.getMappingName(), response.getRawStatusCode());
@@ -60,11 +50,5 @@ class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
             log.error("Error executing '{}' request mapping asynchronously", execution.getMappingName(), e);
         }
         log.trace("[End] Asynchronous execution of '{}' request mapping", execution.getMappingName());
-    }
-
-    private HttpResponse getResponse() {
-        HttpResponse response = new HttpResponse();
-        response.setStatus(ACCEPTED);
-        return response;
     }
 }

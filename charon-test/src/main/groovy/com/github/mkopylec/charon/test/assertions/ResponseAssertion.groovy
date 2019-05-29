@@ -25,11 +25,6 @@ class ResponseAssertion {
         return this
     }
 
-    ResponseAssertion hasBody() {
-        assert response.body != null
-        return this
-    }
-
     ResponseAssertion hasNoBody() {
         assert isEmpty(response.body as CharSequence)
         return this

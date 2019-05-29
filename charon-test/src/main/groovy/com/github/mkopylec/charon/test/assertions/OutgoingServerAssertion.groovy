@@ -14,15 +14,24 @@ class OutgoingServerAssertion {
         this.outgoingServers = outgoingServers
     }
 
-    OutgoingServerAssertion hasReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders) {
-        return hasReceivedRequest(requestMethod, requestPath, requestHeaders, '', once())
+    OutgoingServerAssertion haveReceivedNoRequest() {
+        outgoingServers.each { it.verifyNoRequest() }
+        return this
     }
 
-    OutgoingServerAssertion hasReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody) {
-        return hasReceivedRequest(requestMethod, requestPath, requestHeaders, requestBody, once())
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath) {
+        return haveReceivedRequest(requestMethod, requestPath, [:], '', once())
     }
 
-    OutgoingServerAssertion hasReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody, VerificationTimes count) {
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders) {
+        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, '', once())
+    }
+
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody) {
+        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, requestBody, once())
+    }
+
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody, VerificationTimes count) {
         def error = '\r\n'
         def matchesCount = outgoingServers.count {
             try {

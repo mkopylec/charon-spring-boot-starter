@@ -11,7 +11,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
-import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PATH_REWRITER;
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REGEX_REQUEST_PATH_REWRITER;
 import static java.util.regex.Pattern.compile;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.util.Assert.isTrue;
@@ -45,7 +45,7 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
 
     @Override
     public int getOrder() {
-        return REQUEST_PATH_REWRITER.getOrder();
+        return REGEX_REQUEST_PATH_REWRITER.getOrder();
     }
 
     void setPaths(String incomingRequestPathRegex, String outgoingRequestPathTemplate) {

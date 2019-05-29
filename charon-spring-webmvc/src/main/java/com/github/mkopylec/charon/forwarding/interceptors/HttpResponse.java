@@ -17,7 +17,12 @@ public class HttpResponse implements ClientHttpResponse {
     private byte[] body;
     private Runnable closeHandler;
 
-    public HttpResponse() {
+    public HttpResponse(HttpStatus status) {
+        this.status = status;
+        headers = new HttpHeaders();
+        body = new byte[]{};
+        closeHandler = () -> {
+        };
     }
 
     HttpResponse(ClientHttpResponse response) throws IOException {

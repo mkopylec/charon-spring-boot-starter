@@ -35,6 +35,10 @@ class OutgoingServer {
                 .withBody(body), count)
     }
 
+    void verifyNoRequest() {
+        server.verifyZeroInteractions()
+    }
+
     void reset() {
         server.reset()
     }

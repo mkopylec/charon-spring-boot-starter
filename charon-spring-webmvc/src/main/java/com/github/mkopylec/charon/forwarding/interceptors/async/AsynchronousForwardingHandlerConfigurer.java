@@ -12,11 +12,6 @@ public class AsynchronousForwardingHandlerConfigurer extends RequestForwardingIn
         return new AsynchronousForwardingHandlerConfigurer();
     }
 
-    public AsynchronousForwardingHandlerConfigurer enabled(boolean enabled) {
-        configuredObject.setEnabled(enabled);
-        return this;
-    }
-
     public AsynchronousForwardingHandlerConfigurer set(ThreadPoolConfigurer threadPoolConfigurer) {
         configuredObject.setThreadPool(threadPoolConfigurer.configure());
         return this;
