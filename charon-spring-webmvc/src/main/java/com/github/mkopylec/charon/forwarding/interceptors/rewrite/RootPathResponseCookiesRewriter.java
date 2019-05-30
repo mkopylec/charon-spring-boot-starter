@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
 import java.net.HttpCookie;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
@@ -14,17 +15,22 @@ import org.springframework.http.HttpHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static java.net.HttpCookie.parse;
 import static java.util.Collections.emptyList;
+import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.http.HttpHeaders.SET_COOKIE2;
 
-class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
+class RootPathResponseCookiesRewriter implements RequestForwardingInterceptor {
 
-    private static final Logger log = getLogger(RootPathResponseCookieRewriter.class);
+    private static final Pattern cookiePathPattern = compile("Path=/");
 
-    RootPathResponseCookieRewriter() {
+    private static final Logger log = getLogger(RootPathResponseCookiesRewriter.class);
+
+    RootPathResponseCookiesRewriter() {
     }
 
     @Override
@@ -46,13 +52,26 @@ class RootPathResponseCookieRewriter implements RequestForwardingInterceptor {
         HttpHeaders responseHeaders = response.getHeaders();
         List<String> responseCookies = responseHeaders.getOrDefault(cookieHeaderName, emptyList());
         List<String> rewrittenResponseCookies = responseCookies.stream()
-                .flatMap(setCookieHeader -> parse(setCookieHeader).stream())
-                .peek(cookie -> cookie.setPath("/"))
-                .map(HttpCookie::toString)
+                .map(this::replaceCookiePath)
                 .collect(toList());
         if (isNotEmpty(rewrittenResponseCookies)) {
             log.debug("Response cookies rewritten from {} to {}", responseCookies, rewrittenResponseCookies);
             responseHeaders.put(cookieHeaderName, rewrittenResponseCookies);
         }
+    }
+
+    private String replaceCookiePath(String setCookieHeader) {
+        if (isBlank(setCookieHeader)) {
+            return setCookieHeader;
+        }
+        List<HttpCookie> cookies = parse(setCookieHeader);
+        if (isEmpty(cookies)) {
+            return setCookieHeader;
+        }
+        String path = cookies.get(0).getPath();
+        if (path == null) {
+            return setCookieHeader + "; Path=/";
+        }
+        return setCookieHeader.replace("Path=" + path, "Path=/");
     }
 }

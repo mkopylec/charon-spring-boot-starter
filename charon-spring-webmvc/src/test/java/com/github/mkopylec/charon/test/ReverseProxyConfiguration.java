@@ -11,9 +11,11 @@ import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restT
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROXY_HEADERS_REWRITER;
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static java.time.Duration.ofMinutes;
@@ -59,6 +61,12 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("response protocol headers rewriting")
                         .pathRegex("/response/protocol/headers.*")
                         .unset(RESPONSE_PROTOCOL_HEADERS_REWRITER)
-                        .unset(REQUEST_PROTOCOL_HEADERS_REWRITER));
+                        .unset(REQUEST_PROTOCOL_HEADERS_REWRITER))
+                .add(requestMapping("root path response cookies rewriting")
+                        .pathRegex("/root/path/response/cookies.*")
+                        .unset(RESPONSE_COOKIE_REWRITER))
+                .add(requestMapping("removing response cookies rewriting")
+                        .pathRegex("/removing/response/cookies.*")
+                        .set(removingResponseCookiesRewriter()));
     }
 }

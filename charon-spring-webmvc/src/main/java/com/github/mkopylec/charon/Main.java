@@ -26,7 +26,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.async.Asynchron
 import static com.github.mkopylec.charon.forwarding.interceptors.async.ThreadPoolConfigurer.threadPool;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingHandlerConfigurer.retryingHandler;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookieRewriterConfigurer.removingResponseCookieRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static java.time.Duration.ofMillis;
 import static java.util.Collections.singletonList;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -78,7 +78,7 @@ public class Main {
         charonConfiguration()
                 .set(restTemplate()
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(500))))
-                .set(removingResponseCookieRewriter())
+                .set(removingResponseCookiesRewriter())
                 .set(regexRequestPathRewriter())
                 .set(retryingHandler().configuration(RetryConfig.<HttpResponse>custom().retryOnResult(null)))
                 .set(asynchronousForwardingHandler()
