@@ -4,6 +4,7 @@ import spock.lang.Unroll
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.OK
 
@@ -17,7 +18,6 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/default', rewritenHeaders)
 
@@ -40,8 +40,12 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/request/proxy/headers', ['Host': 'example.com', 'X-Forwarded-For': 'another-example.com'])
+    }
+
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
     }
 }

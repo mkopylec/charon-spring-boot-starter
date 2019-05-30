@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.test.specification
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.OK
 
@@ -14,9 +15,9 @@ abstract class RequestProtocolHeadersRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/default', ['Connection': 'close'])
+                .haveNotReceivedRequest(['TE': 'gzip'])
     }
 
     def "Should not rewrite request protocol headers when proper interceptor is unset"() {
@@ -26,8 +27,13 @@ abstract class RequestProtocolHeadersRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
+                .haveNotReceivedRequest(['Connection': 'close'])
                 .haveReceivedRequest(GET, '/request/protocol/headers', ['TE': 'gzip'])
+    }
+
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
     }
 }

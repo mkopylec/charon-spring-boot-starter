@@ -39,4 +39,9 @@ class PathTemplate {
             placeholders.add(matcher.group(1));
         }
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

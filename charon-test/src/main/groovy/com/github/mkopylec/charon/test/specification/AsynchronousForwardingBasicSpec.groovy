@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.test.specification
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.ACCEPTED
 import static org.springframework.http.HttpStatus.OK
@@ -28,8 +29,12 @@ abstract class AsynchronousForwardingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/default')
+    }
+
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
     }
 }

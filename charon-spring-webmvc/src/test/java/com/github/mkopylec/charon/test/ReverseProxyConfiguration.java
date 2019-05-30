@@ -11,6 +11,7 @@ import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restT
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROXY_HEADERS_REWRITER;
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
@@ -54,6 +55,10 @@ class ReverseProxyConfiguration {
                         .set(regexRequestPathRewriter().paths("/regex.*", "/no/group/template")))
                 .add(requestMapping("regex request path rewriting no match")
                         .pathRegex("/regex/request/path/no/match.*")
-                        .set(regexRequestPathRewriter().paths("/no/match/(?<path>.*)", "/<path>")));
+                        .set(regexRequestPathRewriter().paths("/no/match/(?<path>.*)", "/<path>")))
+                .add(requestMapping("response protocol headers rewriting")
+                        .pathRegex("/response/protocol/headers.*")
+                        .unset(RESPONSE_PROTOCOL_HEADERS_REWRITER)
+                        .unset(REQUEST_PROTOCOL_HEADERS_REWRITER));
     }
 }

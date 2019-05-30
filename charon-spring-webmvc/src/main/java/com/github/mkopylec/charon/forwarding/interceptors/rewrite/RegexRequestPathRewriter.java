@@ -10,6 +10,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REGEX_REQUEST_PATH_REWRITER;
 import static java.util.regex.Pattern.compile;
@@ -58,7 +59,12 @@ class RegexRequestPathRewriter implements RequestForwardingInterceptor {
         String requestPath = oldUri.getPath();
         Matcher matcher = incomingRequestPathRegex.matcher(requestPath);
         requestForwardingErrorIf(!matcher.find(), () -> "Incoming request path " + requestPath + " does not match path rewriter regex pattern " + incomingRequestPathRegex);
-        String rewrittenPath = outgoingRequestPathTemplate.fill(matcher);
+        String rewrittenPath;
+        try {
+            rewrittenPath = outgoingRequestPathTemplate.fill(matcher);
+        } catch (IllegalArgumentException e) {
+            throw requestForwardingError("Path rewriter regex pattern " + incomingRequestPathRegex + " does not contain groups required to fill request path template " + outgoingRequestPathTemplate, e);
+        }
         URI rewrittenUri = fromUri(oldUri)
                 .replacePath(rewrittenPath)
                 .build(true)

@@ -10,8 +10,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import static org.springframework.http.HttpStatus.OK
 
 // TODO Tests for exceptions
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -21,7 +21,7 @@ abstract class BasicSpec extends Specification {
     protected static OutgoingServer localhost8081 = new OutgoingServer(8081)
 
     @Autowired
-    private TestRestTemplate restTemplate
+    private TestRestTemplate restTemplate // TODO RequestSender.groovy
 
     protected ResponseEntity<String> sendRequest(HttpMethod method, String path) {
         return sendRequest(method, path, [:], '')
@@ -38,14 +38,8 @@ abstract class BasicSpec extends Specification {
         return restTemplate.exchange(path, method, request, String)
     }
 
-    // TODO Maybe not needed
-    void setup() {
-        localhost8080.stubResponse(OK, null, null, false)
-        localhost8081.stubResponse(OK, null, null, false)
-    }
-
     void cleanup() {
-        localhost8080.reset()
-        localhost8081.reset()
+        outgoingServers(localhost8080, localhost8081)
+                .resetStubs()
     }
 }

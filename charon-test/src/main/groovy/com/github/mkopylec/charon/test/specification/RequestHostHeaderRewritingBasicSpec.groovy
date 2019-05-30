@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.test.specification
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.OK
 
@@ -14,7 +15,6 @@ abstract class RequestHostHeaderRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080)
                 .haveReceivedRequest(GET, '/request/host/header', ['Host': 'localhost:8080'])
     }
@@ -26,8 +26,12 @@ abstract class RequestHostHeaderRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/default', ['Host': 'example.com'])
+    }
+
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
     }
 }

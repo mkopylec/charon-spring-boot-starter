@@ -40,7 +40,7 @@ class ResponseAssertion {
         return this
     }
 
-    ResponseAssertion notContainsHeaders(List<String> headers) {
+    ResponseAssertion notContainsHeaders(String... headers) {
         headers.each { name -> assert !response.headers.containsKey(name) }
         return this
     }

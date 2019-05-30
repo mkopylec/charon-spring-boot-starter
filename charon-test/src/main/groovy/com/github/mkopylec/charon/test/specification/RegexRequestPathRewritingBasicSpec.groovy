@@ -4,6 +4,7 @@ import spock.lang.Unroll
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
+import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.OK
@@ -18,7 +19,6 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, outgoingPath)
 
@@ -36,7 +36,6 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
-                .hasNoBody()
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/default')
     }
@@ -48,9 +47,9 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
-                .bodyContains('No group with name <path>')
+                .bodyContains('Path rewriter regex pattern /regex.* does not contain groups required to fill request path template /<path>')
         assertThatServers(localhost8080, localhost8081)
-                .haveReceivedNoRequest()
+                .haveNotReceivedRequest()
     }
 
     def "Should fail to rewrite request path using regex when incoming path regex doesn't match incoming path"() {
@@ -62,6 +61,11 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
                 .hasStatus(INTERNAL_SERVER_ERROR)
                 .bodyContains('Incoming request path /regex/request/path/no/match does not match path rewriter regex pattern /no/match/(?<path>.*)')
         assertThatServers(localhost8080, localhost8081)
-                .haveReceivedNoRequest()
+                .haveNotReceivedRequest()
+    }
+
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
     }
 }

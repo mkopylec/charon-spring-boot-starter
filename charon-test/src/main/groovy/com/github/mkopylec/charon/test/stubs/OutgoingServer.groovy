@@ -30,7 +30,7 @@ class OutgoingServer {
 
     void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body, VerificationTimes count) {
         server.verify(request(path)
-                .withMethod(method.name())
+                .withMethod(method ? method.name() : null)
                 .withHeaders(toHeaders(headers))
                 .withBody(body), count)
     }

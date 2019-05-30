@@ -16,7 +16,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.Request
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseProtocolHeadersRewriterConfigurer.responseProtocolHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookieRewriterConfigurer.rootPathResponseCookieRewriter;
 import static java.util.Collections.unmodifiableList;
-import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
 public class CharonConfiguration implements Valid {
 
@@ -27,7 +27,7 @@ public class CharonConfiguration implements Valid {
     private CustomConfiguration customConfiguration;
 
     CharonConfiguration() {
-        filterOrder = LOWEST_PRECEDENCE;
+        filterOrder = HIGHEST_PRECEDENCE;
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(forwardingLogger().configure());
