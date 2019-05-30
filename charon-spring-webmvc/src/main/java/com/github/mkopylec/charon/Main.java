@@ -3,7 +3,7 @@ package com.github.mkopylec.charon;
 import java.net.URI;
 
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
-import com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerHandlerConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -22,9 +22,9 @@ import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
-import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.ThreadPoolConfigurer.threadPool;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingHandlerConfigurer.retryingHandler;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static java.time.Duration.ofMillis;
@@ -73,15 +73,14 @@ public class Main {
         CircuitBreakerMetrics metrics = CircuitBreakerMetrics.ofIterable(singletonList(circuitBreaker));
         metrics.bindTo(new SimpleMeterRegistry());
 
-        CircuitBreakerHandlerConfigurer.circuitBreakerHandler()
-                .enabled(true);
+        CircuitBreakerConfigurer.circuitBreaker();
         charonConfiguration()
                 .set(restTemplate()
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(500))))
                 .set(removingResponseCookiesRewriter())
                 .set(regexRequestPathRewriter())
-                .set(retryingHandler().configuration(RetryConfig.<HttpResponse>custom().retryOnResult(null)))
-                .set(asynchronousForwardingHandler()
+                .set(retryer().configuration(RetryConfig.<HttpResponse>custom().retryOnResult(null)))
+                .set(asynchronousForwarder()
                         .set(threadPool().coreSize(3)))
                 .add(requestMapping("proxy 1")
                         .set(custom().set("name", "value")))

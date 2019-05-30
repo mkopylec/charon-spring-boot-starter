@@ -13,11 +13,13 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROXY_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
-import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwardingHandlerConfigurer.asynchronousForwardingHandler;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ofMinutes;
 
 @Configuration
@@ -32,7 +34,7 @@ class ReverseProxyConfiguration {
                         .pathRegex("/default"))
                 .add(requestMapping("asynchronous forwarding")
                         .pathRegex("/asynchronous/forwarding.*")
-                        .set(asynchronousForwardingHandler()))
+                        .set(asynchronousForwarder()))
                 .add(requestMapping("request protocol headers rewriting")
                         .pathRegex("/request/protocol/headers.*")
                         .unset(REQUEST_PROTOCOL_HEADERS_REWRITER))
@@ -67,6 +69,10 @@ class ReverseProxyConfiguration {
                         .unset(RESPONSE_COOKIE_REWRITER))
                 .add(requestMapping("removing response cookies rewriting")
                         .pathRegex("/removing/response/cookies.*")
-                        .set(removingResponseCookiesRewriter()));
+                        .set(removingResponseCookiesRewriter()))
+                .add(requestMapping("retrying")
+                        .pathRegex("/retrying.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(retryer().meterRegistry(meterRegistry())));
     }
 }

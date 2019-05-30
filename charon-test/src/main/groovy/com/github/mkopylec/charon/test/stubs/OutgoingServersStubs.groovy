@@ -15,11 +15,19 @@ class OutgoingServersStubs {
     }
 
     void stubResponse(HttpStatus status) {
-        outgoingServers.each { it.stubResponse(status, [:], null, false) }
+        outgoingServers.each { it.stubResponse(status, [:], null, false, 1) }
+    }
+
+    void stubResponse(HttpStatus status, int times) {
+        outgoingServers.each { it.stubResponse(status, [:], null, false, times) }
+    }
+
+    void stubResponse(HttpStatus status, String body, int times) {
+        outgoingServers.each { it.stubResponse(status, [:], body, false, times) }
     }
 
     void stubResponse(HttpStatus status, Map<String, String> headers) {
-        outgoingServers.each { it.stubResponse(status, headers, null, false) }
+        outgoingServers.each { it.stubResponse(status, headers, null, false, 1) }
     }
 
     void resetStubs() {

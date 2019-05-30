@@ -3,6 +3,8 @@ package com.github.mkopylec.charon.test.assertions
 import com.github.mkopylec.charon.test.stubs.OutgoingServer
 import org.springframework.http.ResponseEntity
 
+import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.meterRegistry
+
 class Assertions {
 
     static ResponseAssertion assertThat(ResponseEntity response) {
@@ -11,5 +13,9 @@ class Assertions {
 
     static OutgoingServerAssertion assertThatServers(OutgoingServer... outgoingServers) {
         return new OutgoingServerAssertion(outgoingServers)
+    }
+
+    static MetricsAssertion assertThatMetrics() {
+        return new MetricsAssertion(meterRegistry())
     }
 }

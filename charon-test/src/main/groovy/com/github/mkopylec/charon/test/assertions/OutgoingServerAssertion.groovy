@@ -1,11 +1,7 @@
 package com.github.mkopylec.charon.test.assertions
 
 import com.github.mkopylec.charon.test.stubs.OutgoingServer
-import org.mockserver.verify.VerificationTimes
 import org.springframework.http.HttpMethod
-
-import static org.mockserver.verify.VerificationTimes.exactly
-import static org.mockserver.verify.VerificationTimes.once
 
 class OutgoingServerAssertion {
 
@@ -21,33 +17,37 @@ class OutgoingServerAssertion {
     }
 
     OutgoingServerAssertion haveNotReceivedRequest(Map<String, String> requestHeaders) {
-        return haveReceivedRequest(null, null, requestHeaders, '', exactly(0))
+        return haveReceivedRequest(null, null, requestHeaders, '', 0)
     }
 
     OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath) {
-        return haveReceivedRequest(requestMethod, requestPath, [:], '', once())
+        return haveReceivedRequest(requestMethod, requestPath, [:], '', 1)
+    }
+
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, int times) {
+        return haveReceivedRequest(requestMethod, requestPath, [:], '', times)
     }
 
     OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders) {
-        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, '', once())
+        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, '', 1)
     }
 
     OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody) {
-        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, requestBody, once())
+        return haveReceivedRequest(requestMethod, requestPath, requestHeaders, requestBody, 1)
     }
 
-    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody, VerificationTimes count) {
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders, String requestBody, int times) {
         def error = '\r\n'
         def matchesCount = outgoingServers.count {
             try {
-                it.verifyRequest(requestMethod, requestPath, requestHeaders, requestBody, count)
+                it.verifyRequest(requestMethod, requestPath, requestHeaders, requestBody, times)
                 return true
             } catch (AssertionError ex) {
                 error += "\r\n[$it]\r\n$ex.message\r\n"
                 return false
             }
         }
-        if (count.matches(0)) {
+        if (times == 0) {
             if (matchesCount < outgoingServers.size()) {
                 throw new AssertionError(error)
             } else {

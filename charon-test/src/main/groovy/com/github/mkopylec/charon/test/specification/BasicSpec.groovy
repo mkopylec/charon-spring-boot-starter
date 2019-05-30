@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
+import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.resetMetrics
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
@@ -41,5 +42,6 @@ abstract class BasicSpec extends Specification {
     void cleanup() {
         outgoingServers(localhost8080, localhost8081)
                 .resetStubs()
+        resetMetrics()
     }
 }

@@ -45,6 +45,7 @@ public class RestTemplateConfiguration implements Valid {
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
         return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
+                .errorHandler(new NoExceptionErrorHandler())
                 .additionalInterceptors(interceptors)
                 .build();
     }

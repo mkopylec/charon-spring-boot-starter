@@ -10,12 +10,6 @@ public abstract class ResilienceHandlerConfigurer<H extends ResilienceHandler<?>
     }
 
     @SuppressWarnings("unchecked")
-    public C enabled(boolean enabled) {
-        configuredObject.setEnabled(enabled);
-        return (C) this;
-    }
-
-    @SuppressWarnings("unchecked")
     public C meterRegistry(MeterRegistry meterRegistry) {
         configuredObject.setMeterRegistry(meterRegistry);
         return (C) this;

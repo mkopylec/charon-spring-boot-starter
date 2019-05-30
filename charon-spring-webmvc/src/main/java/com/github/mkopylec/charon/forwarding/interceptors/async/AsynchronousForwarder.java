@@ -10,13 +10,13 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 
-class AsynchronousForwardingHandler implements RequestForwardingInterceptor {
+class AsynchronousForwarder implements RequestForwardingInterceptor {
 
-    private static final Logger log = getLogger(AsynchronousForwardingHandler.class);
+    private static final Logger log = getLogger(AsynchronousForwarder.class);
 
     private ThreadPool threadPool;
 
-    AsynchronousForwardingHandler() {
+    AsynchronousForwarder() {
         threadPool = new ThreadPool();
     }
 
