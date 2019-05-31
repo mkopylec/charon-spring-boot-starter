@@ -28,6 +28,10 @@ abstract class BasicSpec extends Specification {
         return sendRequest(method, path, [:], '')
     }
 
+    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, String body) {
+        return sendRequest(method, path, [:], body)
+    }
+
     protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers) {
         return sendRequest(method, path, headers, '')
     }

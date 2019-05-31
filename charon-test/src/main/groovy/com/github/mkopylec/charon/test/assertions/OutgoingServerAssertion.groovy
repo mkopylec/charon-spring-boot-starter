@@ -28,6 +28,10 @@ class OutgoingServerAssertion {
         return haveReceivedRequest(requestMethod, requestPath, [:], '', times)
     }
 
+    OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, String requestBody) {
+        return haveReceivedRequest(requestMethod, requestPath, [:], requestBody, 1)
+    }
+
     OutgoingServerAssertion haveReceivedRequest(HttpMethod requestMethod, String requestPath, Map<String, String> requestHeaders) {
         return haveReceivedRequest(requestMethod, requestPath, requestHeaders, '', 1)
     }
