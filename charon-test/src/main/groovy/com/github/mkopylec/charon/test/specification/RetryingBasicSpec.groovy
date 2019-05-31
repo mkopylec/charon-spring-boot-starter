@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static org.springframework.http.HttpStatus.OK
 
-abstract class RetryerBasicSpec extends BasicSpec {
+abstract class RetryingBasicSpec extends BasicSpec {
 
     def "Should successfully retry request forwarding on HTTP 5xx response when proper interceptor is set"() {
         given:

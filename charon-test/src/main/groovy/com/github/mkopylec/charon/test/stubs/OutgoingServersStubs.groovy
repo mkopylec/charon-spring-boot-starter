@@ -30,7 +30,7 @@ class OutgoingServersStubs {
         outgoingServers.each { it.stubResponse(status, headers, null, false, 1) }
     }
 
-    void resetStubs() {
-        outgoingServers.each { it.reset() }
+    void clearStubs() {
+        outgoingServers.each { it.clear() }
     }
 }

@@ -16,6 +16,11 @@ class MetricsAssertion {
         return this
     }
 
+    MetricsAssertion haveCapturedLatency(String metricsName) {
+        assert meterRegistry.timer(metricsName).count() == 1
+        return this
+    }
+
     MetricsAssertion haveCapturedNothing() {
         assert meterRegistry.meters.isEmpty()
         return this

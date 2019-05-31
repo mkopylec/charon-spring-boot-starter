@@ -7,11 +7,9 @@ import com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBrea
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.micrometer.CircuitBreakerMetrics;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -28,7 +26,6 @@ import static com.github.mkopylec.charon.forwarding.interceptors.resilience.Retr
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static java.time.Duration.ofMillis;
-import static java.util.Collections.singletonList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Main {
@@ -69,9 +66,6 @@ public class Main {
         runnable1.run();
         CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.of(circuitBreakerConfig);
         circuitBreakerRegistry.circuitBreaker("d");
-
-        CircuitBreakerMetrics metrics = CircuitBreakerMetrics.ofIterable(singletonList(circuitBreaker));
-        metrics.bindTo(new SimpleMeterRegistry());
 
         CircuitBreakerConfigurer.circuitBreaker();
         charonConfiguration()

@@ -11,7 +11,7 @@ class MeterRegistryProvider {
         return meterRegistry
     }
 
-    static void resetMetrics() {
+    static void clearMetrics() {
         meterRegistry.meters.each { meterRegistry.remove(it.id) }
     }
 }

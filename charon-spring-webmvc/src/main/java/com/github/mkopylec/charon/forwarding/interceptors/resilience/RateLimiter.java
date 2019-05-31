@@ -13,6 +13,8 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics.ofRateLimiterRegistry;
 import static io.github.resilience4j.ratelimiter.RateLimiterConfig.custom;
 import static io.github.resilience4j.ratelimiter.RateLimiterRegistry.of;
+import static java.time.Duration.ZERO;
+import static java.time.Duration.ofSeconds;
 import static org.slf4j.LoggerFactory.getLogger;
 
 class RateLimiter extends ResilienceHandler<RateLimiterRegistry> {
@@ -22,7 +24,11 @@ class RateLimiter extends ResilienceHandler<RateLimiterRegistry> {
     private static final Logger log = getLogger(RateLimiter.class);
 
     RateLimiter() {
-        super(of(custom().build()));
+        super(of(custom()
+                .timeoutDuration(ZERO)
+                .limitRefreshPeriod(ofSeconds(1))
+                .limitForPeriod(100)
+                .build()));
     }
 
     @Override

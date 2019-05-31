@@ -5,11 +5,11 @@ import java.time.Duration;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
-import com.github.mkopylec.charon.forwarding.interceptors.MetricsUtils;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.MetricsUtils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.LATENCY_METER;
 import static java.lang.System.nanoTime;
 import static java.time.Duration.ofNanos;
@@ -20,19 +20,13 @@ class LatencyMeter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(LatencyMeter.class);
 
-    private boolean enabled;
     private MeterRegistry meterRegistry;
 
-    LatencyMeter(MeterRegistry meterRegistry) {
-        enabled = true;
-        this.meterRegistry = meterRegistry;
+    LatencyMeter() {
     }
 
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        if (!enabled) {
-            return execution.execute(request);
-        }
         log.trace("[Start] Collect metrics of '{}' request mapping", execution.getMappingName());
         long startingTime = nanoTime();
         try {
@@ -53,12 +47,12 @@ class LatencyMeter implements RequestForwardingInterceptor {
         return LATENCY_METER.getOrder();
     }
 
-    void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    void setMeterRegistry(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
     }
 
     private void captureLatencyMetric(String mappingName, long startingTime) {
-        String metricName = MetricsUtils.metricName(mappingName, "latency");
+        String metricName = metricName(mappingName, "latency");
         Duration responseTime = ofNanos(nanoTime() - startingTime);
         meterRegistry.timer(metricName).record(responseTime);
     }

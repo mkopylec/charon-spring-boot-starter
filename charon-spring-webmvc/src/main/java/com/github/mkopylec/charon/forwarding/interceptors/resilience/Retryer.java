@@ -6,13 +6,13 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.MetricNames;
 import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.MetricsUtils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RETRYING_HANDLER;
 import static io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.ofRetryRegistry;
-import static io.github.resilience4j.retry.RetryConfig.custom;
 import static io.github.resilience4j.retry.RetryRegistry.of;
 import static java.time.Duration.ofMillis;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -24,9 +24,9 @@ class Retryer extends ResilienceHandler<RetryRegistry> {
     private static final Logger log = getLogger(Retryer.class);
 
     Retryer() {
-        super(of(custom()
+        super(of(RetryConfig.<HttpResponse>custom()
                 .waitDuration(ofMillis(10))
-                .retryOnResult(result -> ((HttpResponse) result).getStatusCode().is5xxServerError())
+                .retryOnResult(result -> result.getStatusCode().is5xxServerError())
                 .build()));
     }
 

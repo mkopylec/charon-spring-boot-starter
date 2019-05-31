@@ -40,7 +40,7 @@ class OutgoingServer {
         server.verifyZeroInteractions()
     }
 
-    void reset() {
+    void clear() {
         server.reset()
     }
 

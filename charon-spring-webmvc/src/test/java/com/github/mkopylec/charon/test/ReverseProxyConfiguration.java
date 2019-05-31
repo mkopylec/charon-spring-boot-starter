@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +15,17 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
+import static com.github.mkopylec.charon.forwarding.interceptors.latency.LatencyMeterConfigurer.latencyMeter;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RateLimiterConfigurer.rateLimiter;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.meterRegistry;
+import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMinutes;
+import static java.time.Duration.ofSeconds;
 
 @Configuration
 class ReverseProxyConfiguration {
@@ -73,6 +78,15 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("retrying")
                         .pathRegex("/retrying.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
-                        .set(retryer().meterRegistry(meterRegistry())));
+                        .set(retryer().meterRegistry(meterRegistry())))
+                .add(requestMapping("rate limiting")
+                        .pathRegex("/rate/limiting.*")
+                        .set(rateLimiter().configuration(RateLimiterConfig.custom()
+                                .timeoutDuration(ZERO)
+                                .limitRefreshPeriod(ofSeconds(1))
+                                .limitForPeriod(1)).meterRegistry(meterRegistry())))
+                .add(requestMapping("latency metering")
+                        .pathRegex("/latency/metering.*")
+                        .set(latencyMeter().meterRegistry(meterRegistry())));
     }
 }

@@ -5,16 +5,16 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 public class LatencyMeterConfigurer extends RequestForwardingInterceptorConfigurer<LatencyMeter> {
 
-    private LatencyMeterConfigurer(MeterRegistry meterRegistry) {
-        super(new LatencyMeter(meterRegistry));
+    private LatencyMeterConfigurer() {
+        super(new LatencyMeter());
     }
 
-    public static LatencyMeterConfigurer latencyMeter(MeterRegistry meterRegistry) {
-        return new LatencyMeterConfigurer(meterRegistry);
+    public static LatencyMeterConfigurer latencyMeter() {
+        return new LatencyMeterConfigurer();
     }
 
-    public LatencyMeterConfigurer enabled(boolean enabled) {
-        configuredObject.setEnabled(enabled);
+    public LatencyMeterConfigurer meterRegistry(MeterRegistry meterRegistry) {
+        configuredObject.setMeterRegistry(meterRegistry);
         return this;
     }
 }
