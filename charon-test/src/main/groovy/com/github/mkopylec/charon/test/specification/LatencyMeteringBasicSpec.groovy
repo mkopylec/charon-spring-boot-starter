@@ -11,7 +11,7 @@ abstract class LatencyMeteringBasicSpec extends BasicSpec {
 
     def "Should meter request forwarding latency when proper interceptor is set"() {
         when:
-        def response = sendRequest(GET, '/latency/metering')
+        def response = http.sendRequest(GET, '/latency/metering')
 
         then:
         assertThat(response)
@@ -24,7 +24,7 @@ abstract class LatencyMeteringBasicSpec extends BasicSpec {
 
     def "Should not meter request forwarding latency by default"() {
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)

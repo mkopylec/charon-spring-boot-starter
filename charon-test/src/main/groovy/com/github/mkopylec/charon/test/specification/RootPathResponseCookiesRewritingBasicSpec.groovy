@@ -17,7 +17,7 @@ abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, incomingHeaders)
 
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)
@@ -46,7 +46,7 @@ abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, incomingHeaders)
 
         when:
-        def response = sendRequest(GET, '/root/path/response/cookies')
+        def response = http.sendRequest(GET, '/root/path/response/cookies')
 
         then:
         assertThat(response)

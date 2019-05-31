@@ -10,7 +10,7 @@ abstract class RequestHostHeaderRewritingBasicSpec extends BasicSpec {
 
     def "Should rewrite request 'Host' header when proper interceptor is set"() {
         when:
-        def response = sendRequest(GET, '/request/host/header', ['Host': 'example.com'])
+        def response = http.sendRequest(GET, '/request/host/header', ['Host': 'example.com'])
 
         then:
         assertThat(response)
@@ -21,7 +21,7 @@ abstract class RequestHostHeaderRewritingBasicSpec extends BasicSpec {
 
     def "Should not rewrite request 'Host' header by default"() {
         when:
-        def response = sendRequest(GET, '/default', ['Host': 'example.com'])
+        def response = http.sendRequest(GET, '/default', ['Host': 'example.com'])
 
         then:
         assertThat(response)

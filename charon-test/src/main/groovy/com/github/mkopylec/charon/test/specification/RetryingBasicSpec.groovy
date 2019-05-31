@@ -19,7 +19,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .stubResponse(OK)
 
         when:
-        def response = sendRequest(GET, '/retrying')
+        def response = http.sendRequest(GET, '/retrying')
 
         then:
         assertThat(response)
@@ -36,7 +36,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .stubResponse(INTERNAL_SERVER_ERROR, 'response body', 3)
 
         when:
-        def response = sendRequest(GET, '/retrying')
+        def response = http.sendRequest(GET, '/retrying')
 
         then:
         assertThat(response)
@@ -54,7 +54,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .stubResponse(BAD_REQUEST)
 
         when:
-        def response = sendRequest(GET, '/retrying')
+        def response = http.sendRequest(GET, '/retrying')
 
         then:
         assertThat(response)
@@ -71,7 +71,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .stubResponse(INTERNAL_SERVER_ERROR)
 
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)

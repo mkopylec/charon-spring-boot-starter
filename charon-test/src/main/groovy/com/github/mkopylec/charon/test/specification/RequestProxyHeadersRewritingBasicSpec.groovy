@@ -13,7 +13,7 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
     @Unroll
     def "Should rewrite request proxy headers from #originalHeaders to #rewritenHeaders by default"() {
         when:
-        def response = sendRequest(GET, '/default', originalHeaders)
+        def response = http.sendRequest(GET, '/default', originalHeaders)
 
         then:
         assertThat(response)
@@ -35,7 +35,7 @@ abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
 
     def "Should not rewrite request proxy headers when proper interceptor is unset"() {
         when:
-        def response = sendRequest(GET, '/request/proxy/headers', ['Host': 'example.com', 'X-Forwarded-For': 'another-example.com'])
+        def response = http.sendRequest(GET, '/request/proxy/headers', ['Host': 'example.com', 'X-Forwarded-For': 'another-example.com'])
 
         then:
         assertThat(response)

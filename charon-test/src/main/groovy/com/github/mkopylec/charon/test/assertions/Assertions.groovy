@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.test.assertions
 import com.github.mkopylec.charon.test.stubs.OutgoingServer
 import org.springframework.http.ResponseEntity
 
-import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.meterRegistry
+import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry
 
 class Assertions {
 

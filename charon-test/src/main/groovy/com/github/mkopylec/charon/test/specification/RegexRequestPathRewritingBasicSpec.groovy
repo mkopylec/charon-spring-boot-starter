@@ -14,7 +14,7 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
     @Unroll
     def "Should rewrite request path using regex from #incomingPath to #outgoingPath when proper interceptor is set"() {
         when:
-        def response = sendRequest(GET, incomingPath)
+        def response = http.sendRequest(GET, incomingPath)
 
         then:
         assertThat(response)
@@ -31,7 +31,7 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
 
     def "Should not rewrite request path using regex by default"() {
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)
@@ -42,7 +42,7 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
 
     def "Should fail to rewrite request path using regex when outgoing path template has a placeholder but incoming path regex has no groups"() {
         when:
-        def response = sendRequest(GET, '/regex/request/path/groups/in/outgoing')
+        def response = http.sendRequest(GET, '/regex/request/path/groups/in/outgoing')
 
         then:
         assertThat(response)
@@ -54,7 +54,7 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
 
     def "Should fail to rewrite request path using regex when incoming path regex doesn't match incoming path"() {
         when:
-        def response = sendRequest(GET, '/regex/request/path/no/match')
+        def response = http.sendRequest(GET, '/regex/request/path/no/match')
 
         then:
         assertThat(response)

@@ -12,8 +12,8 @@ abstract class RateLimitingBasicSpec extends BasicSpec {
 
     def "Should limit request forwarding rate when proper interceptor is set"() {
         when:
-        sendRequest(GET, '/rate/limiting')
-        def response = sendRequest(GET, '/rate/limiting')
+        http.sendRequest(GET, '/rate/limiting')
+        def response = http.sendRequest(GET, '/rate/limiting')
 
         then:
         assertThat(response)

@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.test.stubs
+package com.github.mkopylec.charon.test.utils
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry

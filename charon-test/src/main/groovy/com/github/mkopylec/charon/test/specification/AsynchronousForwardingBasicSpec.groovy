@@ -11,7 +11,7 @@ abstract class AsynchronousForwardingBasicSpec extends BasicSpec {
 
     def "Should asynchronously forward request when proper interceptor is set"() {
         when:
-        def response = sendRequest(GET, '/asynchronous/forwarding')
+        def response = http.sendRequest(GET, '/asynchronous/forwarding')
 
         then:
         assertThat(response)
@@ -24,7 +24,7 @@ abstract class AsynchronousForwardingBasicSpec extends BasicSpec {
 
     def "Should synchronously forward request by default"() {
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)

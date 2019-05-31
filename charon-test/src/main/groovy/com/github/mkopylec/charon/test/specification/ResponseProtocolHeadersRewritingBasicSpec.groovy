@@ -19,7 +19,7 @@ abstract class ResponseProtocolHeadersRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, headers)
 
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)
@@ -40,7 +40,7 @@ abstract class ResponseProtocolHeadersRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, headers)
 
         when:
-        def response = sendRequest(GET, '/response/protocol/headers')
+        def response = http.sendRequest(GET, '/response/protocol/headers')
 
         then:
         assertThat(response)

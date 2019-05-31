@@ -24,9 +24,9 @@ class OutgoingServer {
     void stubResponse(HttpStatus status, Map<String, String> headers, String body, boolean timedOut, int times) {
         server.when(request('.*'), Times.exactly(times))
                 .respond(response(body)
-                .withStatusCode(status.value())
-                .withHeaders(toHeaders(headers))
-                .withDelay(seconds(timedOut ? 1 : 0)))
+                        .withStatusCode(status.value())
+                        .withHeaders(toHeaders(headers))
+                        .withDelay(seconds(timedOut ? 1 : 0)))
     }
 
     void verifyRequest(HttpMethod method, String path, Map<String, String> headers, String body, int times) {

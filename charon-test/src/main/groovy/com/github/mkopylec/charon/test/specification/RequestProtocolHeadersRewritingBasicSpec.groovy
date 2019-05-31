@@ -10,7 +10,7 @@ abstract class RequestProtocolHeadersRewritingBasicSpec extends BasicSpec {
 
     def "Should rewrite request protocol headers by default"() {
         when:
-        def response = sendRequest(GET, '/default', ['TE': 'gzip'])
+        def response = http.sendRequest(GET, '/default', ['TE': 'gzip'])
 
         then:
         assertThat(response)
@@ -22,7 +22,7 @@ abstract class RequestProtocolHeadersRewritingBasicSpec extends BasicSpec {
 
     def "Should not rewrite request protocol headers when proper interceptor is unset"() {
         when:
-        def response = sendRequest(GET, '/request/protocol/headers', ['TE': 'gzip'])
+        def response = http.sendRequest(GET, '/request/protocol/headers', ['TE': 'gzip'])
 
         then:
         assertThat(response)

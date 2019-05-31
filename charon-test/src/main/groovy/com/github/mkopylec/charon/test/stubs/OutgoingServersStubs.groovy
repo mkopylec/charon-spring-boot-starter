@@ -22,6 +22,10 @@ class OutgoingServersStubs {
         outgoingServers.each { it.stubResponse(status, [:], null, false, times) }
     }
 
+    void stubResponse(HttpStatus status, String body) {
+        outgoingServers.each { it.stubResponse(status, [:], body, false, 1) }
+    }
+
     void stubResponse(HttpStatus status, String body, int times) {
         outgoingServers.each { it.stubResponse(status, [:], body, false, times) }
     }

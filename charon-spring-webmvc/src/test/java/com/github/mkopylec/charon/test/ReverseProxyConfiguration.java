@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,7 +21,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
-import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.meterRegistry;
+import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;

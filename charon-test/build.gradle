@@ -4,4 +4,5 @@ dependencies {
     compile group: 'org.spockframework', name: 'spock-spring', version: '1.2-groovy-2.5'
     compile group: 'org.mock-server', name: 'mockserver-netty', version: '5.5.1'
     compile group: 'io.micrometer', name: 'micrometer-core', version: micrometerVersion
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
 }

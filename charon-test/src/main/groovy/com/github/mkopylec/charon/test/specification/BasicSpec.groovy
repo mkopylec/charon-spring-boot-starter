@@ -1,17 +1,13 @@
 package com.github.mkopylec.charon.test.specification
 
 import com.github.mkopylec.charon.test.stubs.OutgoingServer
+import com.github.mkopylec.charon.test.utils.HttpClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
-import static com.github.mkopylec.charon.test.stubs.MeterRegistryProvider.clearMetrics
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
+import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.clearMetrics
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 // TODO Tests for exceptions
@@ -22,26 +18,7 @@ abstract class BasicSpec extends Specification {
     protected static OutgoingServer localhost8081 = new OutgoingServer(8081)
 
     @Autowired
-    private TestRestTemplate restTemplate // TODO RequestSender.groovy
-
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path) {
-        return sendRequest(method, path, [:], '')
-    }
-
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, String body) {
-        return sendRequest(method, path, [:], body)
-    }
-
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers) {
-        return sendRequest(method, path, headers, '')
-    }
-
-    protected ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers, String body) {
-        def httpHeaders = new HttpHeaders()
-        headers.each { name, value -> httpHeaders.put(name, value.split(', ') as List<String>) }
-        def request = new HttpEntity<>(body, httpHeaders)
-        return restTemplate.exchange(path, method, request, String)
-    }
+    protected HttpClient http
 
     void cleanup() {
         outgoingServers(localhost8080, localhost8081).clearStubs()

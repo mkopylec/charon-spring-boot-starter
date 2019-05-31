@@ -17,7 +17,7 @@ abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, incomingHeaders)
 
         when:
-        def response = sendRequest(GET, '/removing/response/cookies')
+        def response = http.sendRequest(GET, '/removing/response/cookies')
 
         then:
         assertThat(response)
@@ -42,7 +42,7 @@ abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
                 .stubResponse(OK, incomingHeaders)
 
         when:
-        def response = sendRequest(GET, '/default')
+        def response = http.sendRequest(GET, '/default')
 
         then:
         assertThat(response)
