@@ -17,10 +17,6 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
 
     @Unroll
     def "Should forward request with #method method by default"() {
-        given:
-        outgoingServers(localhost8080, localhost8081)
-                .stubResponse(OK)
-
         when:
         http.sendRequest(method, '/default')
 
@@ -34,10 +30,6 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
 
     @Unroll
     def "Should forward request with '#body' body by default"() {
-        given:
-        outgoingServers(localhost8080, localhost8081)
-                .stubResponse(OK)
-
         when:
         http.sendRequest(POST, '/default', body)
 
@@ -49,5 +41,8 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
         body << ['', '  ', 'request body']
     }
 
-    // TODO more here, path-regex fail test
+    void setup() {
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
+    }
 }

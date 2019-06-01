@@ -2,11 +2,13 @@ package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
+import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROTOCOL_HEADERS_REWRITER;
@@ -21,10 +23,13 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+import static com.github.mkopylec.charon.test.CustomResponseStatusRewriterConfigurer.customResponseStatusRewriter;
 import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Configuration
 class ReverseProxyConfiguration {
@@ -34,6 +39,7 @@ class ReverseProxyConfiguration {
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
                 .set(restTemplate().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))
+                .set(custom().set("default-custom-property", FORBIDDEN))
                 .add(requestMapping("default")
                         .pathRegex("/default"))
                 .add(requestMapping("asynchronous forwarding")
@@ -86,6 +92,17 @@ class ReverseProxyConfiguration {
                                 .limitForPeriod(1)).meterRegistry(meterRegistry())))
                 .add(requestMapping("latency metering")
                         .pathRegex("/latency/metering.*")
-                        .set(latencyMeter().meterRegistry(meterRegistry())));
+                        .set(latencyMeter().meterRegistry(meterRegistry())))
+                .add(requestMapping("multiple mappings found 1")
+                        .pathRegex("/multiple/mappings/found.*"))
+                .add(requestMapping("multiple mappings found 2")
+                        .pathRegex("/multiple/mappings/found.*"))
+                .add(requestMapping("default custom configuration")
+                        .pathRegex("/default/custom/configuration.*")
+                        .set(customResponseStatusRewriter()))
+                .add(requestMapping("mapping custom configuration")
+                        .pathRegex("/mapping/custom/configuration.*")
+                        .set(custom().set("mapping-custom-property", UNAUTHORIZED))
+                        .set(customResponseStatusRewriter()));
     }
 }

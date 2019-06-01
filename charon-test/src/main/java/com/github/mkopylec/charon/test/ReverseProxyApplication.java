@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
-public class ReverseProxyApplication {
+class ReverseProxyApplication {
 
     public static void main(String[] args) {
         run(ReverseProxyApplication.class, args);

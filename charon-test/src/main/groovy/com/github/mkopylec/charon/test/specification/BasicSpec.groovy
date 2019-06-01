@@ -10,7 +10,6 @@ import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoin
 import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.clearMetrics
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
-// TODO Tests for exceptions
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 abstract class BasicSpec extends Specification {
 
