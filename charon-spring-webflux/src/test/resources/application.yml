@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.github.mkopylec.charon: trace
