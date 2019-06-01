@@ -4,6 +4,7 @@ import com.github.mkopylec.charon.test.stubs.OutgoingServer
 import com.github.mkopylec.charon.test.utils.HttpClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -11,6 +12,7 @@ import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.clearM
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@TestPropertySource(properties = ['default-charon-configuration: false'])
 abstract class BasicSpec extends Specification {
 
     protected static OutgoingServer localhost8080 = new OutgoingServer(8080)

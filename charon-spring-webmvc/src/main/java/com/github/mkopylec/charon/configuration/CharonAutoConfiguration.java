@@ -23,7 +23,7 @@ class CharonAutoConfiguration {
     ReverseProxyFilter reverseProxyFilter(ObjectProvider<CharonConfigurer> charonConfigurer) {
         CharonConfigurer configurer = charonConfigurer.getIfAvailable();
         if (configurer == null) {
-            log.warn("No Charon configuration detected, all incoming requests will be handled locally.");
+            log.warn("No Charon configuration detected, all incoming requests will be handled locally");
             configurer = charonConfiguration();
         }
         CharonConfiguration configuration = configurer.configure();

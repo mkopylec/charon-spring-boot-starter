@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.test;
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +36,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 class ReverseProxyConfiguration {
 
     @Bean
-    CharonConfigurer charonConfigurer() {
+    CharonConfigurer charonConfigurer(@Value("${default-charon-configuration}") boolean defaultConfiguration) {
+        if (defaultConfiguration) {
+            return null;
+        }
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
                 .set(restTemplate().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))

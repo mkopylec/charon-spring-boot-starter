@@ -7,7 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 class LocalEndpoint {
 
     @GetMapping("/no/mapping/found")
-    String getLocalResponse() {
-        return "local endpoint response";
+    String handleNoMappingFound() {
+        return "no mapping found response";
+    }
+
+    @GetMapping("/default/charon/configuration")
+    String handleDefaultCharonConfiguration() {
+        return "default charon configuration response";
     }
 }
