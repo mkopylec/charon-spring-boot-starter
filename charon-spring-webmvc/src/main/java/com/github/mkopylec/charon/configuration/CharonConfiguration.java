@@ -11,10 +11,6 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProtocolHeadersRewriterConfigurer.requestProtocolHeadersRewriter;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseProtocolHeadersRewriterConfigurer.responseProtocolHeadersRewriter;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookiesRewriterConfigurer.rootPathResponseCookiesRewriter;
 import static java.util.Collections.unmodifiableList;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
@@ -31,10 +27,6 @@ public class CharonConfiguration implements Valid {
         restTemplateConfiguration = restTemplate().configure();
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(forwardingLogger().configure());
-        addRequestForwardingInterceptor(requestProtocolHeadersRewriter().configure());
-        addRequestForwardingInterceptor(requestProxyHeadersRewriter().configure());
-        addRequestForwardingInterceptor(responseProtocolHeadersRewriter().configure());
-        addRequestForwardingInterceptor(rootPathResponseCookiesRewriter().configure());
         requestMappingConfigurations = new ArrayList<>();
         customConfiguration = custom().configure();
     }
