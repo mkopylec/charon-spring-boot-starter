@@ -15,7 +15,7 @@ class CustomResponseStatusRewriter implements RequestForwardingInterceptor {
     private static final Logger log = getLogger(CustomResponseStatusRewriter.class);
 
     @Override
-    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) { // TODO rewrite body test
         log.trace("[Start] Custom response status rewriting for '{}' request mapping", execution.getMappingName());
         HttpResponse response = execution.execute(request);
         rewriteStatus(execution, response);
@@ -32,11 +32,11 @@ class CustomResponseStatusRewriter implements RequestForwardingInterceptor {
         HttpStatus oldStatus = response.getStatusCode();
         HttpStatus status = execution.getCustomProperty("default-custom-property");
         if (status != null) {
-            response.setStatus(status);
+            response.setStatusCode(status);
         }
         status = execution.getCustomProperty("mapping-custom-property");
         if (status != null) {
-            response.setStatus(status);
+            response.setStatusCode(status);
         }
         log.debug("Response status rewritten from {} to {}", oldStatus, response.getStatusCode());
     }

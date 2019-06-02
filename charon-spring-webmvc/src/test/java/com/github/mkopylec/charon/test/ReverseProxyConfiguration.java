@@ -27,6 +27,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.Request
 import static com.github.mkopylec.charon.test.CustomResponseStatusRewriterConfigurer.customResponseStatusRewriter;
 import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ZERO;
+import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -107,6 +108,9 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("mapping custom configuration")
                         .pathRegex("/mapping/custom/configuration.*")
                         .set(custom().set("mapping-custom-property", UNAUTHORIZED))
-                        .set(customResponseStatusRewriter()));
+                        .set(customResponseStatusRewriter()))
+                .add(requestMapping("timeout")
+                        .pathRegex("/timeout.*")
+                        .set(restTemplate().set(timeout().read(ofMillis(10)).write(ofMillis(10)))));
     }
 }

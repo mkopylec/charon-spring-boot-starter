@@ -41,7 +41,7 @@ public class RestTemplateConfiguration implements Valid {
     }
 
     RestTemplate configure(RequestMappingConfiguration configuration) {
-        Supplier<ClientHttpRequestFactory> requestFactory = getCreateRequestFactory(timeoutConfiguration);
+        Supplier<ClientHttpRequestFactory> requestFactory = createRequestFactory(timeoutConfiguration);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
         return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
@@ -50,7 +50,7 @@ public class RestTemplateConfiguration implements Valid {
                 .build();
     }
 
-    private Supplier<ClientHttpRequestFactory> getCreateRequestFactory(TimeoutConfiguration timeoutConfiguration) {
+    private Supplier<ClientHttpRequestFactory> createRequestFactory(TimeoutConfiguration timeoutConfiguration) {
         return () -> clientHttpRequestFactoryCreator.createRequestFactory(timeoutConfiguration);
     }
 

@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
 import java.net.HttpCookie;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static java.net.HttpCookie.parse;
 import static java.util.Collections.emptyList;
-import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -25,8 +23,6 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.http.HttpHeaders.SET_COOKIE2;
 
 class RootPathResponseCookiesRewriter implements RequestForwardingInterceptor {
-
-    private static final Pattern cookiePathPattern = compile("Path=/");
 
     private static final Logger log = getLogger(RootPathResponseCookiesRewriter.class);
 

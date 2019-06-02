@@ -15,14 +15,12 @@ public class HttpResponse implements ClientHttpResponse {
     private HttpStatus status;
     private HttpHeaders headers;
     private byte[] body;
-    private Runnable closeHandler;
+    private ClientHttpResponse delegate;
 
     public HttpResponse(HttpStatus status) {
         this.status = status;
         headers = new HttpHeaders();
         body = new byte[]{};
-        closeHandler = () -> {
-        };
     }
 
     HttpResponse(ClientHttpResponse response) throws IOException {
@@ -30,7 +28,7 @@ public class HttpResponse implements ClientHttpResponse {
         headers = new HttpHeaders();
         headers.putAll(response.getHeaders());
         body = toByteArray(response.getBody());
-        closeHandler = response::close;
+        delegate = response;
     }
 
     @Override
@@ -48,7 +46,7 @@ public class HttpResponse implements ClientHttpResponse {
         return status.getReasonPhrase();
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatusCode(HttpStatus status) {
         this.status = status;
     }
 
@@ -76,6 +74,8 @@ public class HttpResponse implements ClientHttpResponse {
 
     @Override
     public void close() {
-        closeHandler.run();
+        if (delegate != null) {
+            delegate.close();
+        }
     }
 }

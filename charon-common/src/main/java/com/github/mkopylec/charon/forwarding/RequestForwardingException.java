@@ -18,6 +18,10 @@ public class RequestForwardingException extends RuntimeException {
         }
     }
 
+    public static RequestForwardingException requestForwardingError(String errorMessage) {
+        return new RequestForwardingException(errorMessage);
+    }
+
     public static RequestForwardingException requestForwardingError(String errorMessage, Throwable cause) {
         return new RequestForwardingException(errorMessage, cause);
     }

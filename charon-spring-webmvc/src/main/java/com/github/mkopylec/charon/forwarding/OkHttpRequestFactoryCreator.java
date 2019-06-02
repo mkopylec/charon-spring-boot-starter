@@ -1,21 +1,18 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.time.Duration;
-
-import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
 
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.github.mkopylec.charon.forwarding.Utils.toMillis;
 
 class OkHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
 
     @Override
     public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectionPool(new ConnectionPool(0, 1, MILLISECONDS))
+        OkHttpClient client = new Builder()
                 .followRedirects(false)
                 .followSslRedirects(false)
                 .build();
@@ -24,9 +21,5 @@ class OkHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
         requestFactory.setReadTimeout(toMillis(configuration.getRead()));
         requestFactory.setWriteTimeout(toMillis(configuration.getWrite()));
         return requestFactory;
-    }
-
-    private int toMillis(Duration duration) {
-        return (int) duration.toMillis();
     }
 }

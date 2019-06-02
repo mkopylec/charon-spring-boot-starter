@@ -5,10 +5,8 @@ import java.net.URI;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
-import reactor.core.scheduler.Schedulers;
 
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
@@ -39,11 +37,16 @@ public class Main {
                             .doOnSuccess(clientResponse -> System.out.println("end 3"));
                 })
                 .build()
-                .get()
+                .post()
                 .uri("http://www.meteo.pl/swswsws")
-                .retrieve()
-                .bodyToMono(String.class)
-                .subscribeOn(Schedulers.fromExecutorService(new ThreadPoolTaskExecutor().getThreadPoolExecutor()))
+                .exchange()
+                .map(clientResponse -> {
+                    // TODO Map to server response
+                    return clientResponse;
+                })
+
+//                .bodyToMono(String.class)
+//                .subscribeOn(Schedulers.fromExecutorService(new ThreadPoolTaskExecutor().getThreadPoolExecutor()))
 //                .doOnError(Exception.class, e -> e.printStackTrace())
 //                .subscribe();
                 .block();
