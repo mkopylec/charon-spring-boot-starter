@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors.latency;
 
-import java.time.Duration;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import io.micrometer.core.instrument.MeterRegistry;
-
 import org.springframework.core.Ordered;
+
+import java.time.Duration;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.LATENCY_METER;
@@ -13,7 +12,7 @@ import static java.lang.System.nanoTime;
 import static java.time.Duration.ofNanos;
 import static org.springframework.util.Assert.notNull;
 
-class BasicLatencyMeter implements Ordered, Valid {
+abstract class BasicLatencyMeter implements Ordered, Valid {
 
     private MeterRegistry meterRegistry;
 

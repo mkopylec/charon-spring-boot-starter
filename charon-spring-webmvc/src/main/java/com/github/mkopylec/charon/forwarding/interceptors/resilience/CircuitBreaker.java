@@ -3,21 +3,14 @@ package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
-import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
 
-import static com.github.mkopylec.charon.forwarding.Utils.metricName;
-import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.CIRCUIT_BREAKER_HANDLER;
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.of;
-import static io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.ofCircuitBreakerRegistry;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class CircuitBreaker extends ResilienceHandler<CircuitBreakerRegistry> {
-
-    private static final String CIRCUIT_BREAKER_METRICS_NAME = "circuit-breaker";
+class CircuitBreaker extends BasicCircuitBreaker implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(CircuitBreaker.class);
 
@@ -34,24 +27,5 @@ class CircuitBreaker extends ResilienceHandler<CircuitBreakerRegistry> {
         HttpResponse response = circuitBreaker.executeSupplier(() -> execution.execute(request));
         log.trace("[End] Circuit breaker for '{}' request mapping", execution.getMappingName());
         return response;
-    }
-
-    @Override
-    public int getOrder() {
-        return CIRCUIT_BREAKER_HANDLER.getOrder();
-    }
-
-    private TaggedCircuitBreakerMetrics createMetrics(CircuitBreakerRegistry registry, String mappingName) {
-        String bufferedCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "buffered-calls");
-        String callsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "calls");
-        String maxBufferedCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "max-buffered-calls");
-        String stateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "state");
-        MetricNames metricNames = MetricNames.custom()
-                .bufferedCallsMetricName(bufferedCallsMetricName)
-                .callsMetricName(callsMetricName)
-                .maxBufferedCallsMetricName(maxBufferedCallsMetricName)
-                .stateMetricName(stateMetricName)
-                .build();
-        return ofCircuitBreakerRegistry(metricNames, registry);
     }
 }
