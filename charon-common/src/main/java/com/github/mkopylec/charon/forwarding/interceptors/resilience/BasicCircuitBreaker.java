@@ -4,6 +4,8 @@ import com.github.mkopylec.charon.configuration.Valid;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
+import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
@@ -16,9 +18,12 @@ abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreaker
 
     private static final String CIRCUIT_BREAKER_METRICS_NAME = "circuit-breaker";
 
-    BasicCircuitBreaker() {
+    private Logger log;
+
+    BasicCircuitBreaker(Logger log) {
         // TODO Handle 5xx after https://github.com/resilience4j/resilience4j/issues/384 is done
         super(of(custom().build()));
+        this.log = log;
     }
 
     @Override
@@ -38,5 +43,13 @@ abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreaker
                 .stateMetricName(stateMetricName)
                 .build();
         return ofCircuitBreakerRegistry(metricNames, registry);
+    }
+
+    void logStart(String mappingName) {
+        log.trace("[Start] Circuit breaker for '{}' request mapping", mappingName);
+    }
+
+    void logEnd(String mappingName) {
+        log.trace("[End] Circuit breaker for '{}' request mapping", mappingName);
     }
 }

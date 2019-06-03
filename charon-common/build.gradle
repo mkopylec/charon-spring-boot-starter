@@ -1,5 +1,6 @@
 dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
+    compile group: 'org.springframework', name: 'spring-web', version: springVersion
     compile group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
     compile group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
     compile group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion

@@ -58,5 +58,6 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
 
     public void setBody(byte[] body) {
         this.body = body;
+        headers.setContentLength(body.length);
     }
 }

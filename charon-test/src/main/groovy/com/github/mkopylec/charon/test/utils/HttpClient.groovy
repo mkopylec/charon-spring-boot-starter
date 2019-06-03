@@ -44,6 +44,9 @@ class HttpClient {
                 .followSslRedirects(false)
                 .build()
         def requestFactory = new OkHttp3ClientHttpRequestFactory(client)
+        requestFactory.connectTimeout = 100
+        requestFactory.readTimeout = 100000
+        requestFactory.writeTimeout = 100000
         restTemplate.restTemplate.requestFactory = requestFactory
     }
 }

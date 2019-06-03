@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROTOCOL_HEADERS_REWRITER;
-import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.HeadersUtils.copyHeaders;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.TE;

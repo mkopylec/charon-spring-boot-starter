@@ -14,14 +14,18 @@ class LatencyMeter extends BasicLatencyMeter implements RequestForwardingInterce
 
     private static final Logger log = getLogger(LatencyMeter.class);
 
+    LatencyMeter() {
+        super(log);
+    }
+
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Collect metrics of '{}' request mapping", execution.getMappingName());
+        logStart(execution.getMappingName());
         long startingTime = nanoTime();
         return execution.execute(request)
                 .doFinally(signalType -> {
                     captureLatencyMetric(execution.getMappingName(), startingTime);
-                    log.trace("[End] Collect metrics of '{}' request mapping", execution.getMappingName());
+                    logEnd(execution.getMappingName());
                 });
     }
 }

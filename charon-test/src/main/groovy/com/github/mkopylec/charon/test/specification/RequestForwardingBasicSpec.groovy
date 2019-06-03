@@ -29,16 +29,19 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
     }
 
     @Unroll
-    def "Should forward request with '#body' body by default"() {
+    def "Should forward request with '#body' body and set 'Content-Length' header to #contentLength by default"() {
         when:
         http.sendRequest(POST, '/default', body)
 
         then:
         assertThatServers(localhost8080, localhost8081)
-                .haveReceivedRequest(POST, '/default', body)
+                .haveReceivedRequest(POST, '/default', ['Content-Length': contentLength], body)
 
         where:
-        body << ['', '  ', 'request body']
+        body           | contentLength
+        ''             | '0'
+        '  '           | '2'
+        'request body' | '12'
     }
 
     void setup() {

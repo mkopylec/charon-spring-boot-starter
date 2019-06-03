@@ -70,6 +70,7 @@ public class HttpResponse implements ClientHttpResponse {
 
     public void setBody(byte[] body) {
         this.body = body;
+        headers.setContentLength(body.length);
     }
 
     @Override

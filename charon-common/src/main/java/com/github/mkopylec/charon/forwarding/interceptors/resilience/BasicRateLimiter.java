@@ -4,6 +4,8 @@ import com.github.mkopylec.charon.configuration.Valid;
 import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics.MetricNames;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
@@ -18,12 +20,15 @@ abstract class BasicRateLimiter extends BasicResilienceHandler<RateLimiterRegist
 
     private static final String RATE_LIMITING_METRICS_NAME = "rate-limiting";
 
-    BasicRateLimiter() {
+    private Logger log;
+
+    BasicRateLimiter(Logger log) {
         super(of(custom()
                 .timeoutDuration(ZERO)
                 .limitRefreshPeriod(ofSeconds(1))
                 .limitForPeriod(100)
                 .build()));
+        this.log = log;
     }
 
     @Override
@@ -39,5 +44,13 @@ abstract class BasicRateLimiter extends BasicResilienceHandler<RateLimiterRegist
                 .waitingThreadsMetricName(waitingThreadsMetricName)
                 .build();
         return ofRateLimiterRegistry(metricNames, registry);
+    }
+
+    void logStart(String mappingName) {
+        log.trace("[Start] Rate limiting of '{}' request mapping", mappingName);
+    }
+
+    void logEnd(String mappingName) {
+        log.trace("[End] Rate limiting of '{}' request mapping", mappingName);
     }
 }

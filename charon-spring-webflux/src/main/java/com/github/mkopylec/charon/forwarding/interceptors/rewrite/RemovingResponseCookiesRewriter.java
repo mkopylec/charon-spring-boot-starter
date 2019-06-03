@@ -5,6 +5,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
+import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 
@@ -21,13 +22,14 @@ class RemovingResponseCookiesRewriter extends BasicRemovingResponseCookiesRewrit
     }
 
     @Override
-    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+    public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        HttpResponse response = execution.execute(request);
-        HttpHeaders headers = response.getHeaders();
-        removeCookies(headers, SET_COOKIE);
-        removeCookies(headers, SET_COOKIE2);
-        logEnd(execution.getMappingName());
-        return response;
+        return execution.execute(request)
+                .doOnSuccess(response -> {
+                    HttpHeaders headers = response.headers().asHttpHeaders();
+                    removeCookies(headers, SET_COOKIE);
+                    removeCookies(headers, SET_COOKIE2);
+                    logEnd(execution.getMappingName());
+                });
     }
 }

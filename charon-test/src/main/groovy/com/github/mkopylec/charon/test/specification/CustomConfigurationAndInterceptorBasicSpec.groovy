@@ -32,4 +32,25 @@ abstract class CustomConfigurationAndInterceptorBasicSpec extends BasicSpec {
         '/default/custom/configuration' | FORBIDDEN
         '/mapping/custom/configuration' | UNAUTHORIZED
     }
+
+    @Unroll
+    def "Should rewrite forwarded response body to '#body' when incoming request path is #path using custom configuration and interceptor"() {
+        given:
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
+
+        when:
+        def response = http.sendRequest(GET, path)
+
+        then:
+        assertThat(response)
+                .hasBody(body)
+        assertThatServers(localhost8080, localhost8081)
+                .haveReceivedRequest(GET, path)
+
+        where:
+        path                            | body
+        '/default/custom/configuration' | '403 FORBIDDEN'
+        '/mapping/custom/configuration' | '401 UNAUTHORIZED'
+    }
 }

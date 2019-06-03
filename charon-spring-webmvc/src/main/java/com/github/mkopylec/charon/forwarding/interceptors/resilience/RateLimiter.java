@@ -12,13 +12,17 @@ class RateLimiter extends BasicRateLimiter implements RequestForwardingIntercept
 
     private static final Logger log = getLogger(RateLimiter.class);
 
+    RateLimiter() {
+        super(log);
+    }
+
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Rate limiting of '{}' request mapping", execution.getMappingName());
+        logStart(execution.getMappingName());
         io.github.resilience4j.ratelimiter.RateLimiter rateLimiter = registry.rateLimiter(execution.getMappingName());
         setupMetrics(registry -> createMetrics(registry, execution.getMappingName()));
         HttpResponse response = rateLimiter.executeSupplier(() -> execution.execute(request));
-        log.trace("[End] Rate limiting of '{}' request mapping", execution.getMappingName());
+        logEnd(execution.getMappingName());
         return response;
     }
 }

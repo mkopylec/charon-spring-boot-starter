@@ -24,7 +24,8 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
-import static com.github.mkopylec.charon.test.CustomResponseStatusRewriterConfigurer.customResponseStatusRewriter;
+import static com.github.mkopylec.charon.test.CustomResponseRewriterConfigurer.customResponseRewriter;
+import static com.github.mkopylec.charon.test.ExceptionThrowerConfigurer.exceptionThrower;
 import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMillis;
@@ -89,6 +90,11 @@ class ReverseProxyConfiguration {
                         .pathRegex("/retrying.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
                         .set(retryer().meterRegistry(meterRegistry())))
+                .add(requestMapping("exception retrying")
+                        .pathRegex("/exception/retrying.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(exceptionThrower())
+                        .set(retryer().meterRegistry(meterRegistry())))
                 .add(requestMapping("rate limiting")
                         .pathRegex("/rate/limiting.*")
                         .set(rateLimiter().configuration(RateLimiterConfig.custom()
@@ -104,11 +110,11 @@ class ReverseProxyConfiguration {
                         .pathRegex("/multiple/mappings/found.*"))
                 .add(requestMapping("default custom configuration")
                         .pathRegex("/default/custom/configuration.*")
-                        .set(customResponseStatusRewriter()))
+                        .set(customResponseRewriter()))
                 .add(requestMapping("mapping custom configuration")
                         .pathRegex("/mapping/custom/configuration.*")
                         .set(custom().set("mapping-custom-property", UNAUTHORIZED))
-                        .set(customResponseStatusRewriter()))
+                        .set(customResponseRewriter()))
                 .add(requestMapping("timeout")
                         .pathRegex("/timeout.*")
                         .set(restTemplate().set(timeout().read(ofMillis(10)).write(ofMillis(10)))));

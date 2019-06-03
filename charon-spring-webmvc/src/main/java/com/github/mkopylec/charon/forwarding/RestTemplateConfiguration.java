@@ -43,6 +43,7 @@ public class RestTemplateConfiguration implements Valid {
     RestTemplate configure(RequestMappingConfiguration configuration) {
         Supplier<ClientHttpRequestFactory> requestFactory = createRequestFactory(timeoutConfiguration);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
+        // TODO Retryer is not working, because of InterceptingClientHttpRequest:90. Need to implement custom Iterator over interceptors. Use ThreadLocal to store next interceptor index? Webflux should work correctly without any modification?
         return new RestTemplateBuilder()
                 .requestFactory(requestFactory)
                 .errorHandler(new NoExceptionErrorHandler())

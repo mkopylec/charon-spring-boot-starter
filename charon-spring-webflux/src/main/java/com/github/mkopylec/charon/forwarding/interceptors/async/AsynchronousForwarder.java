@@ -17,6 +17,10 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
 
     private static final Logger log = getLogger(AsynchronousForwarder.class);
 
+    AsynchronousForwarder() {
+        super(log);
+    }
+
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         empty().subscribeOn(fromExecutorService(threadPool))
@@ -26,7 +30,7 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
     }
 
     private Mono<Void> forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Asynchronous execution of '{}' request mapping", execution.getMappingName());
+        logStart(execution.getMappingName());
         return execution.execute(request)
                 .doOnSuccess(response -> {
                     String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
@@ -37,9 +41,9 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
                     } else {
                         log.debug(logMessage, execution.getMappingName(), response.rawStatusCode());
                     }
-                    log.trace("[End] Asynchronous execution of '{}' request mapping", execution.getMappingName());
+                    logEnd(execution.getMappingName());
                 })
                 .then()
-                .doOnError(RuntimeException.class, e -> log.error("Error executing '{}' request mapping asynchronously", execution.getMappingName(), e));
+                .doOnError(RuntimeException.class, e -> logError(execution.getMappingName(), e));
     }
 }

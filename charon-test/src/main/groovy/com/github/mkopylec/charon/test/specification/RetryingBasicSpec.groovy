@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.test.specification
 
+import spock.lang.Ignore
+
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
@@ -44,6 +46,26 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .hasBody('response body')
         assertThatServers(localhost8080)
                 .haveReceivedRequest(GET, '/retrying', 3)
+        assertThatMetrics()
+                .haveCaptured('charon.retrying.retrying.calls')
+    }
+
+    // TODO Must work
+    @Ignore
+    def "Should unsuccessfully retry request forwarding on exception when proper interceptor is set"() {
+        given:
+        outgoingServers(localhost8080)
+                .stubResponse(OK, 'response body', 3)
+
+        when:
+        def response = http.sendRequest(GET, '/exception/retrying')
+
+        then:
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+                .hasBody('')
+        assertThatServers(localhost8080)
+                .haveReceivedRequest(GET, '/exception/retrying', 3)
         assertThatMetrics()
                 .haveCaptured('charon.retrying.retrying.calls')
     }
