@@ -1,18 +1,17 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
-import java.net.URI;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import org.slf4j.Logger;
-
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+
+import java.net.URI;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_HOST_HEADER_REWRITER;
 import static org.springframework.http.HttpHeaders.HOST;
 
-class BasicRequestHostHeaderRewriter implements Ordered, Valid {
+abstract class BasicRequestHostHeaderRewriter implements Ordered, Valid {
 
     private Logger log;
 

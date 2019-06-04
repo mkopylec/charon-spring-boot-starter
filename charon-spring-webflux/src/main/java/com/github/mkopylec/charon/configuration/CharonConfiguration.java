@@ -1,15 +1,16 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
+import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
 import static java.util.Collections.unmodifiableList;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
@@ -25,8 +26,7 @@ public class CharonConfiguration implements Valid {
         filterOrder = HIGHEST_PRECEDENCE;
         webClientConfiguration = webClient().configure();
         requestForwardingInterceptors = new ArrayList<>();
-        //TODO
-//        addRequestForwardingInterceptor(forwardingLogger().configure());
+        addRequestForwardingInterceptor(forwardingLogger().configure());
         requestMappingConfigurations = new ArrayList<>();
         customConfiguration = custom().configure();
     }

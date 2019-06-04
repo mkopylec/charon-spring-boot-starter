@@ -1,16 +1,19 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
-
 import org.springframework.core.Ordered;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProtocolHeadersRewriterConfigurer.requestProtocolHeadersRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseProtocolHeadersRewriterConfigurer.responseProtocolHeadersRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookiesRewriterConfigurer.rootPathResponseCookiesRewriter;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.compile;
@@ -29,11 +32,10 @@ public class RequestMappingConfiguration implements Valid {
         this.name = name;
         pathRegex = compile("/.*");
         requestForwardingInterceptors = new ArrayList<>();
-        // TODO
-//        addRequestForwardingInterceptor(requestProtocolHeadersRewriter().configure());
-//        addRequestForwardingInterceptor(requestProxyHeadersRewriter().configure());
-//        addRequestForwardingInterceptor(responseProtocolHeadersRewriter().configure());
-//        addRequestForwardingInterceptor(rootPathResponseCookiesRewriter().configure());
+        addRequestForwardingInterceptor(requestProtocolHeadersRewriter().configure());
+        addRequestForwardingInterceptor(requestProxyHeadersRewriter().configure());
+        addRequestForwardingInterceptor(responseProtocolHeadersRewriter().configure());
+        addRequestForwardingInterceptor(rootPathResponseCookiesRewriter().configure());
         unsetRequestForwardingInterceptors = new ArrayList<>();
     }
 
