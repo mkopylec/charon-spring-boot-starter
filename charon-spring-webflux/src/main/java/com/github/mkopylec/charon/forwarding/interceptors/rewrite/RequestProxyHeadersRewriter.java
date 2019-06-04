@@ -20,7 +20,7 @@ class RequestProxyHeadersRewriter extends BasicRequestProxyHeadersRewriter imple
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteHeaders(request.headers(), request.url());
+        rewriteHeaders(request.headers(), request.url(), request::setHeaders);
         return execution.execute(request)
                 .doOnSuccess(response -> logEnd(execution.getMappingName()));
     }

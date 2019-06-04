@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static org.apache.commons.io.IOUtils.toByteArray;
 
 public class HttpResponse implements ClientHttpResponse {
@@ -25,8 +26,7 @@ public class HttpResponse implements ClientHttpResponse {
 
     HttpResponse(ClientHttpResponse response) throws IOException {
         status = response.getStatusCode();
-        headers = new HttpHeaders();
-        headers.putAll(response.getHeaders());
+        headers = response.getHeaders();
         body = toByteArray(response.getBody());
         delegate = response;
     }
@@ -70,7 +70,9 @@ public class HttpResponse implements ClientHttpResponse {
 
     public void setBody(byte[] body) {
         this.body = body;
-        headers.setContentLength(body.length);
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        rewrittenHeaders.setContentLength(body.length);
+        setHeaders(rewrittenHeaders);
     }
 
     @Override

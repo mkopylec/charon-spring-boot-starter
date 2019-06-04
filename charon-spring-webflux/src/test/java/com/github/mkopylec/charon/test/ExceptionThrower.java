@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
+package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
@@ -9,11 +9,11 @@ import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class ResponseProtocolHeadersRewriter extends BasicResponseProtocolHeadersRewriter implements RequestForwardingInterceptor {
+class ExceptionThrower extends BasicExceptionThrower implements RequestForwardingInterceptor {
 
-    private static final Logger log = getLogger(ResponseProtocolHeadersRewriter.class);
+    private static final Logger log = getLogger(ExceptionThrower.class);
 
-    ResponseProtocolHeadersRewriter() {
+    ExceptionThrower() {
         super(log);
     }
 
@@ -22,8 +22,7 @@ class ResponseProtocolHeadersRewriter extends BasicResponseProtocolHeadersRewrit
         logStart(execution.getMappingName());
         return execution.execute(request)
                 .doOnSuccess(response -> {
-                    rewriteHeaders(response.headers().asHttpHeaders(), response::setHeaders);
-                    logEnd(execution.getMappingName());
+                    throw new RuntimeException("Unexpected error has occurred");
                 });
     }
 }

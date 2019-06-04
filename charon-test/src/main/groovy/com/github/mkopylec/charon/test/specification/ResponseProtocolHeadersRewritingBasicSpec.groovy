@@ -31,8 +31,7 @@ abstract class ResponseProtocolHeadersRewritingBasicSpec extends BasicSpec {
 
     def "Should not rewrite response protocol headers when proper interceptor is unset"() {
         given:
-        def headers = ['Transfer-Encoding'        : 'gzip',
-                       'Connection'               : 'keep-alive',
+        def headers = ['Connection'               : 'keep-alive',
                        'Public-Key-Pins'          : 'pin-sha256="abc"',
                        'Server'                   : 'Apache/2.4.1 (Unix)',
                        'Strict-Transport-Security': 'max-age=31536000']

@@ -20,7 +20,7 @@ abstract class TimeoutBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
-                .bodyContains('Error executing request: Read timed out')
+                .bodyContains('Error executing request: ')
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(GET, '/timeout')
     }

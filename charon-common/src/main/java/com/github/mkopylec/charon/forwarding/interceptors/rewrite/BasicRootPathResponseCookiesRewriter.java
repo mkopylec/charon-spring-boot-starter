@@ -1,13 +1,16 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import java.net.HttpCookie;
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.github.mkopylec.charon.configuration.Valid;
 import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
-import java.net.HttpCookie;
-import java.util.List;
-
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static java.net.HttpCookie.parse;
 import static java.util.Collections.emptyList;
@@ -29,14 +32,16 @@ class BasicRootPathResponseCookiesRewriter implements Ordered, Valid {
         return RESPONSE_COOKIE_REWRITER.getOrder();
     }
 
-    void rewriteCookies(HttpHeaders headers, String cookieHeaderName) {
-        List<String> responseCookies = headers.getOrDefault(cookieHeaderName, emptyList());
+    void rewriteCookies(HttpHeaders headers, String cookieHeaderName, Consumer<HttpHeaders> headersSetter) {
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        List<String> responseCookies = rewrittenHeaders.getOrDefault(cookieHeaderName, emptyList());
         List<String> rewrittenResponseCookies = responseCookies.stream()
                 .map(this::replaceCookiePath)
                 .collect(toList());
         if (isNotEmpty(rewrittenResponseCookies)) {
+            rewrittenHeaders.put(cookieHeaderName, rewrittenResponseCookies);
+            headersSetter.accept(rewrittenHeaders);
             log.debug("Response cookies rewritten from {} to {}", responseCookies, rewrittenResponseCookies);
-            headers.put(cookieHeaderName, rewrittenResponseCookies);
         }
     }
 

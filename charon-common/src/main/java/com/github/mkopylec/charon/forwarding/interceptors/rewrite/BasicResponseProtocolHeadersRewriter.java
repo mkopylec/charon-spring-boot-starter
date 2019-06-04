@@ -1,7 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import java.util.function.Consumer;
+
 import com.github.mkopylec.charon.configuration.Valid;
 import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
@@ -27,14 +30,15 @@ abstract class BasicResponseProtocolHeadersRewriter implements Ordered, Valid {
         return RESPONSE_PROTOCOL_HEADERS_REWRITER.getOrder();
     }
 
-    void rewriteHeaders(HttpHeaders headers) {
-        HttpHeaders oldHeaders = copyHeaders(headers);
-        headers.remove(TRANSFER_ENCODING);
-        headers.remove(CONNECTION);
-        headers.remove(PUBLIC_KEY_PINS);
-        headers.remove(SERVER);
-        headers.remove(STRICT_TRANSPORT_SECURITY);
-        log.debug("Response headers rewritten from {} to {}", oldHeaders, headers);
+    void rewriteHeaders(HttpHeaders headers, Consumer<HttpHeaders> headersSetter) {
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        rewrittenHeaders.remove(TRANSFER_ENCODING);
+        rewrittenHeaders.remove(CONNECTION);
+        rewrittenHeaders.remove(PUBLIC_KEY_PINS);
+        rewrittenHeaders.remove(SERVER);
+        rewrittenHeaders.remove(STRICT_TRANSPORT_SECURITY);
+        headersSetter.accept(rewrittenHeaders);
+        log.debug("Response headers rewritten from {} to {}", headers, rewrittenHeaders);
     }
 
     void logStart(String mappingName) {

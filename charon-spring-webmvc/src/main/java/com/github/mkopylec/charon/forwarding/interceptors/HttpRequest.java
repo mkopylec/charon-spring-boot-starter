@@ -5,6 +5,8 @@ import java.net.URI;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
+
 public class HttpRequest implements org.springframework.http.HttpRequest {
 
     private URI uri;
@@ -15,8 +17,7 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
     HttpRequest(org.springframework.http.HttpRequest request, byte[] body) {
         uri = request.getURI();
         method = request.getMethod();
-        headers = new HttpHeaders();
-        headers.putAll(request.getHeaders());
+        headers = request.getHeaders();
         this.body = body;
     }
 
@@ -58,6 +59,8 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
 
     public void setBody(byte[] body) {
         this.body = body;
-        headers.setContentLength(body.length);
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        rewrittenHeaders.setContentLength(body.length);
+        setHeaders(rewrittenHeaders);
     }
 }

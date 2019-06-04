@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.github.mkopylec.charon.configuration.Valid;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
@@ -24,9 +26,11 @@ abstract class BasicRemovingResponseCookiesRewriter implements Ordered, Valid {
         return RESPONSE_COOKIE_REWRITER.getOrder();
     }
 
-    void removeCookies(HttpHeaders headers, String cookieHeaderName) {
-        List<String> removedCookies = headers.remove(cookieHeaderName);
+    void removeCookies(HttpHeaders headers, String cookieHeaderName, Consumer<HttpHeaders> headersSetter) {
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        List<String> removedCookies = rewrittenHeaders.remove(cookieHeaderName);
         if (isNotEmpty(removedCookies)) {
+            headersSetter.accept(rewrittenHeaders);
             log.debug("Cookies {} removed from response", removedCookies);
         }
     }

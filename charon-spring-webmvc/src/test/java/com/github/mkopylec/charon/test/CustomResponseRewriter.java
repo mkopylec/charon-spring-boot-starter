@@ -10,22 +10,21 @@ import org.springframework.http.HttpStatus;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class CustomResponseRewriter implements RequestForwardingInterceptor {
+class CustomResponseRewriter extends BasicCustomResponseRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(CustomResponseRewriter.class);
 
-    @Override
-    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
-        log.trace("[Start] Custom response rewriting for '{}' request mapping", execution.getMappingName());
-        HttpResponse response = execution.execute(request);
-        rewriteResponse(execution, response);
-        log.trace("[End] Custom response rewriting for '{}' request mapping", execution.getMappingName());
-        return response;
+    CustomResponseRewriter() {
+        super(log);
     }
 
     @Override
-    public int getOrder() {
-        return 666;
+    public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
+        logStart(execution.getMappingName());
+        HttpResponse response = execution.execute(request);
+        rewriteResponse(execution, response);
+        logEnd(execution.getMappingName());
+        return response;
     }
 
     private void rewriteResponse(HttpRequestExecution execution, HttpResponse response) {

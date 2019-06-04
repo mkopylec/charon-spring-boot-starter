@@ -5,8 +5,9 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
-import org.springframework.http.HttpHeaders;
 import reactor.core.publisher.Mono;
+
+import org.springframework.http.HttpHeaders;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
@@ -26,8 +27,8 @@ class RootPathResponseCookiesRewriter extends BasicRootPathResponseCookiesRewrit
         return execution.execute(request)
                 .doOnSuccess(response -> {
                     HttpHeaders headers = response.headers().asHttpHeaders();
-                    rewriteCookies(headers, SET_COOKIE);
-                    rewriteCookies(headers, SET_COOKIE2);
+                    rewriteCookies(headers, SET_COOKIE, response::setHeaders);
+                    rewriteCookies(headers, SET_COOKIE2, response::setHeaders);
                     logEnd(execution.getMappingName());
                 });
     }

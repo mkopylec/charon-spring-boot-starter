@@ -22,8 +22,8 @@ class RootPathResponseCookiesRewriter extends BasicRootPathResponseCookiesRewrit
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
         HttpResponse response = execution.execute(request);
-        rewriteCookies(response.getHeaders(), SET_COOKIE);
-        rewriteCookies(response.getHeaders(), SET_COOKIE2);
+        rewriteCookies(response.getHeaders(), SET_COOKIE, response::setHeaders);
+        rewriteCookies(response.getHeaders(), SET_COOKIE2, response::setHeaders);
         logEnd(execution.getMappingName());
         return response;
     }

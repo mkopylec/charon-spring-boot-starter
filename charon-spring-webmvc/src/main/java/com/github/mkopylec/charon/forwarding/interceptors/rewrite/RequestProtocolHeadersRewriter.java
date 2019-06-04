@@ -19,7 +19,7 @@ class RequestProtocolHeadersRewriter extends BasicRequestProtocolHeadersRewriter
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteHeaders(request.getHeaders());
+        rewriteHeaders(request.getHeaders(), request::setHeaders);
         HttpResponse response = execution.execute(request);
         logEnd(execution.getMappingName());
         return response;

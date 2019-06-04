@@ -27,8 +27,8 @@ class RemovingResponseCookiesRewriter extends BasicRemovingResponseCookiesRewrit
         return execution.execute(request)
                 .doOnSuccess(response -> {
                     HttpHeaders headers = response.headers().asHttpHeaders();
-                    removeCookies(headers, SET_COOKIE);
-                    removeCookies(headers, SET_COOKIE2);
+                    removeCookies(headers, SET_COOKIE, response::setHeaders);
+                    removeCookies(headers, SET_COOKIE2, response::setHeaders);
                     logEnd(execution.getMappingName());
                 });
     }

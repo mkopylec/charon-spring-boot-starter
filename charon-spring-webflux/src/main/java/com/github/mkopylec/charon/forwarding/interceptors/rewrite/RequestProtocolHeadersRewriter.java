@@ -20,7 +20,7 @@ class RequestProtocolHeadersRewriter extends BasicRequestProtocolHeadersRewriter
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteHeaders(request.headers());
+        rewriteHeaders(request.headers(), request::setHeaders);
         return execution.execute(request)
                 .doOnSuccess(response -> logEnd(execution.getMappingName()));
     }

@@ -1,9 +1,12 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
 import com.github.mkopylec.charon.forwarding.CustomConfiguration;
+import io.netty.channel.ChannelException;
 import reactor.core.publisher.Mono;
 
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+
+import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 
 public class HttpRequestExecution {
 
@@ -21,7 +24,10 @@ public class HttpRequestExecution {
         return exchange.exchange(request)
                 .map(response -> response instanceof HttpResponse
                         ? (HttpResponse) response
-                        : new HttpResponse(response));
+                        : new HttpResponse(response))
+                .doOnError(ChannelException.class, e -> {
+                    throw requestForwardingError("Error executing request: " + e.getMessage(), e);
+                });
     }
 
     public String getMappingName() {

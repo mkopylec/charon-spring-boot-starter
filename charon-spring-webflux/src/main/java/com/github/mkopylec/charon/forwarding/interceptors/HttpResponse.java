@@ -1,5 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
+import java.util.List;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,14 +15,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static org.springframework.web.reactive.function.client.ClientResponse.create;
 import static org.springframework.web.reactive.function.client.ClientResponse.from;
+import static reactor.core.publisher.Mono.empty;
 
 public class HttpResponse implements ClientResponse {
 
@@ -25,6 +27,7 @@ public class HttpResponse implements ClientResponse {
     private ClientResponse delegate;
 
     public HttpResponse(HttpStatus status) {
+        body = empty();
         delegate = create(status).build();
     }
 

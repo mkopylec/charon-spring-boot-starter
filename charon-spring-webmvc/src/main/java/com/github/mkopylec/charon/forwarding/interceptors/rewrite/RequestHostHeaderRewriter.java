@@ -19,7 +19,7 @@ class RequestHostHeaderRewriter extends BasicRequestHostHeaderRewriter implement
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteHeaders(request.getHeaders(), request.getURI());
+        rewriteHeaders(request.getHeaders(), request.getURI(), request::setHeaders);
         HttpResponse response = execution.execute(request);
         logEnd(execution.getMappingName());
         return response;

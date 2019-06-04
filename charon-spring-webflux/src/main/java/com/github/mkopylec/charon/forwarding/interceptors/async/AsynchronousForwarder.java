@@ -9,9 +9,7 @@ import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.ACCEPTED;
-import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
-import static reactor.core.scheduler.Schedulers.fromExecutorService;
 
 class AsynchronousForwarder extends BasicAsynchronousForwarder implements RequestForwardingInterceptor {
 
@@ -23,15 +21,13 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
 
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
-        empty().subscribeOn(fromExecutorService(threadPool))
-                .then(forwardAsynchronously(request, execution))
-                .subscribe();
+        threadPool.execute(() -> forwardAsynchronously(request, execution));
         return just(new HttpResponse(ACCEPTED));
     }
 
-    private Mono<Void> forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
+    private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        return execution.execute(request)
+        execution.execute(request)
                 .doOnSuccess(response -> {
                     String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
                     if (response.statusCode().is5xxServerError()) {
@@ -43,7 +39,7 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
                     }
                     logEnd(execution.getMappingName());
                 })
-                .then()
-                .doOnError(RuntimeException.class, e -> logError(execution.getMappingName(), e));
+                .doOnError(RuntimeException.class, e -> logError(execution.getMappingName(), e))
+                .subscribe();
     }
 }

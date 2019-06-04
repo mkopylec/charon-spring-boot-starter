@@ -1,11 +1,13 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import java.net.URI;
+import java.util.function.Consumer;
+
 import com.github.mkopylec.charon.configuration.Valid;
 import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
-
-import java.net.URI;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_HOST_HEADER_REWRITER;
@@ -24,10 +26,11 @@ abstract class BasicRequestHostHeaderRewriter implements Ordered, Valid {
         return REQUEST_HOST_HEADER_REWRITER.getOrder();
     }
 
-    void rewriteHeaders(HttpHeaders headers, URI uri) {
-        HttpHeaders oldHeaders = copyHeaders(headers);
-        headers.set(HOST, uri.getAuthority());
-        log.debug("Request headers rewritten from {} to {}", oldHeaders, headers);
+    void rewriteHeaders(HttpHeaders headers, URI uri, Consumer<HttpHeaders> headersSetter) {
+        HttpHeaders rewrittenHeaders = copyHeaders(headers);
+        rewrittenHeaders.set(HOST, uri.getAuthority());
+        headersSetter.accept(rewrittenHeaders);
+        log.debug("Request headers rewritten from {} to {}", headers, rewrittenHeaders);
     }
 
     void logStart(String mappingName) {
