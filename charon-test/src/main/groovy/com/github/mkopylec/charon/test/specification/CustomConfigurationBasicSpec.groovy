@@ -10,10 +10,10 @@ import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.OK
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
-abstract class CustomConfigurationAndInterceptorBasicSpec extends BasicSpec {
+abstract class CustomConfigurationBasicSpec extends BasicSpec {
 
     @Unroll
-    def "Should rewrite forwarded response status to #status when incoming request path is #path using custom configuration and interceptor"() {
+    def "Should rewrite forwarded response status to #status when incoming request path is #path using custom configuration"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK)
@@ -31,26 +31,5 @@ abstract class CustomConfigurationAndInterceptorBasicSpec extends BasicSpec {
         path                            | status
         '/default/custom/configuration' | FORBIDDEN
         '/mapping/custom/configuration' | UNAUTHORIZED
-    }
-
-    @Unroll
-    def "Should rewrite forwarded response body to '#body' when incoming request path is #path using custom configuration and interceptor"() {
-        given:
-        outgoingServers(localhost8080, localhost8081)
-                .stubResponse(OK)
-
-        when:
-        def response = http.sendRequest(GET, path)
-
-        then:
-        assertThat(response)
-                .hasBody(body)
-        assertThatServers(localhost8080, localhost8081)
-                .haveReceivedRequest(GET, path)
-
-        where:
-        path                            | body
-        '/default/custom/configuration' | '403 FORBIDDEN'
-        '/mapping/custom/configuration' | '401 UNAUTHORIZED'
     }
 }

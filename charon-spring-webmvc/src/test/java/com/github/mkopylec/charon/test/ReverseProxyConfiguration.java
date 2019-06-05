@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +23,11 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
-import static com.github.mkopylec.charon.test.CustomResponseRewriterConfigurer.customResponseRewriter;
+import static com.github.mkopylec.charon.test.CustomConfigurationResponseRewriterConfigurer.customConfigurationResponseRewriter;
 import static com.github.mkopylec.charon.test.ExceptionThrowerConfigurer.exceptionThrower;
+import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
+import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
+import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
 import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.meterRegistry;
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMillis;
@@ -110,11 +112,20 @@ class ReverseProxyConfiguration {
                         .pathRegex("/multiple/mappings/found.*"))
                 .add(requestMapping("default custom configuration")
                         .pathRegex("/default/custom/configuration.*")
-                        .set(customResponseRewriter()))
+                        .set(customConfigurationResponseRewriter()))
                 .add(requestMapping("mapping custom configuration")
                         .pathRegex("/mapping/custom/configuration.*")
                         .set(custom().set("mapping-custom-property", UNAUTHORIZED))
-                        .set(customResponseRewriter()))
+                        .set(customConfigurationResponseRewriter()))
+                .add(requestMapping("request body rewriting")
+                        .pathRegex("/request/body/rewriting.*")
+                        .set(requestBodyRewriter()))
+                .add(requestMapping("response body rewriting")
+                        .pathRegex("/response/body/rewriting.*")
+                        .set(responseBodyRewriter()))
+                .add(requestMapping("custom load balancer")
+                        .pathRegex("/custom/load/balancer.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081", "localhost:8082").loadBalancer(lowestPortLoadBalancer())))
                 .add(requestMapping("timeout")
                         .pathRegex("/timeout.*")
                         .set(restTemplate().set(timeout().read(ofMillis(10)).write(ofMillis(10)))));

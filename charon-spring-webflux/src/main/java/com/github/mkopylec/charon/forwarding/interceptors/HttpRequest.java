@@ -1,10 +1,5 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import java.net.URI;
-import java.util.Map;
-
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -12,6 +7,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.Map;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static org.springframework.web.reactive.function.client.ClientRequest.from;
@@ -40,7 +39,7 @@ public class HttpRequest implements ClientRequest {
         return delegate.method();
     }
 
-    public void setMethod(HttpMethod method) { // TODO Tests
+    public void setMethod(HttpMethod method) {
         delegate = from(delegate)
                 .method(method)
                 .build();
@@ -71,7 +70,7 @@ public class HttpRequest implements ClientRequest {
     }
 
     public void setBody(BodyInserter<?, ? super ClientHttpRequest> body) {
-        delegate = from(delegate) // TODO Tests, ?content-length header?
+        delegate = from(delegate)
                 .body(body)
                 .build();
     }

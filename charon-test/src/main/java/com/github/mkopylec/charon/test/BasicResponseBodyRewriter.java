@@ -1,14 +1,13 @@
 package com.github.mkopylec.charon.test;
 
 import org.slf4j.Logger;
-
 import org.springframework.core.Ordered;
 
-class BasicCustomResponseRewriter implements Ordered {
+class BasicResponseBodyRewriter implements Ordered {
 
     private Logger log;
 
-    BasicCustomResponseRewriter(Logger log) {
+    BasicResponseBodyRewriter(Logger log) {
         this.log = log;
     }
 
@@ -18,10 +17,10 @@ class BasicCustomResponseRewriter implements Ordered {
     }
 
     void logStart(String mappingName) {
-        log.trace("[Start] Custom response rewriting for '{}' request mapping", mappingName);
+        log.trace("[Start] Response body rewriting for '{}' request mapping", mappingName);
     }
 
     void logEnd(String mappingName) {
-        log.trace("[End] Custom response rewriting for '{}' request mapping", mappingName);
+        log.trace("[End] Response body rewriting for '{}' request mapping", mappingName);
     }
 }

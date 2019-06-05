@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon;
 
-import java.net.URI;
-
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
-
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
+
+import java.net.URI;
 
 public class Main {
 
@@ -22,7 +21,7 @@ public class Main {
                 .filter((request, next) -> {
                     System.out.println("start 1");
                     return next.exchange(request)
-                            .transform(CircuitBreakerOperator.of(circuitBreaker)) // TODO 4xx and 5xx doesn't throw expections, similar to resttemplate
+                            .transform(CircuitBreakerOperator.of(circuitBreaker))
                             .doOnSuccess(clientResponse -> System.out.println("end 1"));
                 })
                 .filter((request, next) -> {
@@ -41,7 +40,6 @@ public class Main {
                 .uri("http://www.meteo.pl/swswsws")
                 .exchange()
                 .map(clientResponse -> {
-                    // TODO Map to server response
                     return clientResponse;
                 })
 

@@ -27,7 +27,7 @@ abstract class BasicRequestServerNameRewriter implements Ordered, Valid {
 
     BasicRequestServerNameRewriter(Logger log) {
         this.log = log;
-        loadBalancer = randomLoadBalancer().configure(); // TODO Custom load balancer test
+        loadBalancer = randomLoadBalancer().configure();
     }
 
     @Override

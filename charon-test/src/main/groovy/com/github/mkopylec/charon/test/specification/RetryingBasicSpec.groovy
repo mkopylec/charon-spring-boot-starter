@@ -50,7 +50,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveCaptured('charon.retrying.retrying.calls')
     }
 
-    // TODO Must work
+    // TODO Works only in webflux module
     @Ignore
     def "Should unsuccessfully retry request forwarding on exception when proper interceptor is set"() {
         given:
@@ -63,7 +63,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
-                .hasBody('')
+                .bodyContains('Unexpected error has occurred')
         assertThatServers(localhost8080)
                 .haveReceivedRequest(GET, '/exception/retrying', 3)
         assertThatMetrics()

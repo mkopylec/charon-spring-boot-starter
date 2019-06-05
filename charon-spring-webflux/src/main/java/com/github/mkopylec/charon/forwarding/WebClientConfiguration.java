@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
-
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static java.util.stream.Collectors.toList;
@@ -43,7 +42,7 @@ public class WebClientConfiguration implements Valid {
         ClientHttpConnector connector = createConnector(timeoutConfiguration);
         List<ExchangeFilterFunction> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
         return builder()
-                .clientConnector(connector) // TODO Catch 4xx and 5xx in main filter
+                .clientConnector(connector)
                 .filters(filters -> filters.addAll(interceptors))
                 .build();
     }

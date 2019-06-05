@@ -5,19 +5,18 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static reactor.core.publisher.Mono.defer;
 import static reactor.core.publisher.Mono.just;
 
-class CustomResponseRewriter extends BasicCustomResponseRewriter implements RequestForwardingInterceptor {
+class CustomConfigurationResponseRewriter extends BasicCustomConfigurationResponseRewriter implements RequestForwardingInterceptor {
 
-    private static final Logger log = getLogger(CustomResponseRewriter.class);
+    private static final Logger log = getLogger(CustomConfigurationResponseRewriter.class);
 
-    CustomResponseRewriter() {
+    CustomConfigurationResponseRewriter() {
         super(log);
     }
 
