@@ -1,7 +1,31 @@
 dependencies {
-    compile project(':charon-common')
+    compile project(':charon-common').sourceSets.main.output
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
     compile group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
 
     testCompile project(':charon-test')
+}
+
+jar {
+    from project(':charon-common').sourceSets.main.output
+}
+
+task sourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    from project(':charon-common').sourceSets.main.output
+}
+
+artifacts {
+    archives sourceJar
+}
+
+publishing {
+    publications {
+        charonSpringWebflux(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            pom pomContent
+        }
+    }
 }
