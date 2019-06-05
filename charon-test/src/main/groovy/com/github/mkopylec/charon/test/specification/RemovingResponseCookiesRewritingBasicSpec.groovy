@@ -11,7 +11,7 @@ import static org.springframework.http.HttpStatus.OK
 abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
 
     @Unroll
-    def "Should rewrite response cookies from #incomingHeaders to #outgoingHeaders when proper interceptor is set"() {
+    def "Should rewrite response cookies #incomingHeaders by removing '#removedHeaders' headers when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)
@@ -28,15 +28,12 @@ abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
 
         where:
         incomingHeaders                         | removedHeaders
-        [:]                                     | ''
-        ['Set-Cookie': '']                      | 'Set-Cookie'
         ['Set-Cookie': 'cookie=value; Path=/']  | 'Set-Cookie'
-        ['Set-Cookie2': '']                     | 'Set-Cookie2'
         ['Set-Cookie2': 'cookie=value; Path=/'] | 'Set-Cookie2'
     }
 
     @Unroll
-    def "Should not rewrite response cookies #incomingHeaders by default"() {
+    def "Should not remove response cookies #incomingHeaders by default"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)
@@ -53,10 +50,7 @@ abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
 
         where:
         incomingHeaders                         | outgoingHeaders
-        [:]                                     | [:]
-        ['Set-Cookie': '']                      | ['Set-Cookie': '']
         ['Set-Cookie': 'cookie=value; Path=/']  | ['Set-Cookie': 'cookie=value; Path=/']
-        ['Set-Cookie2': '']                     | ['Set-Cookie2': '']
         ['Set-Cookie2': 'cookie=value; Path=/'] | ['Set-Cookie2': 'cookie=value; Path=/']
     }
 }

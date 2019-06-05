@@ -38,7 +38,7 @@ class ForwardingLogger extends BasicForwardingLogger implements RequestForwardin
                     }
                 })
                 .doOnError(RuntimeException.class, e -> {
-                    log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> {}", oldMethod, oldUri, forwardingName, e.getMessage());
+                    log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> {}: {}", oldMethod, oldUri, forwardingName, e.getClass().getName(), e.getMessage());
                     throw e;
                 });
     }

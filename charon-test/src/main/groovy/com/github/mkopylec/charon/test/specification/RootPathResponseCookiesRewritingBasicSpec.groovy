@@ -28,12 +28,9 @@ abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
 
         where:
         incomingHeaders                             | outgoingHeaders
-        [:]                                         | [:]
-        ['Set-Cookie': '']                          | ['Set-Cookie': '']
         ['Set-Cookie': 'cookie=value']              | ['Set-Cookie': 'cookie=value; Path=/']
         ['Set-Cookie': 'cookie=value; Path=/']      | ['Set-Cookie': 'cookie=value; Path=/']
         ['Set-Cookie': 'cookie=value; Path=/path']  | ['Set-Cookie': 'cookie=value; Path=/']
-        ['Set-Cookie2': '']                         | ['Set-Cookie2': '']
         ['Set-Cookie2': 'cookie=value']             | ['Set-Cookie2': 'cookie=value; Path=/']
         ['Set-Cookie2': 'cookie=value; Path=/']     | ['Set-Cookie2': 'cookie=value; Path=/']
         ['Set-Cookie2': 'cookie=value; Path=/path'] | ['Set-Cookie2': 'cookie=value; Path=/']
@@ -57,12 +54,9 @@ abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
 
         where:
         incomingHeaders                             | outgoingHeaders
-        [:]                                         | [:]
-        ['Set-Cookie': '']                          | ['Set-Cookie': '']
         ['Set-Cookie': 'cookie=value']              | ['Set-Cookie': 'cookie=value']
         ['Set-Cookie': 'cookie=value; Path=/']      | ['Set-Cookie': 'cookie=value; Path=/']
         ['Set-Cookie': 'cookie=value; Path=/path']  | ['Set-Cookie': 'cookie=value; Path=/path']
-        ['Set-Cookie2': '']                         | ['Set-Cookie2': '']
         ['Set-Cookie2': 'cookie=value']             | ['Set-Cookie2': 'cookie=value']
         ['Set-Cookie2': 'cookie=value; Path=/']     | ['Set-Cookie2': 'cookie=value; Path=/']
         ['Set-Cookie2': 'cookie=value; Path=/path'] | ['Set-Cookie2': 'cookie=value; Path=/path']

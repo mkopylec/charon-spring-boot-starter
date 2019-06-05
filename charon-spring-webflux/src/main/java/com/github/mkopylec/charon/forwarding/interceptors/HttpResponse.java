@@ -17,9 +17,11 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
+import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static org.springframework.web.reactive.function.client.ClientResponse.create;
 import static org.springframework.web.reactive.function.client.ClientResponse.from;
 import static reactor.core.publisher.Mono.empty;
+import static reactor.core.publisher.Mono.just;
 
 public class HttpResponse implements ClientResponse {
 
@@ -54,7 +56,7 @@ public class HttpResponse implements ClientResponse {
 
     @Override
     public Headers headers() {
-        return delegate.headers(); // TODO asHttpHeaders returns read only headers
+        return delegate.headers();
     }
 
     public void setHeaders(HttpHeaders headers) {
@@ -80,8 +82,11 @@ public class HttpResponse implements ClientResponse {
         return body;
     }
 
-    public void setBody(Mono<byte[]> body) {
-        this.body = body; // TODO Will be outside request?
+    public void setBody(byte[] body) {
+        this.body = just(body);
+        HttpHeaders rewrittenHeaders = copyHeaders(delegate.headers().asHttpHeaders()); // TODO Tests for correct content-length
+        rewrittenHeaders.setContentLength(body.length);
+        setHeaders(rewrittenHeaders);
     }
 
     @Override

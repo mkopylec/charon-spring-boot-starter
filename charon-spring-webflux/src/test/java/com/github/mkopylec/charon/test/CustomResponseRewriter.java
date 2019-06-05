@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.http.HttpStatus;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static reactor.core.publisher.Mono.defer;
 import static reactor.core.publisher.Mono.just;
 
 class CustomResponseRewriter extends BasicCustomResponseRewriter implements RequestForwardingInterceptor {
@@ -29,24 +30,29 @@ class CustomResponseRewriter extends BasicCustomResponseRewriter implements Requ
     }
 
     private Mono<HttpResponse> rewriteResponse(HttpRequestExecution execution, HttpResponse response) {
-        HttpStatus oldStatus = response.statusCode();
         return response.getBody()
                 .flatMap(body -> {
                     String oldBody = new String(body);
-                    HttpStatus status = execution.getCustomProperty("default-custom-property");
-                    rewriteResponseIfStatusIsPresent(response, status);
-                    status = execution.getCustomProperty("mapping-custom-property");
-                    rewriteResponseIfStatusIsPresent(response, status);
-                    return response.getBody()
-                            .doOnSuccess(rewrittenBody -> log.debug("Response status rewritten from {} to {} and body rewritten from '{}' to '{}'", oldStatus.value(), response.statusCode().value(), oldBody, new String(rewrittenBody)))
-                            .then(just(response));
-                });
+                    return rewriteResponse(execution, response, oldBody);
+                })
+                .switchIfEmpty(defer(() -> rewriteResponse(execution, response, "")));
+    }
+
+    private Mono<HttpResponse> rewriteResponse(HttpRequestExecution execution, HttpResponse response, String oldBody) {
+        HttpStatus oldStatus = response.statusCode();
+        HttpStatus status = execution.getCustomProperty("default-custom-property");
+        rewriteResponseIfStatusIsPresent(response, status);
+        status = execution.getCustomProperty("mapping-custom-property");
+        rewriteResponseIfStatusIsPresent(response, status);
+        return response.getBody()
+                .doOnSuccess(rewrittenBody -> log.debug("Response status rewritten from {} to {} and body rewritten from '{}' to '{}'", oldStatus.value(), response.statusCode().value(), oldBody, new String(rewrittenBody)))
+                .then(just(response));
     }
 
     private void rewriteResponseIfStatusIsPresent(HttpResponse response, HttpStatus status) {
         if (status != null) {
             response.setStatusCode(status);
-            response.setBody(just(status.toString().getBytes()));
+            response.setBody(status.toString().getBytes());
         }
     }
 }

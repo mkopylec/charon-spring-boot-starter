@@ -40,7 +40,7 @@ public class HttpRequest implements ClientRequest {
         return delegate.method();
     }
 
-    public void setMethod(HttpMethod method) {
+    public void setMethod(HttpMethod method) { // TODO Tests
         delegate = from(delegate)
                 .method(method)
                 .build();
@@ -71,7 +71,7 @@ public class HttpRequest implements ClientRequest {
     }
 
     public void setBody(BodyInserter<?, ? super ClientHttpRequest> body) {
-        delegate = from(delegate)
+        delegate = from(delegate) // TODO Tests, ?content-length header?
                 .body(body)
                 .build();
     }
