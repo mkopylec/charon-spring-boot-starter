@@ -36,18 +36,13 @@ subprojects {
         okHttpVersion = '3.14.2'
     }
 
-    task javadocJar(type: Jar) {
-        archiveClassifier.set('javadoc')
-        from javadoc
-    }
-
     task sourceJar(type: Jar) {
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
     }
 
     artifacts {
-        archives javadocJar, sourceJar
+        archives sourceJar
     }
 
     signing {
