@@ -38,7 +38,7 @@ class HttpClient {
         return restTemplate.exchange(path, method, request, String)
     }
 
-    void setup() {
+    private void setup() {
         def client = new OkHttpClient.Builder()
                 .followRedirects(false)
                 .followSslRedirects(false)
