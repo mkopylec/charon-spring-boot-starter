@@ -31,7 +31,7 @@ subprojects {
         okHttpVersion = '3.14.2'
         
         ossrhUsername = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
-        ossrhPassword = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : ''
+        ossrhPassword = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : '' // TODO Authentication
         
         pomContent = {
             name = 'Charon Spring Boot Starter'
