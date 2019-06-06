@@ -16,7 +16,7 @@ class HttpClient {
 
     protected HttpClient(TestRestTemplate restTemplate) {
         this.restTemplate = restTemplate
-        disableFollowingRedirect()
+        setup()
     }
 
     ResponseEntity<String> sendRequest(HttpMethod method, String path) {
@@ -38,7 +38,7 @@ class HttpClient {
         return restTemplate.exchange(path, method, request, String)
     }
 
-    void disableFollowingRedirect() {
+    void setup() {
         def client = new OkHttpClient.Builder()
                 .followRedirects(false)
                 .followSslRedirects(false)
