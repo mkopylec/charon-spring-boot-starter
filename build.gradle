@@ -30,9 +30,6 @@ subprojects {
         resilience4jVersion = '0.15.0'
         okHttpVersion = '3.14.2'
         
-        ossrhUsername = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
-        ossrhPassword = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : '' // TODO Authentication
-        
         pomContent = {
             name = 'Charon Spring Boot Starter'
             description = 'Reverse proxy implementation in form of Spring Boot starter'
@@ -73,6 +70,20 @@ subprojects {
     signing {
         if (project.ext.has('signArtifacts')) {
             sign configurations.archives
+        }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
+                    password = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : ''
+                }
+            }
         }
     }
 }
