@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Ignore
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
@@ -50,8 +48,6 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveCaptured('charon.retrying.retrying.calls')
     }
 
-    // TODO Works only in webflux module
-    @Ignore
     def "Should unsuccessfully retry request forwarding on exception when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)

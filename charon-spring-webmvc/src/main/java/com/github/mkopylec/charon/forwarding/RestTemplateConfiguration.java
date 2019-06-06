@@ -1,16 +1,15 @@
 package com.github.mkopylec.charon.forwarding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static java.util.stream.Collectors.toList;
@@ -40,18 +39,13 @@ public class RestTemplateConfiguration implements Valid {
     }
 
     RestTemplate configure(RequestMappingConfiguration configuration) {
-        Supplier<ClientHttpRequestFactory> requestFactory = createRequestFactory(timeoutConfiguration);
+        ClientHttpRequestFactory requestFactory = clientHttpRequestFactoryCreator.createRequestFactory(timeoutConfiguration);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
-        // TODO Retryer is not working, because of InterceptingClientHttpRequest:90. Need to implement custom Iterator over interceptors. Use ThreadLocal to store next interceptor index?
-        return new RestTemplateBuilder()
-                .requestFactory(requestFactory)
-                .errorHandler(new NoExceptionErrorHandler())
-                .additionalInterceptors(interceptors)
-                .build();
-    }
-
-    private Supplier<ClientHttpRequestFactory> createRequestFactory(TimeoutConfiguration timeoutConfiguration) {
-        return () -> clientHttpRequestFactoryCreator.createRequestFactory(timeoutConfiguration);
+        RestTemplate restTemplate = new RetryAwareRestTemplate();
+        restTemplate.setRequestFactory(requestFactory);
+        restTemplate.setErrorHandler(new NoExceptionErrorHandler());
+        restTemplate.setInterceptors(interceptors);
+        return restTemplate;
     }
 
     private List<HttpRequestInterceptor> createHttpRequestInterceptors(RequestMappingConfiguration configuration) {

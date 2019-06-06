@@ -7,6 +7,8 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import io.github.resilience4j.retry.Retry;
 import org.slf4j.Logger;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.clearRetryAttempts;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.nextRetryAttempt;
 import static org.slf4j.LoggerFactory.getLogger;
 
 class Retryer extends BasicRetryer implements RequestForwardingInterceptor {
@@ -22,7 +24,15 @@ class Retryer extends BasicRetryer implements RequestForwardingInterceptor {
         logStart(execution.getMappingName());
         Retry retry = registry.retry(execution.getMappingName());
         setupMetrics(registry -> createMetrics(registry, execution.getMappingName()));
-        HttpResponse response = retry.executeSupplier(() -> execution.execute(request));
+        HttpResponse response;
+        try {
+            response = retry.executeSupplier(() -> {
+                nextRetryAttempt();
+                return execution.execute(request);
+            });
+        } finally {
+            clearRetryAttempts();
+        }
         logEnd(execution.getMappingName());
         return response;
     }
