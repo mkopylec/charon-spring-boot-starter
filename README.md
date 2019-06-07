@@ -1,44 +1,63 @@
 # Charon Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/charon-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/charon-spring-boot-starter)
-[![Coverage Status](https://coveralls.io/repos/mkopylec/charon-spring-boot-starter/badge.svg?branch=master&service=github&dummy=1)](https://coveralls.io/github/mkopylec/charon-spring-boot-starter?branch=master&dummy=1)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter)
+[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)
+
+`charon-spring-webmvc`
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc)
+
+`charon-spring-webmvc`
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux)
 
 Charon is a **reverse proxy** implementation.
 It automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
 There are some alternative reverse proxy implementations like: [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
-This tool tries to get the best of them joining their features into a one Spring Boot starter.
+[Zuul](https://github.com/Netflix/zuul/wiki) is highly bounded to [Spring Cloud Netflix](https://spring.io/projects/spring-cloud-netflix), [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet) is a simple one, without advanced features.
+Charon has a lot features already implemented but its architecture provides an easy way to add new ones.
 
 ## Features
 - easy to use
 - highly configurable and extensible
-- retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
+- [Spring WebMVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) and [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) support
+- configurable request forwarding mappings
+- asynchronous request forwarding support
 - metrics support based on [Micrometer](https://micrometer.io/)
-- customizable proxy mappings changeable at runtime
-- customizable load balancer
+- [Resilience4j](https://resilience4j.github.io/resilience4j/) support
+- flexible path rewriting
 - forward HTTP headers support
-- intercepting and tracing
-
-## Contribution
-Please use **pull-requests branch** as a destination branch for all pull requests.
+- cookies rewriting
+- custom load balancing
+- configurable HTTP client
+- request forwarding intercepting
 
 ## Migrating from 1.x.x to 2.x.x
-
 - remove `@EnableCharon` annotation
 - correct `charon.metrics` properties in the _application.yml_ file if collecting metrics is enabled
 - `charon.timeout` properties are no longer available in the _application.yml_ file, now timeouts can be set per mapping
 
 ## Migrating from 2.x.x to 3.x.x
-
 - correct `charon.metrics` properties in the _application.yml_ file are no longer available except `charon.metrics.name-prefix` property, now metrics rely on [Micrometer](https://micrometer.io/)
 
-## Installing
+## Migrating from 3.x.x to 4.x.x
+Charon was completely rewritten, configuration via _application.yml_ file is no longer available.
+See further documentation for more details. 
 
+## Installing
+WebMVC module:
 ```gradle
 repositories {
     mavenCentral()
 }
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '3.1.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-webmvc', version: '4.0.0'
+}
+```
+WebFlux module:
+```gradle
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile group: 'com.github.mkopylec', name: 'charon-spring-flux', version: '4.0.0'
 }
 ```
 
