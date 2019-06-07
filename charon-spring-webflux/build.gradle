@@ -13,7 +13,7 @@ jar {
 task sourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
-    from project(':charon-common').sourceSets.main.output
+    from project(':charon-common').sourceSets.main.allSource
 }
 
 artifacts {
