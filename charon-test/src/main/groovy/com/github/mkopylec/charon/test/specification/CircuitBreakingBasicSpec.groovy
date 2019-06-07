@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test.specification
 
 import org.springframework.test.annotation.DirtiesContext
+import spock.lang.Ignore
 
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
@@ -13,6 +14,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
+    @Ignore // TODO Unignore after https://github.com/resilience4j/resilience4j/issues/384 is done
     @DirtiesContext
     def "Should break circuit while forwarding request on HTTP 5xx response when proper interceptor is set"() {
         given:
