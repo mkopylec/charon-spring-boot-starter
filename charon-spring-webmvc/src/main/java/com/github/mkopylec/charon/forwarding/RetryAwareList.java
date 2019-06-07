@@ -7,11 +7,11 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getRetryAttempts;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getRetryerIndex;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isNextRetryAttempt;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.nextRetryAttemptUsed;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.setRetryerIndex;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getAfterRetryerIndex;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isFirstRetryAttempt;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isSucceedingRetryAttempt;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.setAfterRetryerIndex;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.succeedingRetryAttemptApplied;
 
 public class RetryAwareList<E> extends ArrayList<E> {
 
@@ -35,24 +35,15 @@ public class RetryAwareList<E> extends ArrayList<E> {
 
         @Override
         public boolean hasNext() {
-            // TODO Refactor, simplify?
-            if (getRetryAttempts() > 1 && isNextRetryAttempt() && getRetryerIndex() != null) {
-                cursor = getRetryerIndex() + 1;
-                nextRetryAttemptUsed();
-            }
+            cursor = resolveCursorForSucceedingRetryAttempt(cursor);
             return cursor != RetryAwareList.this.size();
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public E next() {
-            if (getRetryAttempts() == 1) {
-                setRetryerIndex(cursor - 1);
-            }
-            if (getRetryAttempts() > 1 && isNextRetryAttempt() && getRetryerIndex() != null) {
-                cursor = getRetryerIndex() + 1;
-                nextRetryAttemptUsed();
-            }
+            handleFirstRetryAttempt(cursor);
+            cursor = resolveCursorForSucceedingRetryAttempt(cursor);
             checkForComodification();
             int i = cursor;
             if (i >= RetryAwareList.this.size())
@@ -91,9 +82,8 @@ public class RetryAwareList<E> extends ArrayList<E> {
                 if (i >= es.length)
                     throw new ConcurrentModificationException();
                 for (; i < size && modCount == expectedModCount; i++) {
-                    if (getRetryAttempts() > 1) { // TODO Must behave as logic above
-                        i--;
-                    }
+                    handleFirstRetryAttempt(i);
+                    i = resolveCursorForSucceedingRetryAttempt(i);
                     action.accept((E) es[i]);
                 }
                 // update once at end to reduce heap write traffic
@@ -106,6 +96,20 @@ public class RetryAwareList<E> extends ArrayList<E> {
         final void checkForComodification() {
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();
+        }
+
+        private void handleFirstRetryAttempt(int cursor) {
+            if (isFirstRetryAttempt()) {
+                setAfterRetryerIndex(cursor);
+            }
+        }
+
+        private int resolveCursorForSucceedingRetryAttempt(int cursor) {
+            if (isSucceedingRetryAttempt()) {
+                cursor = getAfterRetryerIndex();
+                succeedingRetryAttemptApplied();
+            }
+            return cursor;
         }
     }
 }

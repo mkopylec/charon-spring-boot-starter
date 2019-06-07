@@ -6,26 +6,25 @@ public class RetryingState {
 
     private static ThreadLocal<Integer> retryAttempts = new ThreadLocal<>();
     private static ThreadLocal<Boolean> nextAttempt = new ThreadLocal<>();
-    private static ThreadLocal<Integer> retryerIndex = new ThreadLocal<>();
+    private static ThreadLocal<Integer> afterRetryerIndex = new ThreadLocal<>();
 
-    public static int getRetryAttempts() {
-        Integer attempt = retryAttempts.get();
-        return attempt != null ? attempt : 0;
+    public static boolean isFirstRetryAttempt() {
+        return getRetryAttempts() == 1;
     }
 
-    public static void setRetryerIndex(int index) {
-        retryerIndex.set(index);
+    public static boolean isSucceedingRetryAttempt() {
+        return getRetryAttempts() > 1 && isTrue(nextAttempt.get()) && afterRetryerIndex.get() != null;
     }
 
-    public static Integer getRetryerIndex() {
-        return retryerIndex.get();
+    public static void setAfterRetryerIndex(int index) {
+        afterRetryerIndex.set(index);
     }
 
-    public static boolean isNextRetryAttempt() {
-        return isTrue(nextAttempt.get());
+    public static int getAfterRetryerIndex() {
+        return afterRetryerIndex.get();
     }
 
-    public static void nextRetryAttemptUsed() {
+    public static void succeedingRetryAttemptApplied() {
         nextAttempt.set(false);
     }
 
@@ -38,6 +37,11 @@ public class RetryingState {
     static void clearRetryAttempts() {
         retryAttempts.remove();
         nextAttempt.remove();
-        retryerIndex.remove();
+        afterRetryerIndex.remove();
+    }
+
+    private static int getRetryAttempts() {
+        Integer attempt = retryAttempts.get();
+        return attempt != null ? attempt : 0;
     }
 }
