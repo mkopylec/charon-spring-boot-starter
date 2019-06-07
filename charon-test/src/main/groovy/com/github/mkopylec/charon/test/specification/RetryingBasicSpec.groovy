@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.test.specification
 
+import org.springframework.test.annotation.DirtiesContext
+
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
@@ -11,6 +13,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RetryingBasicSpec extends BasicSpec {
 
+    @DirtiesContext
     def "Should successfully retry request forwarding on HTTP 5xx response when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)
@@ -30,6 +33,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveCaptured('charon.retrying.retrying.calls')
     }
 
+    @DirtiesContext
     def "Should unsuccessfully retry request forwarding on HTTP 5xx response when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)
@@ -48,6 +52,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveCaptured('charon.retrying.retrying.calls')
     }
 
+    @DirtiesContext
     def "Should unsuccessfully retry request forwarding on exception when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)
@@ -63,9 +68,10 @@ abstract class RetryingBasicSpec extends BasicSpec {
         assertThatServers(localhost8080)
                 .haveReceivedRequest(GET, '/exception/retrying', 3)
         assertThatMetrics()
-                .haveCaptured('charon.retrying.retrying.calls')
+                .haveCaptured('charon.exception retrying.retrying.calls')
     }
 
+    @DirtiesContext
     def "Should not retry request forwarding on HTTP 4xx response when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080, localhost8081)
@@ -81,22 +87,5 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveReceivedRequest(GET, '/retrying')
         assertThatMetrics()
                 .haveCaptured('charon.retrying.retrying.calls')
-    }
-
-    def "Should not retry request forwarding by default"() {
-        given:
-        outgoingServers(localhost8080, localhost8081)
-                .stubResponse(INTERNAL_SERVER_ERROR)
-
-        when:
-        def response = http.sendRequest(GET, '/default')
-
-        then:
-        assertThat(response)
-                .hasStatus(INTERNAL_SERVER_ERROR)
-        assertThatServers(localhost8080, localhost8081)
-                .haveReceivedRequest(GET, '/default')
-        assertThatMetrics()
-                .haveCapturedNothing()
     }
 }

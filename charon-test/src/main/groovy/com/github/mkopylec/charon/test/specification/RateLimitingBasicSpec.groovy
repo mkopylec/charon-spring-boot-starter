@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.test.specification
 
+import org.springframework.test.annotation.DirtiesContext
+
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
@@ -10,6 +12,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RateLimitingBasicSpec extends BasicSpec {
 
+    @DirtiesContext
     def "Should limit request forwarding rate when proper interceptor is set"() {
         when:
         http.sendRequest(GET, '/rate/limiting')

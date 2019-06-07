@@ -12,7 +12,7 @@ class MetricsAssertion {
     }
 
     MetricsAssertion haveCaptured(String metricsName) {
-        assert meterRegistry.find(metricsName)
+        assert meterRegistry.meters.find { it.id.name == metricsName }
         return this
     }
 

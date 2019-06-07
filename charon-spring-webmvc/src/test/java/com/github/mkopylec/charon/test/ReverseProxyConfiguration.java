@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
 import static com.github.mkopylec.charon.forwarding.interceptors.latency.LatencyMeterConfigurer.latencyMeter;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerConfigurer.circuitBreaker;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RateLimiterConfigurer.rateLimiter;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
@@ -88,6 +90,19 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("removing response cookies rewriting")
                         .pathRegex("/removing/response/cookies.*")
                         .set(removingResponseCookiesRewriter()))
+                .add(requestMapping("circuit breaking")
+                        .pathRegex("/circuit/breaking.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
+                                .ringBufferSizeInClosedState(1))
+                                .meterRegistry(meterRegistry())))
+                .add(requestMapping("exception circuit breaking")
+                        .pathRegex("/exception/circuit/breaking.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(exceptionThrower())
+                        .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
+                                .ringBufferSizeInClosedState(1))
+                                .meterRegistry(meterRegistry())))
                 .add(requestMapping("retrying")
                         .pathRegex("/retrying.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
@@ -102,7 +117,8 @@ class ReverseProxyConfiguration {
                         .set(rateLimiter().configuration(RateLimiterConfig.custom()
                                 .timeoutDuration(ZERO)
                                 .limitRefreshPeriod(ofSeconds(1))
-                                .limitForPeriod(1)).meterRegistry(meterRegistry())))
+                                .limitForPeriod(1))
+                                .meterRegistry(meterRegistry())))
                 .add(requestMapping("latency metering")
                         .pathRegex("/latency/metering.*")
                         .set(latencyMeter().meterRegistry(meterRegistry())))

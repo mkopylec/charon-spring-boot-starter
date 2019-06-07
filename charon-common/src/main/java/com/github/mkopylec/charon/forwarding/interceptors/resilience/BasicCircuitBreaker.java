@@ -5,7 +5,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
 import org.slf4j.Logger;
-
 import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
@@ -16,13 +15,15 @@ import static io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetri
 
 abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreakerRegistry> implements Ordered, Valid {
 
-    private static final String CIRCUIT_BREAKER_METRICS_NAME = "circuit-breaker";
+    private static final String CIRCUIT_BREAKER_METRICS_NAME = "circuit-breaking";
 
     private Logger log;
 
     BasicCircuitBreaker(Logger log) {
         // TODO Handle 5xx after https://github.com/resilience4j/resilience4j/issues/384 is done
-        super(of(custom().build()));
+        super(of(custom()
+                .recordExceptions(Throwable.class)
+                .build()));
         this.log = log;
     }
 

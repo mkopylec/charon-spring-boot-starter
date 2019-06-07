@@ -26,4 +26,3 @@ abstract class BasicSpec extends Specification {
         clearMetrics()
     }
 }
-// TODO Circuit breaker tests
