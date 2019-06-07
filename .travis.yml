@@ -3,4 +3,4 @@ jdk:
   - oraclejdk11
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - ./gradlew jacocoTestReport bash <(curl -s https://codecov.io/bash)
