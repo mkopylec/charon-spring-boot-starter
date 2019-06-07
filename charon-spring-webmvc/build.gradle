@@ -1,9 +1,19 @@
+apply plugin: 'jacoco'
+
 dependencies {
     compile project(':charon-common').sourceSets.main.output
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
 
     testCompile project(':charon-test')
+}
+
+jacoco {
+    toolVersion = '0.8.3'
+}
+
+jacocoTestReport {
+    sourceSets project(':charon-common').sourceSets.main
 }
 
 jar {
