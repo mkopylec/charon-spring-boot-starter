@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding;
 
 import java.util.List;
 
+import com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryAwareList;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 

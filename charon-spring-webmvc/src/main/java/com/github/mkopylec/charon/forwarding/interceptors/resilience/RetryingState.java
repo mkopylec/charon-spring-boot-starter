@@ -2,29 +2,29 @@ package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
-public class RetryingState {
+class RetryingState {
 
     private static ThreadLocal<Integer> retryAttempts = new ThreadLocal<>();
     private static ThreadLocal<Boolean> nextAttempt = new ThreadLocal<>();
     private static ThreadLocal<Integer> afterRetryerIndex = new ThreadLocal<>();
 
-    public static boolean isFirstRetryAttempt() {
+    static boolean isFirstRetryAttempt() {
         return getRetryAttempts() == 1;
     }
 
-    public static boolean isSucceedingRetryAttempt() {
+    static boolean isSucceedingRetryAttempt() {
         return getRetryAttempts() > 1 && isTrue(nextAttempt.get()) && afterRetryerIndex.get() != null;
     }
 
-    public static void setAfterRetryerIndex(int index) {
+    static void setAfterRetryerIndex(int index) {
         afterRetryerIndex.set(index);
     }
 
-    public static int getAfterRetryerIndex() {
+    static int getAfterRetryerIndex() {
         return afterRetryerIndex.get();
     }
 
-    public static void succeedingRetryAttemptApplied() {
+    static void succeedingRetryAttemptApplied() {
         nextAttempt.set(false);
     }
 

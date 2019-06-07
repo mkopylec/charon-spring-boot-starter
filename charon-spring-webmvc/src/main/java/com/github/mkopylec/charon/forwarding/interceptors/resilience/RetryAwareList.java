@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.forwarding;
+package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
