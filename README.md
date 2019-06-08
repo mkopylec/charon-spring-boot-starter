@@ -48,7 +48,7 @@ dependencies {
 WebFlux module:
 ```gradle
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-flux', version: '4.0.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-webflux', version: '4.0.0'
 }
 ```
 
