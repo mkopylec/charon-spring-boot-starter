@@ -523,7 +523,7 @@ class CharonConfiguration {
     CharonConfigurer charonConfigurer() {
         return charonConfiguration()
                 .set(restTemplate()
-                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(1000)))
+                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
                         .set(new OkHttpRequestFactoryCreator()));
     }
 }
