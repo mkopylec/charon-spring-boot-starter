@@ -24,15 +24,7 @@ Charon is a universal Spring Boot tool. It already has a lot features implemente
 - custom forwarding process intercepting
 - configurable HTTP client
 
-## Migrating from 1.x.x to 2.x.x
-- remove `@EnableCharon` annotation
-- correct `charon.metrics` properties in the _application.yml_ file if collecting metrics is enabled
-- `charon.timeout` properties are no longer available in the _application.yml_ file, now timeouts can be set per mapping
-
-## Migrating from 2.x.x to 3.x.x
-- correct `charon.metrics` properties in the _application.yml_ file are no longer available except `charon.metrics.name-prefix` property, now metrics rely on [Micrometer](https://micrometer.io/)
-
-## Migrating from 3.x.x to 4.x.x
+## Migrating from older versions to 4.x.x
 Charon was completely rewritten, configuration via _application.yml_ file is no longer available.
 Now Charon can be configured by in-code configuration.
 See further documentation for more details. 
