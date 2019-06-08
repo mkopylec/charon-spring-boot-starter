@@ -1,30 +1,26 @@
 # Charon Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/charon-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/charon-spring-boot-starter)
-[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)
-
-`charon-spring-webmvc`
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc)
-
-`charon-spring-webmvc`
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux)
+[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)\
+`charon-spring-webmvc` [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc)\
+`charon-spring-webflux` [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux)
 
 Charon is a **reverse proxy** implementation.
 It automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
 There are some alternative reverse proxy implementations like: [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
-[Zuul](https://github.com/Netflix/zuul/wiki) is highly bounded to [Spring Cloud Netflix](https://spring.io/projects/spring-cloud-netflix), [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet) is a simple one, without advanced features.
-Charon is an universal Spring Boot tool. It already has a lot features implemented and its architecture provides an easy way to add new ones.
+Zuul is highly bounded to [Spring Cloud Netflix](https://spring.io/projects/spring-cloud-netflix), Smiley's HTTP Proxy Servlet is a simple one, without advanced features.
+Charon is a universal Spring Boot tool. It already has a lot features implemented and its architecture provides an easy way to add new ones.
 
 ## Features
 - highly configurable and extensible
-- [Spring WebMVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) and [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) support
+- Spring [WebMVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) and [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) support
 - configurable request forwarding mappings
 - custom load balancing
 - flexible path rewriting
 - [Resilience4j](https://resilience4j.github.io/resilience4j/) support
 - metrics support based on [Micrometer](https://micrometer.io/)
-- asynchronous request forwarding support
+- asynchronous request forwarding
 - cookies rewriting
-- X-Forwarded HTTP headers support
+- 'X-Forwarded' HTTP headers support
 - custom forwarding process intercepting
 - configurable HTTP client
 
@@ -38,11 +34,11 @@ Charon is an universal Spring Boot tool. It already has a lot features implement
 
 ## Migrating from 3.x.x to 4.x.x
 Charon was completely rewritten, configuration via _application.yml_ file is no longer available.
+Now Charon can be configured by in-code configuration.
 See further documentation for more details. 
 
 ## Installing
-Charon is published on [Maven Central](https://search.maven.org/search?q=mkopylec%20charon) repository.
-
+Charon is published on [Maven Central](https://search.maven.org/search?q=mkopylec%20charon) repository.\
 WebMVC module:
 ```gradle
 dependencies {
@@ -67,7 +63,7 @@ public class Application {
     }
 }
 ```
-Configure Charon by creating `CharonConfigurer` Spring bean:
+Configure Charon by creating a `CharonConfigurer` Spring bean:
 ```java
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
@@ -91,7 +87,7 @@ Request mapping is a configuration that defines which and how incoming requests 
 Multiple request mappings can be added.
 The above configuration will use request mapping named `all requests mapping` to forward incoming requests.
 Every request mapping must be named.
-A request mapping which will handle the incoming request is chosen by a regular expression that defines incoming request paths.
+The request mapping which will handle the incoming request is chosen by a regular expression that defines incoming request paths.
 If path regular expression is not set then the configured request mapping will handle all incoming requests.
 Sample configuration of request mapping's path regular expression can look like this:
 ```java
@@ -155,7 +151,9 @@ class CharonConfiguration {
     CharonConfigurer charonConfigurer() {
         return charonConfiguration()
                 .set(<interceptor>)
+                .unset(<interceptor order>)
                 .add(requestMapping("mapping name")
+                        .set(<interceptor>)
                         .unset(<interceptor order>));
     }
 }
@@ -165,7 +163,7 @@ Charon contains the following request forwarding interceptors:
 #### Request server name rewriter
 **Description:** Defines outgoing servers for incoming requests.
 Load balancing can also be configured by the interceptor's API.
-Default load balancer randomly chooses outgoing host.
+Default load balancer randomly chooses the outgoing host.
 Custom load balancer can be created by implementing `LoadBalancer` and extending `LoadBalancerConfigurer`.\
 **Set by default:** No\
 **Configuration API and defaults:**
@@ -190,7 +188,7 @@ class CharonConfiguration {
 #### Regex request path rewriter
 **Description:** Defines how the path of incoming requests must be changed before forwarding them to outgoing servers.
 The interceptor takes an incoming request's path and matches it against configured incoming path regular expression.
-If the path matches the expression then the request's path is rewrote according to configured outgoing path template.
+If the path matches the expression then the request's path is rewrote according to the configured outgoing path template.
 Incoming path regular expression can have named groups that fill outgoing path template's placeholders.
 For example if incoming path regular expression is `/path/(?<group>.*)`, outgoing path template is `/other-path/<group>` and 
 incoming request's path is _/path/sub-path_ then outgoing request's path will be _/other-path/sub-path_.\
@@ -261,7 +259,7 @@ class CharonConfiguration {
 ```
 
 #### Retryer
-**Description:** Retries request forwarding process on defined conditions.
+**Description:** Retries request forwarding process under the configured circumstances.
 Check [here](https://resilience4j.github.io/resilience4j/#_retry) for detailed information about retryer configuration.
 Charon will collect retryer's metrics if a `MeterRegistry` is provided to the retryer's configuration.\
 **Set by default:** No\
@@ -278,14 +276,14 @@ class CharonConfiguration {
     CharonConfigurer charonConfigurer() {
         return charonConfiguration()
                 .set(retryer()
-                        .configuration(custom().waitDuration(ofMillis(10)).retryOnResult(retryOnResult).retryOnException(throwable -> true))
+                        .configuration(custom().waitDuration(ofMillis(10)).retryOnResult(result -> ((HttpResponse) result).getStatusCode().is5xxServerError()).retryOnException(throwable -> true))
                         .meterRegistry(null));
     }
 }
 ```
 
 #### Latency meter
-**Description:** Collects latency metrics of request forwarding process.\
+**Description:** Collects latency metrics of request forwarding process if a `MeterRegistry` is provided.\
 **Set by default:** No\
 **Configuration API and defaults:**
 ```java
@@ -328,7 +326,7 @@ class CharonConfiguration {
 ```
 
 #### Root path response cookies rewriter
-**Description:** Rewrites incoming response cookies by setting their path to _/_.\
+**Description:** Rewrites incoming response's cookies by setting their path to _/_.\
 **Set by default:** Yes\
 **Configuration API and defaults:**
 ```java
@@ -347,7 +345,7 @@ class CharonConfiguration {
 ```
 
 #### Removing response cookies rewriter
-**Description:** Removes all incoming response cookies.\
+**Description:** Removes all incoming response's cookies.\
 **Set by default:** No\
 **Configuration API and defaults:**
 ```java
@@ -426,7 +424,7 @@ class CharonConfiguration {
 
 #### Response protocol headers rewriter
 **Description:** Rewrites incoming response's protocol specific headers.
-It removes '"Transfer-Encoding', 'Connection', 'Public-Key-Pins', 'Server' and 'Strict-Transport-Security' headers.\
+It removes 'Transfer-Encoding', 'Connection', 'Public-Key-Pins', 'Server' and 'Strict-Transport-Security' headers.\
 **Set by default:** Yes\
 **Configuration API and defaults:**
 ```java
@@ -562,7 +560,7 @@ class CharonConfiguration {
 ```
 
 ## Examples
-See [WebMVC test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.
+See [WebMVC test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.\
 See [WebFlux test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.
 
 ## License
