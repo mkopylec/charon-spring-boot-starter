@@ -544,7 +544,7 @@ class CharonConfiguration {
     CharonConfigurer charonConfigurer() {
         return charonConfiguration()
                 .set(webClient()
-                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(1000)))
+                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
                         .set(new ReactorConnectorCreator()));
     }
 }

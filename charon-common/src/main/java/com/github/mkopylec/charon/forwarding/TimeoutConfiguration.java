@@ -17,7 +17,7 @@ public class TimeoutConfiguration implements Valid {
     TimeoutConfiguration() {
         connection = ofMillis(100);
         read = ofMillis(1000);
-        write = ofMillis(1000);
+        write = ofMillis(500);
     }
 
     @Override
