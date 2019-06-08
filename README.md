@@ -1,8 +1,7 @@
 # Charon Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/charon-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/charon-spring-boot-starter)
-[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)\
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc) `charon-spring-webmvc`\
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webflux) `charon-spring-webflux`
+[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc)
 
 Charon is a **reverse proxy** implementation.
 It automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
