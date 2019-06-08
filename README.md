@@ -99,7 +99,7 @@ class CharonConfiguration {
 More things can be configured for request mapping.
 See the documentation below for more details.
 
-## Configuration
+## Configuration basics
 Charon can be configured in many ways. 
 This can be done via `CharonConfigurer` API.
 Charon can be configured globally or per request mapping.
@@ -125,7 +125,7 @@ class CharonConfiguration {
 ```
 then requests handled by `mapping 1` mapping wil be forwarded to _http://host1:8080_ but those handled by `mapping 2` mapping will be forwarded to _http://host2:8081_.
 
-### Request forwarding interceptors
+## Request forwarding interceptors
 Most of the Charon's features are represented by request forwarding interceptors.
 An interceptor allows to modify outgoing requests and incoming responses.
 Every interceptor has an order that defines when the particular interceptor will be invoked.
@@ -151,7 +151,7 @@ class CharonConfiguration {
 ```
 Charon contains the following request forwarding interceptors:
 
-#### Request server name rewriter
+### Request server name rewriter
 **Description:** Defines outgoing servers for incoming requests.
 Load balancing can also be configured by the interceptor's API.
 Default load balancer randomly chooses the outgoing host.
@@ -176,7 +176,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Regex request path rewriter
+### Regex request path rewriter
 **Description:** Defines how the path of incoming requests must be changed before forwarding them to outgoing servers.
 The interceptor takes an incoming request's path and matches it against configured incoming path regular expression.
 If the path matches the expression then the request's path is rewrote according to the configured outgoing path template.
@@ -201,7 +201,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Circuit breaker
+### Circuit breaker
 **Description:** Applies a [circuit breaker](https://en.wikipedia.org/wiki/Circuit_breaker) design pattern to request forwarding process.
 Check [here](https://resilience4j.github.io/resilience4j/#_circuitbreaker) for detailed information about circuit breaker configuration.
 Charon will collect circuit breaker's metrics if a `MeterRegistry` is provided to the circuit breaker's configuration.\
@@ -225,7 +225,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Rate limiter
+### Rate limiter
 **Description:** Applies [rate limiting](https://en.wikipedia.org/wiki/Rate_limiting) to request forwarding process.
 Check [here](https://resilience4j.github.io/resilience4j/#_ratelimiter) for detailed information about rate limiter configuration.
 Charon will collect rate limiter's metrics if a `MeterRegistry` is provided to the rate limiter's configuration.\
@@ -249,7 +249,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Retryer
+### Retryer
 **Description:** Retries request forwarding process under the configured circumstances.
 Check [here](https://resilience4j.github.io/resilience4j/#_retry) for detailed information about retryer configuration.
 Charon will collect retryer's metrics if a `MeterRegistry` is provided to the retryer's configuration.\
@@ -273,7 +273,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Latency meter
+### Latency meter
 **Description:** Collects latency metrics of request forwarding process if a `MeterRegistry` is provided.\
 **Set by default:** No\
 **Configuration API and defaults:**
@@ -293,7 +293,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Asynchronous forwarder
+### Asynchronous forwarder
 **Description:** Forwards incoming requests asynchronously.
 The forwarder does not wait for request forwarding process to finish, it immediately returns HTTP 202 Accepted response to the client.
 Separate, configurable thread pool is used to forward the incoming requests.\
@@ -316,7 +316,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Root path response cookies rewriter
+### Root path response cookies rewriter
 **Description:** Rewrites incoming response's cookies by setting their path to _/_.\
 **Set by default:** Yes\
 **Configuration API and defaults:**
@@ -335,7 +335,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Removing response cookies rewriter
+### Removing response cookies rewriter
 **Description:** Removes all incoming response's cookies.\
 **Set by default:** No\
 **Configuration API and defaults:**
@@ -354,7 +354,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Request 'Host' header rewriter
+### Request 'Host' header rewriter
 **Description:** Rewrites incoming request's 'Host' header by setting its value to outgoing server name.\
 **Set by default:** No\
 **Configuration API and defaults:**
@@ -373,7 +373,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Request protocol headers rewriter
+### Request protocol headers rewriter
 **Description:** Rewrites incoming request's protocol specific headers.
 It sets 'Connection: close' header and removes 'TE' header.\
 **Set by default:** Yes\
@@ -393,7 +393,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Request proxy headers rewriter
+### Request proxy headers rewriter
 **Description:** Adds 'X-Forwarded' headers to incoming request.
 It updates the 'X-Forwarded-For' header and sets 'X-Forwarded-Proto', 'X-Forwarded-Host' and 'X-Forwarded-Port' headers.\
 **Set by default:** Yes\
@@ -413,7 +413,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Response protocol headers rewriter
+### Response protocol headers rewriter
 **Description:** Rewrites incoming response's protocol specific headers.
 It removes 'Transfer-Encoding', 'Connection', 'Public-Key-Pins', 'Server' and 'Strict-Transport-Security' headers.\
 **Set by default:** Yes\
@@ -433,7 +433,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Forwarding logger
+### Forwarding logger
 **Description:** Logs information about request forwarding process.\
 **Set by default:** Yes\
 **Configuration API and defaults:**
@@ -456,7 +456,7 @@ class CharonConfiguration {
 }
 ```
 
-#### Custom request forwarding interceptor
+### Custom request forwarding interceptor
 Additional interceptors can be created by implementing `RequestForwardingInterceptor` interface.
 To be able to set the created interceptor globally or per request mapping `RequestForwardingInterceptorConfigurer` must be extended.
 For example:
@@ -506,7 +506,7 @@ class CharonConfiguration {
 }
 ```
 
-### HTTP client
+## HTTP client
 The WebMVC module uses `RestTemplate` to forward requests.
 Its timeouts and underlying HTTP client can be configured.
 To configure the HTTP client `ClientHttpRequestFactoryCreator` needs to be implemented.
