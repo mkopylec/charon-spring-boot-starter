@@ -489,7 +489,7 @@ class CustomInterceptorConfigurer extends RequestForwardingInterceptorConfigurer
     }
 }
 ```
-To use the created interceptor simply set via `CharonConfigurer` API, analogically to other interceptors:
+To use the created interceptor simply set it via `CharonConfigurer` API, analogically to other interceptors:
 ```java
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static mypackage.CustomInterceptorConfigurer.customInterceptor;
