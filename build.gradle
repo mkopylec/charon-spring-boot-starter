@@ -11,16 +11,6 @@ subprojects {
 
     sourceCompatibility = 1.8
 
-    scmVersion {
-        tag {
-            prefix = ''
-        }
-    }
-
-    group = 'com.github.mkopylec'
-    archivesBaseName = name
-    version = scmVersion.version
-
     repositories {
         mavenCentral()
     }
@@ -30,6 +20,7 @@ subprojects {
         resilience4jVersion = '0.15.0'
         okHttpVersion = '3.14.2'
 
+        group = 'com.github.mkopylec'
         pomContent = {
             name = 'Charon Spring Boot Starter'
             description = 'Reverse proxy implementation in form of Spring Boot starter'
@@ -54,6 +45,16 @@ subprojects {
             }
         }
     }
+
+    scmVersion {
+        tag {
+            prefix = ''
+        }
+    }
+
+    group = project.ext.group
+    archivesBaseName = name
+    version = scmVersion.version
 
     dependencies {
         compile group: 'org.springframework', name: 'spring-web', version: '5.1.6.RELEASE'
@@ -80,6 +81,12 @@ subprojects {
             }
         }
     }
+}
+
+nexusStaging {
+    packageGroup = 'com.github.mkopylec'
+    username = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
+    password = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : ''
 }
 
 wrapper {
