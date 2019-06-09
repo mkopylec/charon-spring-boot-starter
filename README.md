@@ -26,7 +26,7 @@ Charon is a universal Spring Boot tool. It already has a lot features implemente
 ## Migrating from older versions to 4.x.x
 Charon was completely rewritten, configuration via _application.yml_ file is no longer available.
 Now Charon can be configured by in-code configuration.
-See further documentation for more details. 
+See the documentation for more details. 
 
 ## Documentation
 Full documentation is located [here](https://github.com/mkopylec/charon-spring-boot-starter/wiki).
