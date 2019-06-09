@@ -587,7 +587,7 @@ class CustomInterceptor implements RequestForwardingInterceptor {
 
 ## Examples
 See [WebMVC test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.\
-See [WebFlux test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.
+See [WebFlux test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webflux/src/test/java/com/github/mkopylec/charon/test) for more examples.
 
 ## License
 Charon Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
