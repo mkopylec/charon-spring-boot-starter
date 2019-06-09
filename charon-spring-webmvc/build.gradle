@@ -20,7 +20,7 @@ jacocoTestReport {
 }
 
 jar {
-    from project(':charon-common').sourceSets.main.output    
+    from project(':charon-common').sourceSets.main.output
 }
 
 task sourceJar(type: Jar) {
@@ -40,5 +40,11 @@ publishing {
             artifact sourceJar
             pom pomContent
         }
+    }
+}
+
+signing {
+    if (project.ext.has('signArtifacts')) {
+        sign publishing.publications.charonSpringWebmvc
     }
 }

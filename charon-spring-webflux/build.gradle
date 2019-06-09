@@ -42,3 +42,9 @@ publishing {
         }
     }
 }
+
+signing {
+    if (project.ext.has('signArtifacts')) {
+        sign publishing.publications.charonSpringWebflux
+    }
+}
