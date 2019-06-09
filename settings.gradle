@@ -1,2 +1,5 @@
 rootProject.name = 'charon-spring-boot-starter'
-
+include 'charon-common'
+include 'charon-test'
+include 'charon-spring-webmvc'
+include 'charon-spring-webflux'

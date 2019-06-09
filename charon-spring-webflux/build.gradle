@@ -1,0 +1,50 @@
+apply plugin: 'jacoco'
+
+dependencies {
+    compile project(':charon-common').sourceSets.main.output
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
+    compile group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
+
+    testCompile project(':charon-test')
+}
+
+jacoco {
+    toolVersion = '0.8.4'
+}
+
+jacocoTestReport {
+    sourceSets project(':charon-common').sourceSets.main
+    reports {
+        xml.enabled = true
+    }
+}
+
+jar {
+    from project(':charon-common').sourceSets.main.output
+}
+
+task sourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    from project(':charon-common').sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourceJar
+}
+
+publishing {
+    publications {
+        charonSpringWebflux(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            pom pomContent
+        }
+    }
+}
+
+signing {
+    if (project.ext.has('signArtifacts')) {
+        sign publishing.publications.charonSpringWebflux
+    }
+}

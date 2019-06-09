@@ -1,138 +1,87 @@
 plugins {
-    id 'groovy'
-    id 'maven-publish'
-    id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.8.2'
-    id 'maven'
-    id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.10.0'
-    id 'io.codearte.nexus-staging' version '0.20.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.10.1'
+    id 'io.codearte.nexus-staging' version '0.21.0'
 }
 
-scmVersion {
-    tag {
-        prefix = ''
+subprojects {
+
+    apply plugin: 'groovy'
+    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
+
+    sourceCompatibility = 1.8
+
+    scmVersion {
+        tag {
+            prefix = ''
+        }
     }
-}
 
-group = 'com.github.mkopylec'
-archivesBaseName = name
-version = scmVersion.version
+    group = 'com.github.mkopylec'
+    archivesBaseName = name
+    version = scmVersion.version
 
-sourceCompatibility = 1.8
+    repositories {
+        mavenCentral()
+    }
 
-ext {
-    springBootVersion = '2.1.3.RELEASE'
-}
+    ext {
+        springBootVersion = '2.1.4.RELEASE' // TODO 2.1.5.RELEASE depends on broken reactor-netty
+        resilience4jVersion = '0.15.0'
+        okHttpVersion = '3.14.2'
 
-repositories {
-    mavenCentral()
-}
+        pomContent = {
+            name = 'Charon Spring Boot Starter'
+            description = 'Reverse proxy implementation in form of Spring Boot starter'
+            url = 'https://github.com/mkopylec/charon-spring-boot-starter'
+            licenses {
+                license {
+                    name = 'The Apache License, Version 2.0'
+                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers {
+                developer {
+                    id = 'mkopylec'
+                    name = 'Mariusz Kopylec'
+                    email = 'mariusz.kopylec@o2.pl'
+                }
+            }
+            scm {
+                connection = 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
+                developerConnection = 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
+                url = 'https://github.com/mkopylec/charon-spring-boot-starter'
+            }
+        }
+    }
 
-dependencies {
+    dependencies {
+        compile group: 'org.springframework', name: 'spring-web', version: '5.1.6.RELEASE'
+        compile group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
+        compile group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
+        compile group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion
+        compile group: 'io.github.resilience4j', name: 'resilience4j-micrometer', version: resilience4jVersion
+        compile group: 'io.micrometer', name: 'micrometer-core', version: '1.1.4'
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+        compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.3'
+        compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    }
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.2.RELEASE'
-    compile group: 'io.micrometer', name: 'micrometer-core', version: '1.1.3'
-
-    compileOnly group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
-
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-    testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.2-groovy-2.5'
-    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.21.0'
-}
-
-configurations {
-    all*.exclude group: 'org.mortbay.jetty', module: 'servlet-api'
+    publishing {
+        repositories {
+            maven {
+                def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
+                    password = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : ''
+                }
+            }
+        }
+    }
 }
 
 wrapper {
-    gradleVersion = '5.2.1'
-}
-
-task javadocJar(type: Jar) {
-    archiveClassifier.set('javadoc')
-    from javadoc
-}
-
-task sourceJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourceJar
-}
-
-signing {
-    if (project.ext.has('signArtifacts')) {
-        sign configurations.archives
-    }
-}
-
-ext {
-    ossrhUsername = project.ext.has('ossrhUsername') ? project.ext.ossrhUsername : ''
-    ossrhPassword = project.ext.has('ossrhPassword') ? project.ext.ossrhPassword : ''
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-            pom.project {
-                name 'Charon Spring Boot Starter'
-                packaging 'jar'
-                description 'Reverse proxy implementation in form of Spring Boot starter.'
-                url 'https://github.com/mkopylec/charon-spring-boot-starter'
-                scm {
-                    connection 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
-                    developerConnection 'scm:git:https://github.com/mkopylec/charon-spring-boot-starter.git'
-                    url 'https://github.com/mkopylec/charon-spring-boot-starter'
-                }
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'mkopylec'
-                        name 'Mariusz Kopylec'
-                        email 'mariusz.kopylec@o2.pl'
-                    }
-                }
-            }
-        }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourceJar
-        }
-    }
-}
-
-jacoco {
-    toolVersion = '0.8.1'
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
+    gradleVersion = '5.4.1'
 }

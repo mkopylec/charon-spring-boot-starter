@@ -1,47 +1,50 @@
 # Charon Spring Boot Starter
 [![Build Status](https://travis-ci.org/mkopylec/charon-spring-boot-starter.svg?branch=master)](https://travis-ci.org/mkopylec/charon-spring-boot-starter)
-[![Coverage Status](https://coveralls.io/repos/mkopylec/charon-spring-boot-starter/badge.svg?branch=master&service=github&dummy=1)](https://coveralls.io/github/mkopylec/charon-spring-boot-starter?branch=master&dummy=1)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-boot-starter)
+[![Code Coverage](https://codecov.io/gh/mkopylec/charon-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/mkopylec/charon-spring-boot-starter)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.github.mkopylec/charon-spring-webmvc)
 
 Charon is a **reverse proxy** implementation.
 It automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
 There are some alternative reverse proxy implementations like: [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
-This tool tries to get the best of them joining their features into a one Spring Boot starter.
+Zuul is highly bounded to [Spring Cloud Netflix](https://spring.io/projects/spring-cloud-netflix), Smiley's HTTP Proxy Servlet is a simple one, without advanced features.
+Charon is a universal Spring Boot tool. It already has a lot features implemented and its architecture provides an easy way to add new ones.
 
 ## Features
-- easy to use
 - highly configurable and extensible
-- retrying support based on [Spring Retry](http://docs.spring.io/spring-batch/reference/html/retry.html)
+- Spring [WebMVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) and [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) support
+- configurable request forwarding mappings
+- custom load balancing
+- flexible path rewriting
+- [Resilience4j](https://resilience4j.github.io/resilience4j/) support
 - metrics support based on [Micrometer](https://micrometer.io/)
-- customizable proxy mappings changeable at runtime
-- customizable load balancer
-- forward HTTP headers support
-- intercepting and tracing
+- asynchronous request forwarding
+- cookies rewriting
+- 'X-Forwarded' HTTP headers support
+- custom forwarding process intercepting
+- configurable HTTP client
 
-## Migrating from 1.x.x to 2.x.x
-
-- remove `@EnableCharon` annotation
-- correct `charon.metrics` properties in the _application.yml_ file if collecting metrics is enabled
-- `charon.timeout` properties are no longer available in the _application.yml_ file, now timeouts can be set per mapping
-
-## Migrating from 2.x.x to 3.x.x
-
-- correct `charon.metrics` properties in the _application.yml_ file are no longer available except `charon.metrics.name-prefix` property, now metrics rely on [Micrometer](https://micrometer.io/)
+## Migrating from older versions to 4.x.x
+Charon was completely rewritten, configuration via _application.yml_ file is no longer available.
+Now Charon can be configured by in-code configuration.
+See further documentation for more details. 
 
 ## Installing
-
+Charon is published on [Maven Central](https://search.maven.org/search?q=mkopylec%20charon) repository.\
+WebMVC module:
 ```gradle
-repositories {
-    mavenCentral()
-}
 dependencies {
-    compile group: 'com.github.mkopylec', name: 'charon-spring-boot-starter', version: '3.2.0'
+    compile group: 'com.github.mkopylec', name: 'charon-spring-webmvc', version: '4.0.0'
+}
+```
+WebFlux module:
+```gradle
+dependencies {
+    compile group: 'com.github.mkopylec', name: 'charon-spring-webflux', version: '4.0.0'
 }
 ```
 
 ## Basic usage
 Create a Spring Boot web application:
-
 ```java
 @SpringBootApplication
 public class Application {
@@ -51,304 +54,540 @@ public class Application {
     }
 }
 ```
-
-Configure proxy mappings in _application.yml_ file:
-
-```yaml
-charon.mappings:
-    -
-        name: sample mapping
-        path: /some/path
-        destinations: http://firsthost:8080, http://secondhost:8081
-```
-
-When an application is configured like above then every request to _/some/path/endpoint/**_
-will be forwarded to _http://firsthost:8080/endpoint/**_ or _http://secondhost:8081/endpoint/**_.
-Note that the mapped path _/some/path_ is stripped from the forwarded request URL.
-Also note that the `charon.mappings` property's value is a list, therefore more mappings can be set.
-
-## Advanced usage
-Charon can be configured in many ways. This can be done via configuration properties in _application.yml_ file or by creating Spring beans.
-
-### Mappings
-Mappings define how Charon will forward incoming HTTP requests.
-Every mapping must be named.
-By default the mapped path is stripped from the forward request URL.
-To preserve the mapped path in the URL set an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-        strip-path: false
-```
-
-If the mappings configuration using configuration properties is not enough, a custom mappings provider can be created.
-This can be done by creating a Spring bean of type `MappingsProvider`:
-
+Configure Charon by creating a `CharonConfigurer` Spring bean:
 ```java
-@Component
-public class CustomMappingsProvider extends MappingsProvider {
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 
-    public CustomMappingsProvider(ServerProperties server, CharonProperties charon, MappingsCorrector mappingsCorrector) {
-        super(server, charon, mappingsCorrector);
-    }
-	
-    @Override
-    protected boolean shouldUpdateMappings(HttpServletRequest request) {
-        ...
-    }
+@Configuration
+class CharonConfiguration {
 
-    @Override
-    protected List<Mapping> retrieveMappings() {
-        ...
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestServerNameRewriter().outgoingServers("host1:8080", "host2:8081"))
+                .add(requestMapping("all requests mapping"));
+    }
+}
+```
+When an application is configured like above then every incoming request will be forwarded to _http://host1:8080_ or _http://host2:8081_.
+
+## Request mappings
+Request mapping is a configuration that defines which and how incoming requests will be forwarded.
+Multiple request mappings can be added.
+The above configuration will use request mapping named `all requests mapping` to forward incoming requests.
+Every request mapping must be named.
+The request mapping which will handle the incoming request is chosen by a regular expression that defines incoming request paths.
+If path regular expression is not set then the configured request mapping will handle all incoming requests.
+Sample configuration of request mapping's path regular expression can look like this:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .add(requestMapping("mapping name")
+                        .pathRegex("/.*"));
+    }
+}
+```
+More things can be configured for request mapping.
+See the documentation below for more details.
+
+## Configuration basics
+Charon can be configured in many ways. 
+This can be done via `CharonConfigurer` API.
+Charon can be configured globally or per request mapping.
+Request mapping configuration always overwrites the global one for a particular mapping.
+For example if Charon is configured like below:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestServerNameRewriter().outgoingServers("host1:8080"))
+                .add(requestMapping("mapping 1"))
+                .add(requestMapping("mapping 2")
+                        .set(requestServerNameRewriter().outgoingServers("host2:8081")));
+    }
+}
+```
+then requests handled by `mapping 1` mapping wil be forwarded to _http://host1:8080_ but those handled by `mapping 2` mapping will be forwarded to _http://host2:8081_.
+
+## Request forwarding interceptors
+Most of the Charon's features are represented by request forwarding interceptors.
+An interceptor allows to modify outgoing requests and incoming responses.
+Every interceptor has an order that defines when the particular interceptor will be invoked.
+Some of the interceptors are added to Charon configuration by default, some can be added manually.
+Interceptors can be freely set and unset globally and per request mapping:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(<interceptor>)
+                .unset(<interceptor order>)
+                .add(requestMapping("mapping name")
+                        .set(<interceptor>)
+                        .unset(<interceptor order>));
+    }
+}
+```
+An interceptor can be overwritten by setting an interceptor which has the same order.
+Charon contains the following request forwarding interceptors:
+
+### Request server name rewriter
+**Description:** Defines outgoing servers for incoming requests.
+Load balancing can also be configured by the interceptor's API.
+Default load balancer randomly chooses the outgoing host.
+Custom load balancer can be created by implementing `LoadBalancer` and extending `LoadBalancerConfigurer`.\
+**Set by default:** No\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestServerNameRewriter()
+                        .outgoingServers()
+                        .loadBalancer(randomLoadBalancer()));
     }
 }
 ```
 
-Using custom `MappingsProvider` the mappings are populated during application startup using `retrieveMappings` method.
-The mappings are also updated during application runtime every time the `shouldUpdateMappings` method returns `true`.
-
-### Retrying
-By default there is only one attempt to forward request.
-Forward request retrying can be enabled for each mapping by setting an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-        retryable: true
-```
-
-By default a next try is triggered by any `Exception` that occurs during proxying process and also by 5xx HTTP responses from destination hosts.
-To change the retryable exceptions set an appropriate configuration property:
-
-```yaml
-charon.retrying.retry-on.exceptions: <comma-separated list fo exceptions>
-```
-
-To disable retrying on 5xx HTTP responses set an appropriate configuration property:
-
-```yaml
-charon.retrying.retry-on.server-http-error: false
-```
-
-Retrying on 4xx HTTP responses from destination hosts is disabled by default.
-To turn it on set an appropriate configuration property:
-
-```yaml
-charon.retrying.retry-on.client-http-error: true
-```
-
-If retrying is enabled there are maximum three attempts to forward request.
-To change the maximum number of attempts set an appropriate configuration property:
-
-```yaml
-charon.retrying.max-attempts: <number_of_tries>
-```
-
-### Load balancer
-The default load balancer randomly chooses a destination host from the available list.
-A custom load balancer can be created by creating a Spring bean of type `LoadBalancer`:
-
+### Regex request path rewriter
+**Description:** Defines how the path of incoming requests must be changed before forwarding them to outgoing servers.
+The interceptor takes an incoming request's path and matches it against configured incoming path regular expression.
+If the path matches the expression then the request's path is rewrote according to the configured outgoing path template.
+Incoming path regular expression can have named groups that fill outgoing path template's placeholders.
+For example if incoming path regular expression is `/path/(?<group>.*)`, outgoing path template is `/other-path/<group>` and 
+incoming request's path is _/path/sub-path_ then outgoing request's path will be _/other-path/sub-path_.\
+**Set by default:** No\
+**Configuration API and defaults:**
 ```java
-@Component
-public class CustomLoadBalancer implements LoadBalancer {
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRequestPathRewriterConfigurer.regexRequestPathRewriter;
 
-    @Override
-    public String chooseDestination(List<String> destinations) {
-        ...
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(regexRequestPathRewriter()
+                        .paths("/(?<path>.*)", "/<path>"));
     }
 }
 ```
 
-### Metrics
-Charon collects performance metrics using [Micrometer](https://micrometer.io/), the default Spring Boot's metrics provider.
-To turn them on a `MeterRegistry` Spring bean need to be provided.
-Spring supports multiple metrics providers and reporters, see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-metrics.html) for more information.
-
-### Forwarded request intercepting
-Charon gives a possibility to change the outgoing HTTP requests.
-Particularly any aspect of the request can be modified: method, URI, headers and body.
-To intercept requests create a Spring bean of type `ForwardedRequestInterceptor` and modify the `RequestData` object:
-
+### Circuit breaker
+**Description:** Applies a [circuit breaker](https://en.wikipedia.org/wiki/Circuit_breaker) design pattern to request forwarding process.
+Check [here](https://resilience4j.github.io/resilience4j/#_circuitbreaker) for detailed information about circuit breaker configuration.
+Charon will collect circuit breaker's metrics if a `MeterRegistry` is provided to the circuit breaker's configuration.\
+**Set by default:** No\
+**Configuration API and defaults:**
 ```java
-@Component
-public class CustomForwardedRequestInterceptor implements ForwardedRequestInterceptor {
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerConfigurer.circuitBreaker;
+import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
 
-    @Override
-    public void intercept(RequestData data, MappingProperties mapping) {
-        ...
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(circuitBreaker()
+                        .configuration(custom().recordExceptions(Throwable.class))
+                        .meterRegistry(null));
     }
 }
 ```
 
-### Received response intercepting
-Charon gives a possibility to change the incoming HTTP responses.
-Particularly any aspect of the response can be modified: status, headers and body.
-To intercept responses create a Spring bean of type `ReceivedResponseInterceptor` and modify the `ResponseData` object:
-
+### Rate limiter
+**Description:** Applies [rate limiting](https://en.wikipedia.org/wiki/Rate_limiting) to request forwarding process.
+Check [here](https://resilience4j.github.io/resilience4j/#_ratelimiter) for detailed information about rate limiter configuration.
+Charon will collect rate limiter's metrics if a `MeterRegistry` is provided to the rate limiter's configuration.\
+**Set by default:** No\
+**Configuration API and defaults:**
 ```java
-@Component
-public class CustomReceivedResponseInterceptor implements ReceivedResponseInterceptor {
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RateLimiterConfigurer.rateLimiter;
+import static io.github.resilience4j.ratelimiter.RateLimiterConfig.custom;
 
-    @Override
-    public void intercept(ResponseData data, MappingProperties mapping) {
-        ...
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(rateLimiter()
+                        .configuration(custom().timeoutDuration(ZERO).limitRefreshPeriod(ofSeconds(1)).limitForPeriod(100))
+                        .meterRegistry(null));
     }
 }
 ```
 
-### Tracing
-Charon can trace a proxying process.
-Tracing allows applications to collect detailed information about Charon's activity.
-To enable it set an appropriate configuration property:
+### Retryer
+**Description:** Retries request forwarding process under the configured circumstances.
+Check [here](https://resilience4j.github.io/resilience4j/#_retry) for detailed information about retryer configuration.
+Charon will collect retryer's metrics if a `MeterRegistry` is provided to the retryer's configuration.\
+**Set by default:** No\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
+import static io.github.resilience4j.retry.RetryConfig.custom;
 
-```yaml
-charon.tracing.enabled: true
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(retryer()
+                        .configuration(custom().waitDuration(ofMillis(10)).retryOnResult(result -> ((HttpResponse) result).getStatusCode().is5xxServerError()).retryOnException(throwable -> true))
+                        .meterRegistry(null));
+    }
+}
 ```
 
-Every trace collects information at five checkpoints:
-
-- request received - captures an incoming HTTP request
-- no mapping found - captures an incoming HTTP request that will not be forwarded to any destination host
-- forward start - captures an HTTP request that will be sent to the destination host
-- forward error - captures an exception thrown while sending an HTTP request to destination host
-- forward complete - captures an HTTP response received from the destination host
-
-In each checkpoint a trace ID and current HTTP data are captured.
-A trace ID remains the same throughout the whole proxying process of a single HTTP request, therefore trace checkpoints can be joined by trace IDs value.
-By default, when tracing is enabled, Charon logs the captured information.
-To change this behaviour create a Spring bean of type `TraceInterceptor`:
-
+### Latency meter
+**Description:** Collects latency metrics of request forwarding process if a `MeterRegistry` is provided.\
+**Set by default:** No\
+**Configuration API and defaults:**
 ```java
-@Component
-public class CustomTraceInterceptor implements TraceInterceptor {
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.latency.LatencyMeterConfigurer.latencyMeter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(latencyMeter()
+                        .meterRegistry(null));
+    }
+}
+```
+
+### Asynchronous forwarder
+**Description:** Forwards incoming requests asynchronously.
+The forwarder does not wait for request forwarding process to finish, it immediately returns HTTP 202 Accepted response to the client.
+Separate, configurable thread pool is used to forward the incoming requests.\
+**Set by default:** No\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
+import static com.github.mkopylec.charon.forwarding.interceptors.async.ThreadPoolConfigurer.threadPool;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(asynchronousForwarder()
+                        .set(threadPool().coreSize(3).maximumSize(20)));
+    }
+}
+```
+
+### Root path response cookies rewriter
+**Description:** Rewrites incoming response's cookies by setting their path to _/_.\
+**Set by default:** Yes\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookiesRewriterConfigurer.rootPathResponseCookiesRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(rootPathResponseCookiesRewriter());
+    }
+}
+```
+
+### Removing response cookies rewriter
+**Description:** Removes all incoming response's cookies.\
+**Set by default:** No\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(removingResponseCookiesRewriter());
+    }
+}
+```
+
+### Request 'Host' header rewriter
+**Description:** Rewrites incoming request's 'Host' header by setting its value to outgoing server name.\
+**Set by default:** No\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestHostHeaderRewriter());
+    }
+}
+```
+
+### Request protocol headers rewriter
+**Description:** Rewrites incoming request's protocol specific headers.
+It sets 'Connection: close' header and removes 'TE' header.\
+**Set by default:** Yes\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProtocolHeadersRewriterConfigurer.requestProtocolHeadersRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestProtocolHeadersRewriter());
+    }
+}
+```
+
+### Request proxy headers rewriter
+**Description:** Adds 'X-Forwarded' headers to incoming request.
+It updates the 'X-Forwarded-For' header and sets 'X-Forwarded-Proto', 'X-Forwarded-Host' and 'X-Forwarded-Port' headers.\
+**Set by default:** Yes\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(requestProxyHeadersRewriter());
+    }
+}
+```
+
+### Response protocol headers rewriter
+**Description:** Rewrites incoming response's protocol specific headers.
+It removes 'Transfer-Encoding', 'Connection', 'Public-Key-Pins', 'Server' and 'Strict-Transport-Security' headers.\
+**Set by default:** Yes\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseProtocolHeadersRewriterConfigurer.responseProtocolHeadersRewriter;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(responseProtocolHeadersRewriter());
+    }
+}
+```
+
+### Forwarding logger
+**Description:** Logs information about request forwarding process.\
+**Set by default:** Yes\
+**Configuration API and defaults:**
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(forwardingLogger()
+                        .successLogLevel(DEBUG)
+                        .clientErrorLogLevel(INFO)
+                        .serverErrorLogLevel(ERROR)
+                        .unexpectedErrorLogLevel(ERROR));
+    }
+}
+```
+
+### Custom request forwarding interceptor
+Additional interceptors can be created by implementing `RequestForwardingInterceptor` interface.
+To be able to set the created interceptor globally or per request mapping `RequestForwardingInterceptorConfigurer` must be extended.
+For example:
+```java
+class CustomInterceptor implements RequestForwardingInterceptor {
+
+    private String property;
+
+    void setProperty(String property) {
+        this.property = property;
+    }
+    
+    ...
+}
+```
+```java
+class CustomInterceptorConfigurer extends RequestForwardingInterceptorConfigurer<CustomInterceptor> {
+
+    private CustomInterceptorConfigurer() {
+        super(new CustomInterceptor());
+    }
+
+    static CustomInterceptorConfigurer customInterceptor() {
+        return new CustomInterceptorConfigurer();
+    }
+    
+    CustomInterceptorConfigurer property(String property) {
+        configuredObject.setProperty(property);
+        return this;
+    }
+}
+```
+To use the created interceptor simply set it via `CharonConfigurer` API, analogically to other interceptors:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static mypackage.CustomInterceptorConfigurer.customInterceptor;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(customInterceptor()
+                        .property("some property"));
+    }
+}
+```
+
+## HTTP client
+The WebMVC module uses `RestTemplate` to forward requests.
+Its timeouts and underlying HTTP client can be configured.
+To configure the HTTP client `ClientHttpRequestFactoryCreator` needs to be implemented and `ClientHttpRequestFactoryCreatorConfigurer` extended.
+The default `RestTemplate` configuration looks like below:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.OkClientHttpRequestFactoryCreatorConfigurer.okClientHttpRequestFactoryCreator;
+import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
+import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(restTemplate()
+                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
+                        .set(okClientHttpRequestFactoryCreator()));
+    }
+}
+```
+The WebFlux module uses `WebClient` to forward requests.
+Its timeouts and underlying HTTP client can be configured.
+To configure the HTTP client `ClientHttpConnectorCreator` needs to be implemented and `ClientHttpConnectorCreatorConfigurer` extended.
+The default `WebClient` configuration looks like below:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
+import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
+import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(webClient()
+                        .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
+                        .set(reactorClientHttpConnectorCreator()));
+    }
+}
+```
+
+## Custom configuration
+Charon also provides an API for setting custom configuration properties.
+The set properties can be read in any request forwarding interceptor via `HttpRequestExecution` API.
+For example:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(custom()
+                        .set("integer-property", 666));
+    }
+}
+```
+```java
+class CustomInterceptor implements RequestForwardingInterceptor {
 
     @Override
-    public void onRequestReceived(String traceId, IncomingRequest request) {
+    public <http-response> forward(HttpRequest request, HttpRequestExecution execution) {
+        int property = execution.getCustomProperty("integer-property");
         ...
     }
     
-    @Override
-    public void onNoMappingFound(String traceId, IncomingRequest request) {
-        ...
-    }
-
-    @Override
-    public void onForwardStart(String traceId, ForwardRequest request) {
-        ...
-    }
-
-    @Override
-    public void onForwardError(String traceId, Throwable error) {
-        ...
-    }
-
-    @Override
-    public void onForwardComplete(String traceId, ReceivedResponse response) {
-        ...
-    }
+    ...
 }
 ```
 
-### Asynchronous forwarding
-By default HTTP requests are forwarded synchronously.
-Forwarding process can also be asynchronous.
-In asynchronous mode a response is returned immediately with 202 (accepted) HTTP status.
-To enable asynchronous forwarding set an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-        asynchronous: true
-```
-
-For asynchronous forwarding a thread pool executor is used.
-Its configuration is exposed by `charon.asynchronous-forwarding-thread-pool` configuration properties.
-
-### Custom mapping properties
-There is a possibility to define custom mapping properties.
-This can be useful when additional mapping configuration is needed in overridden Charon's Spring beans.
-To add custom mapping configuration set an appropriate configuration property:
-
-```yaml
-charon.mappings:
-    -
-        ...
-      custom-configuration:
-          some-boolean-property: true
-          some-string-poperty: custom string
-          some-integer-property: 666
-```
-
-The above configuration can be used, for example, in custom `HttpClientProvider`:
-
-```java
-@Component
-public class CustomHttpClientProvider extends HttpClientProvider {
- 
-     protected RestOperations createHttpClient(MappingProperties mapping) {
-         boolean booleanProperty = (boolean) mapping.getCustomConfiguration().get("some-boolean-property");
-         String stringProperty = (String) mapping.getCustomConfiguration().get("some-string-property");
-         int integerProperty = (int) mapping.getCustomConfiguration().get("some-integer-property");
-         ...
-     }
- }
-```
-
-### Other tips
-- change the logging level of `com.github.mkopylec.charon` to DEBUG to see what's going on under the hood
-- tracing logs have INFO and ERROR level
-- check the [`CharonConfiguration`](https://github.com/mkopylec/charon-spring-boot-starter/blob/master/src/main/java/com/github/mkopylec/charon/configuration/CharonConfiguration.java) to see what else can be overridden by creating a Spring bean
-- if the incoming HTTP request cannot be mapped to any path it will be normally handled by the web application
-- mapping destinations can have custom schemes; when a destination is lack of a scheme part the _http://_ will be prepended
-- X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host and X-Forwarded-Port headers are added to every forwarded request
-- TE header is not added to any forwarded request
-- Transfer-Encoding, Connection, Public-Key-Pins, Server and Strict-Transport-Security headers are removed from any received response
-- the proxy is based on a servlet filter, the order of the filter is configurable
-- do not prepend server context path to mappings paths, it will be done automatically
-- if there are mappings like _/uri_ and _/uri/path_ and the incoming request URI is _/uri/path/something_ than the more specific mapping (_/uri/path_) will be chosen
-- proxying requests to domains with trusted SSL certificates is automatically supported
-
-## Configuration properties list
-The following list contains all available configuration properties with their default values.
-
-```yaml
-charon:
-    filter-order: Ordered.HIGHEST_PRECEDENCE # Charon servlet filter order.
-    retrying:
-        max-attempts: 3 # Maximum number of HTTP request forward tries.
-        retry-on:
-            client-http-error: false # Flag for enabling and disabling triggering HTTP requests forward retries on 4xx HTTP responses from destination.
-            server-http-error: true # Flag for enabling and disabling triggering HTTP requests forward retries on 5xx HTTP responses from destination.
-            exceptions: java.lang.Exception # Comma-separated list of exceptions that triggers HTTP request forward retries.
-    metrics:
-        names-prefix: charon # Global metrics names prefix.
-    tracing:
-        enabled: false # Flag for enabling and disabling tracing HTTP requests proxying processes.
-    asynchronous-forwarding-thread-pool:
-        queue-capacity: 50 # Thread pool executor queue capacity.
-        size:
-            initial: 5 # Thread pool executor initial number of threads.
-            maximum: 30 # Thread pool executor maximum number of threads.
-    mappings:
-        -
-            name: # Name of the mapping.
-            path: / # Path for mapping incoming HTTP requests URIs.
-            destinations: # List of destination hosts where HTTP requests will be forwarded.
-            asynchronous: false # Flag for enabling and disabling asynchronous HTTP request forwarding.
-            strip-path: true # Flag for enabling and disabling mapped path stripping from forwarded request URI.
-            retryable: false # Flag for enabling and disabling retrying of HTTP requests forwarding.
-            timeout:
-                connect: 200 # Connect timeout for HTTP requests forwarding.
-                read: 2000 # Read timeout for HTTP requests forwarding.
-            custom-configuration: # Custom properties placeholder.
-```
-
 ## Examples
-See [test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/src/test/java/com/github/mkopylec/charon/application) for more examples.
+See [WebMVC test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.\
+See [WebFlux test application](https://github.com/mkopylec/charon-spring-boot-starter/tree/master/charon-spring-webmvc/src/test/java/com/github/mkopylec/charon/test) for more examples.
 
 ## License
 Charon Spring Boot Starter is published under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).

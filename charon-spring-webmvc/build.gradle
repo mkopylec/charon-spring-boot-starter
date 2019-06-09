@@ -1,0 +1,50 @@
+apply plugin: 'jacoco'
+
+dependencies {
+    compile project(':charon-common').sourceSets.main.output
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
+
+    testCompile project(':charon-test')
+}
+
+jacoco {
+    toolVersion = '0.8.4'
+}
+
+jacocoTestReport {
+    sourceSets project(':charon-common').sourceSets.main
+    reports {
+        xml.enabled = true
+    }
+}
+
+jar {
+    from project(':charon-common').sourceSets.main.output
+}
+
+task sourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+    from project(':charon-common').sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourceJar
+}
+
+publishing {
+    publications {
+        charonSpringWebmvc(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            pom pomContent
+        }
+    }
+}
+
+signing {
+    if (project.ext.has('signArtifacts')) {
+        sign publishing.publications.charonSpringWebmvc
+    }
+}
