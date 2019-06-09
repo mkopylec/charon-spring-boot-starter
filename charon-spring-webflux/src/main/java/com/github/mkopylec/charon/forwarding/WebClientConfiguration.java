@@ -11,9 +11,9 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.Assert.notNull;
 import static org.springframework.web.reactive.function.client.WebClient.builder;
 
 public class WebClientConfiguration implements Valid {
@@ -23,12 +23,7 @@ public class WebClientConfiguration implements Valid {
 
     WebClientConfiguration() {
         this.timeoutConfiguration = timeout().configure();
-        this.clientHttpConnectorCreator = new ReactorConnectorCreator();
-    }
-
-    @Override
-    public void validate() {
-        notNull(clientHttpConnectorCreator, "No client HTTP connector creator set");
+        this.clientHttpConnectorCreator = reactorClientHttpConnectorCreator().configure();
     }
 
     void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {

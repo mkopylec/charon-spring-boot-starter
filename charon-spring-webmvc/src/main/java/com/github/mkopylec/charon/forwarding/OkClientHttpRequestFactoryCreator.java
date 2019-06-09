@@ -8,7 +8,7 @@ import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 
 import static com.github.mkopylec.charon.forwarding.Utils.toMillis;
 
-class OkHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
+class OkClientHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
 
     @Override
     public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {

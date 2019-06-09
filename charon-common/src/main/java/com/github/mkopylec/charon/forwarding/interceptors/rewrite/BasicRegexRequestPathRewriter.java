@@ -14,7 +14,6 @@ import static com.github.mkopylec.charon.forwarding.RequestForwardingException.r
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PATH_REWRITER;
 import static java.util.regex.Pattern.compile;
-import static org.springframework.util.Assert.isTrue;
 import static org.springframework.web.util.UriComponentsBuilder.fromUri;
 
 abstract class BasicRegexRequestPathRewriter implements Ordered, Valid {
@@ -27,11 +26,6 @@ abstract class BasicRegexRequestPathRewriter implements Ordered, Valid {
         this.log = log;
         incomingRequestPathRegex = compile("/(?<path>.*)");
         outgoingRequestPathTemplate = new PathTemplate("/<path>");
-    }
-
-    @Override
-    public void validate() {
-        isTrue(!outgoingRequestPathTemplate.isEmpty(), "No outgoing request path template set");
     }
 
     @Override

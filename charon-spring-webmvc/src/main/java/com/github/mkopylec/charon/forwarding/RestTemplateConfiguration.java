@@ -11,9 +11,9 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import static com.github.mkopylec.charon.forwarding.OkClientHttpRequestFactoryCreatorConfigurer.okClientHttpRequestFactoryCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.Assert.notNull;
 
 public class RestTemplateConfiguration implements Valid {
 
@@ -22,12 +22,7 @@ public class RestTemplateConfiguration implements Valid {
 
     RestTemplateConfiguration() {
         this.timeoutConfiguration = timeout().configure();
-        this.clientHttpRequestFactoryCreator = new OkHttpRequestFactoryCreator();
-    }
-
-    @Override
-    public void validate() {
-        notNull(clientHttpRequestFactoryCreator, "No client HTTP request factory creator set");
+        this.clientHttpRequestFactoryCreator = okClientHttpRequestFactoryCreator().configure();
     }
 
     void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {

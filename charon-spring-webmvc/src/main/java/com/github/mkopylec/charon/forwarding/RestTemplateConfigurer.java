@@ -17,8 +17,8 @@ public class RestTemplateConfigurer extends Configurer<RestTemplateConfiguration
         return this;
     }
 
-    public RestTemplateConfigurer set(ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator) { // TODO Configurer
-        configuredObject.setClientHttpRequestFactoryCreator(clientHttpRequestFactoryCreator);
+    public RestTemplateConfigurer set(ClientHttpRequestFactoryCreatorConfigurer<?> clientHttpRequestFactoryCreatorConfigurer) {
+        configuredObject.setClientHttpRequestFactoryCreator(clientHttpRequestFactoryCreatorConfigurer.configure());
         return this;
     }
 }

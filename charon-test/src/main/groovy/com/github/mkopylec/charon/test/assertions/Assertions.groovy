@@ -18,4 +18,8 @@ class Assertions {
     static MetricsAssertion assertThatMetrics() {
         return new MetricsAssertion(meterRegistry())
     }
+
+    static ExceptionAssertion assertThatException(Throwable throwable) {
+        return new ExceptionAssertion(throwable)
+    }
 }

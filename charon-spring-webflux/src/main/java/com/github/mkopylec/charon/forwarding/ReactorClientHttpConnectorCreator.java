@@ -12,7 +12,7 @@ import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static reactor.netty.http.client.HttpClient.create;
 
-class ReactorConnectorCreator implements ClientHttpConnectorCreator {
+class ReactorClientHttpConnectorCreator implements ClientHttpConnectorCreator {
 
     @Override
     public ClientHttpConnector createConnector(TimeoutConfiguration configuration) {

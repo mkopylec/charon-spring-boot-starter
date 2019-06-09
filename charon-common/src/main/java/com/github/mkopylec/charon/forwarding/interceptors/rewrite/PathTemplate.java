@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class PathTemplate {
 
@@ -27,10 +26,6 @@ class PathTemplate {
             filledValue = filledValue.replace("<" + placeholder + ">", group);
         }
         return filledValue;
-    }
-
-    boolean isEmpty() {
-        return isBlank(value);
     }
 
     private void findPlaceholders(String value) {

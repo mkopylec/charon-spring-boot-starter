@@ -17,8 +17,8 @@ public class WebClientConfigurer extends Configurer<WebClientConfiguration> {
         return this;
     }
 
-    public WebClientConfigurer set(ClientHttpConnectorCreator clientHttpConnectorCreator) {  //TODO Configurer
-        configuredObject.setClientHttpConnectorCreator(clientHttpConnectorCreator);
+    public WebClientConfigurer set(ClientHttpConnectorCreatorConfigurer<?> clientHttpConnectorCreatorConfigurer) {
+        configuredObject.setClientHttpConnectorCreator(clientHttpConnectorCreatorConfigurer.configure());
         return this;
     }
 }

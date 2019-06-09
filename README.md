@@ -510,10 +510,11 @@ class CharonConfiguration {
 ## HTTP client
 The WebMVC module uses `RestTemplate` to forward requests.
 Its timeouts and underlying HTTP client can be configured.
-To configure the HTTP client `ClientHttpRequestFactoryCreator` needs to be implemented.
+To configure the HTTP client `ClientHttpRequestFactoryCreator` needs to be implemented and `ClientHttpRequestFactoryCreatorConfigurer` extended.
 The default `RestTemplate` configuration looks like below:
 ```java
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.OkClientHttpRequestFactoryCreatorConfigurer.okClientHttpRequestFactoryCreator;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 
@@ -525,16 +526,17 @@ class CharonConfiguration {
         return charonConfiguration()
                 .set(restTemplate()
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
-                        .set(new OkHttpRequestFactoryCreator()));
+                        .set(okClientHttpRequestFactoryCreator()));
     }
 }
 ```
 The WebFlux module uses `WebClient` to forward requests.
 Its timeouts and underlying HTTP client can be configured.
-To configure the HTTP client `ClientHttpConnectorCreator` needs to be implemented.
+To configure the HTTP client `ClientHttpConnectorCreator` needs to be implemented and `ClientHttpConnectorCreatorConfigurer` extended.
 The default `WebClient` configuration looks like below:
 ```java
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
 
@@ -546,7 +548,7 @@ class CharonConfiguration {
         return charonConfiguration()
                 .set(webClient()
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
-                        .set(new ReactorConnectorCreator()));
+                        .set(reactorClientHttpConnectorCreator()));
     }
 }
 ```
