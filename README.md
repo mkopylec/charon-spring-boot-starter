@@ -149,6 +149,7 @@ class CharonConfiguration {
     }
 }
 ```
+An interceptor can be overwritten by setting an interceptor which has the same order.
 Charon contains the following request forwarding interceptors:
 
 ### Request server name rewriter
@@ -547,6 +548,38 @@ class CharonConfiguration {
                         .set(timeout().connection(ofMillis(100)).read(ofMillis(1000)).write(ofMillis(500)))
                         .set(new ReactorConnectorCreator()));
     }
+}
+```
+
+## Custom configuration
+Charon also provides an API for setting custom configuration properties.
+The set properties can be read in any request forwarding interceptor via `HttpRequestExecution` API.
+For example:
+```java
+import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
+import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
+
+@Configuration
+class CharonConfiguration {
+
+    @Bean
+    CharonConfigurer charonConfigurer() {
+        return charonConfiguration()
+                .set(custom()
+                        .set("integer-property", 666));
+    }
+}
+```
+```java
+class CustomInterceptor implements RequestForwardingInterceptor {
+
+    @Override
+    public <http-response> forward(HttpRequest request, HttpRequestExecution execution) {
+        int property = execution.getCustomProperty("integer-property");
+        ...
+    }
+    
+    ...
 }
 ```
 

@@ -54,19 +54,13 @@ abstract class RetryingBasicSpec extends BasicSpec {
 
     @DirtiesContext
     def "Should unsuccessfully retry request forwarding on exception when proper interceptor is set"() {
-        given:
-        outgoingServers(localhost8080)
-                .stubResponse(OK, 'response body', 3)
-
         when:
         def response = http.sendRequest(GET, '/exception/retrying')
 
         then:
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
-                .bodyContains('Unexpected error has occurred')
-        assertThatServers(localhost8080)
-                .haveReceivedRequest(GET, '/exception/retrying', 3)
+                .bodyContains('non-existing.host')
         assertThatMetrics()
                 .haveCaptured('charon.exception retrying.retrying.calls')
     }

@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.test;
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,6 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.Removin
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
 import static com.github.mkopylec.charon.test.CustomConfigurationResponseRewriterConfigurer.customConfigurationResponseRewriter;
-import static com.github.mkopylec.charon.test.ExceptionThrowerConfigurer.exceptionThrower;
 import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
 import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
 import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
@@ -54,6 +54,10 @@ class ReverseProxyConfiguration {
                         .pathRegex("/default"))
                 .add(requestMapping("asynchronous forwarding")
                         .pathRegex("/asynchronous/forwarding.*")
+                        .set(asynchronousForwarder()))
+                .add(requestMapping("exception asynchronous forwarding")
+                        .pathRegex("/exception/asynchronous/forwarding.*")
+                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .set(asynchronousForwarder()))
                 .add(requestMapping("request protocol headers rewriting")
                         .pathRegex("/request/protocol/headers.*")
@@ -98,8 +102,7 @@ class ReverseProxyConfiguration {
                                 .meterRegistry(meterRegistry())))
                 .add(requestMapping("exception circuit breaking")
                         .pathRegex("/exception/circuit/breaking.*")
-                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
-                        .set(exceptionThrower())
+                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
                                 .ringBufferSizeInClosedState(1))
                                 .meterRegistry(meterRegistry())))
@@ -109,8 +112,7 @@ class ReverseProxyConfiguration {
                         .set(retryer().meterRegistry(meterRegistry())))
                 .add(requestMapping("exception retrying")
                         .pathRegex("/exception/retrying.*")
-                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
-                        .set(exceptionThrower())
+                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .set(retryer().meterRegistry(meterRegistry())))
                 .add(requestMapping("rate limiting")
                         .pathRegex("/rate/limiting.*")

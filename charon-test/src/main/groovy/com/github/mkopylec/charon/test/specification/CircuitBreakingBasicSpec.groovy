@@ -10,11 +10,11 @@ import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoin
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.BAD_REQUEST
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import static org.springframework.http.HttpStatus.OK
 
 abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
-    @Ignore // TODO Unignore after https://github.com/resilience4j/resilience4j/issues/384 is done
+    @Ignore
+    // TODO Unignore after https://github.com/resilience4j/resilience4j/issues/384 is done
     @DirtiesContext
     def "Should break circuit while forwarding request on HTTP 5xx response when proper interceptor is set"() {
         given:
@@ -40,10 +40,6 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
     @DirtiesContext
     def "Should break circuit while forwarding request on exception when proper interceptor is set"() {
-        given:
-        outgoingServers(localhost8080)
-                .stubResponse(OK, 'response body', 2)
-
         when:
         http.sendRequest(GET, '/exception/circuit/breaking')
         def response = http.sendRequest(GET, '/exception/circuit/breaking')
@@ -52,8 +48,6 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
                 .bodyContains("CircuitBreaker 'exception circuit breaking' is OPEN and does not permit further calls")
-        assertThatServers(localhost8080)
-                .haveReceivedRequest(GET, '/exception/circuit/breaking')
         assertThatMetrics()
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.calls')

@@ -12,7 +12,7 @@ import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
-import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REGEX_REQUEST_PATH_REWRITER;
+import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PATH_REWRITER;
 import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.isTrue;
 import static org.springframework.web.util.UriComponentsBuilder.fromUri;
@@ -36,7 +36,7 @@ abstract class BasicRegexRequestPathRewriter implements Ordered, Valid {
 
     @Override
     public int getOrder() {
-        return REGEX_REQUEST_PATH_REWRITER.getOrder();
+        return REQUEST_PATH_REWRITER.getOrder();
     }
 
     void setPaths(String incomingRequestPathRegex, String outgoingRequestPathTemplate) {
