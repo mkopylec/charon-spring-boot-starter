@@ -35,6 +35,7 @@ import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;
+import static java.util.Collections.singletonList;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -109,6 +110,11 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("retrying")
                         .pathRegex("/retrying.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(retryer().meterRegistry(meterRegistry())))
+                .add(requestMapping("interceptors retrying")
+                        .pathRegex("/interceptors/retrying.*")
+                        .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
+                        .set(webClient().set(singletonList(new RequestPathAppender())))
                         .set(retryer().meterRegistry(meterRegistry())))
                 .add(requestMapping("exception retrying")
                         .pathRegex("/exception/retrying.*")

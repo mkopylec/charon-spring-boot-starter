@@ -14,7 +14,7 @@ import static org.springframework.http.HttpStatus.OK
 abstract class RetryingBasicSpec extends BasicSpec {
 
     @DirtiesContext
-    def "Should successfully retry request forwarding on HTTP 5xx response when proper interceptor is set"() {
+    def "Should successfully retry request forwarding on HTTP 5xx response when proper interceptor is set and there is no other interceptors after"() {
         given:
         outgoingServers(localhost8080)
                 .stubResponse(INTERNAL_SERVER_ERROR, 2)
@@ -34,7 +34,29 @@ abstract class RetryingBasicSpec extends BasicSpec {
     }
 
     @DirtiesContext
-    def "Should unsuccessfully retry request forwarding on HTTP 5xx response when proper interceptor is set"() {
+    def "Should successfully retry request forwarding on HTTP 5xx response when proper interceptor is set and there are other interceptors after"() {
+        given:
+        outgoingServers(localhost8080)
+                .stubResponse(INTERNAL_SERVER_ERROR, 2)
+        outgoingServers(localhost8080)
+                .stubResponse(OK)
+
+        when:
+        def response = http.sendRequest(GET, '/interceptors/retrying')
+
+        then:
+        assertThat(response)
+                .hasStatus(OK)
+        assertThatServers(localhost8080)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended/appended', 1)
+        assertThatMetrics()
+                .haveCaptured('charon.interceptors retrying.retrying.calls')
+    }
+
+    @DirtiesContext
+    def "Should unsuccessfully retry request forwarding on HTTP 5xx response when proper interceptor is set and there is no other interceptors after"() {
         given:
         outgoingServers(localhost8080)
                 .stubResponse(INTERNAL_SERVER_ERROR, 'response body', 3)
@@ -50,6 +72,32 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveReceivedRequest(GET, '/retrying', 3)
         assertThatMetrics()
                 .haveCaptured('charon.retrying.retrying.calls')
+
+        where:
+        incomingPath             | outgoingPath                                        | metricName
+        '/retrying'              | '/retrying'                                         | 'charon.retrying.retrying.calls'
+        '/interceptors/retrying' | '/interceptors/retrying/appended/appended/appended' | 'charon.interceptors retrying.retrying.calls'
+    }
+
+    @DirtiesContext
+    def "Should unsuccessfully retry request forwarding on HTTP 5xx response when proper interceptor is set and there are other interceptors after"() {
+        given:
+        outgoingServers(localhost8080)
+                .stubResponse(INTERNAL_SERVER_ERROR, 'response body', 3)
+
+        when:
+        def response = http.sendRequest(GET, '/interceptors/retrying')
+
+        then:
+        assertThat(response)
+                .hasStatus(INTERNAL_SERVER_ERROR)
+                .hasBody('response body')
+        assertThatServers(localhost8080)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended/appended', 1)
+        assertThatMetrics()
+                .haveCaptured('charon.interceptors retrying.retrying.calls')
     }
 
     @DirtiesContext
