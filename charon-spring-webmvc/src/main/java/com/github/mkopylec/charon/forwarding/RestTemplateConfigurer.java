@@ -1,6 +1,9 @@
 package com.github.mkopylec.charon.forwarding;
 
 import com.github.mkopylec.charon.configuration.Configurer;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+
+import java.util.List;
 
 public class RestTemplateConfigurer extends Configurer<RestTemplateConfiguration> {
 
@@ -17,8 +20,15 @@ public class RestTemplateConfigurer extends Configurer<RestTemplateConfiguration
         return this;
     }
 
+    // TODO Test
     public RestTemplateConfigurer set(ClientHttpRequestFactoryCreatorConfigurer<?> clientHttpRequestFactoryCreatorConfigurer) {
         configuredObject.setClientHttpRequestFactoryCreator(clientHttpRequestFactoryCreatorConfigurer.configure());
+        return this;
+    }
+
+    // TODO Test doc
+    public RestTemplateConfigurer set(List<ClientHttpRequestInterceptor> clientHttpRequestInterceptors) {
+        configuredObject.setClientHttpRequestInterceptors(clientHttpRequestInterceptors);
         return this;
     }
 }

@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
-
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.OkClientHttpRequestFactoryCreatorConfigurer.okClientHttpRequestFactoryCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -19,10 +18,12 @@ public class RestTemplateConfiguration implements Valid {
 
     private TimeoutConfiguration timeoutConfiguration;
     private ClientHttpRequestFactoryCreator clientHttpRequestFactoryCreator;
+    private List<ClientHttpRequestInterceptor> clientHttpRequestInterceptors;
 
     RestTemplateConfiguration() {
         this.timeoutConfiguration = timeout().configure();
         this.clientHttpRequestFactoryCreator = okClientHttpRequestFactoryCreator().configure();
+        clientHttpRequestInterceptors = new ArrayList<>();
     }
 
     void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
@@ -33,9 +34,14 @@ public class RestTemplateConfiguration implements Valid {
         this.clientHttpRequestFactoryCreator = clientHttpRequestFactoryCreator;
     }
 
+    void setClientHttpRequestInterceptors(List<ClientHttpRequestInterceptor> clientHttpRequestInterceptors) {
+        this.clientHttpRequestInterceptors.addAll(clientHttpRequestInterceptors);
+    }
+
     RestTemplate configure(RequestMappingConfiguration configuration) {
         ClientHttpRequestFactory requestFactory = clientHttpRequestFactoryCreator.createRequestFactory(timeoutConfiguration);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
+        interceptors.addAll(clientHttpRequestInterceptors);
         RestTemplate restTemplate = new RetryAwareRestTemplate();
         restTemplate.setRequestFactory(requestFactory);
         restTemplate.setErrorHandler(new NoExceptionErrorHandler());

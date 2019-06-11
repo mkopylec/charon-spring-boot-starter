@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.firstRetryAttemptApplied;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getAfterRetryerIndex;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isFirstRetryAttempt;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isSucceedingRetryAttempt;
@@ -101,6 +102,7 @@ public class RetryAwareList<E> extends ArrayList<E> {
         private void handleFirstRetryAttempt(int cursor) {
             if (isFirstRetryAttempt()) {
                 setAfterRetryerIndex(cursor);
+                firstRetryAttemptApplied();
             }
         }
 

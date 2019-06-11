@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
-
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -20,10 +19,12 @@ public class WebClientConfiguration implements Valid {
 
     private TimeoutConfiguration timeoutConfiguration;
     private ClientHttpConnectorCreator clientHttpConnectorCreator;
+    private List<ExchangeFilterFunction> exchangeFilterFunctions;
 
     WebClientConfiguration() {
         this.timeoutConfiguration = timeout().configure();
         this.clientHttpConnectorCreator = reactorClientHttpConnectorCreator().configure();
+        exchangeFilterFunctions = new ArrayList<>();
     }
 
     void setTimeoutConfiguration(TimeoutConfiguration timeoutConfiguration) {
@@ -34,9 +35,14 @@ public class WebClientConfiguration implements Valid {
         this.clientHttpConnectorCreator = clientHttpConnectorCreator;
     }
 
+    void setExchangeFilterFunctions(List<ExchangeFilterFunction> exchangeFilterFunctions) {
+        this.exchangeFilterFunctions.addAll(exchangeFilterFunctions);
+    }
+
     WebClient configure(RequestMappingConfiguration configuration) {
         ClientHttpConnector connector = clientHttpConnectorCreator.createConnector(timeoutConfiguration);
         List<ExchangeFilterFunction> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
+        interceptors.addAll(exchangeFilterFunctions);
         return builder()
                 .clientConnector(connector)
                 .filters(filters -> filters.addAll(interceptors))
