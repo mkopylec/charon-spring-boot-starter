@@ -16,7 +16,7 @@ public enum RequestForwardingInterceptorType implements Ordered {
     CIRCUIT_BREAKER_HANDLER(900),
     RETRYING_HANDLER(1000),
     RATE_LIMITING_HANDLER(1100),
-    LATENCY_METER(1200);
+    LATENCY_METER(LOWEST_PRECEDENCE);
 
     private int order;
 
