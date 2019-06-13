@@ -47,10 +47,9 @@ abstract class RetryingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(OK)
+                .containsHeaders(['Retry-Attempts': '3'])
         assertThatServers(localhost8080)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended', 1)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended', 1)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying', 3)
         assertThatMetrics()
                 .haveCaptured('charon.interceptors retrying.retrying.calls')
     }
@@ -72,11 +71,6 @@ abstract class RetryingBasicSpec extends BasicSpec {
                 .haveReceivedRequest(GET, '/retrying', 3)
         assertThatMetrics()
                 .haveCaptured('charon.retrying.retrying.calls')
-
-        where:
-        incomingPath             | outgoingPath                                        | metricName
-        '/retrying'              | '/retrying'                                         | 'charon.retrying.retrying.calls'
-        '/interceptors/retrying' | '/interceptors/retrying/appended/appended/appended' | 'charon.interceptors retrying.retrying.calls'
     }
 
     @DirtiesContext
@@ -92,10 +86,9 @@ abstract class RetryingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
                 .hasBody('response body')
+                .containsHeaders(['Retry-Attempts': '3'])
         assertThatServers(localhost8080)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended', 1)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended', 1)
-                .haveReceivedRequest(GET, '/interceptors/retrying/appended/appended/appended', 1)
+                .haveReceivedRequest(GET, '/interceptors/retrying', 3)
         assertThatMetrics()
                 .haveCaptured('charon.interceptors retrying.retrying.calls')
     }

@@ -114,7 +114,7 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("interceptors retrying")
                         .pathRegex("/interceptors/retrying.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
-                        .set(webClient().set(singletonList(new RequestPathAppender())))
+                        .set(webClient().set(singletonList(new RetryAttemptsResponseHeaderSetter())))
                         .set(retryer().meterRegistry(meterRegistry())))
                 .add(requestMapping("exception retrying")
                         .pathRegex("/exception/retrying.*")
