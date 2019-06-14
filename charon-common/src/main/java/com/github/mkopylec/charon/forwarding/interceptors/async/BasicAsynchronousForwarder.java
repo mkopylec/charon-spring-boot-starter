@@ -34,7 +34,7 @@ abstract class BasicAsynchronousForwarder implements Ordered, Valid {
         log.trace("[End] Asynchronous execution of '{}' request mapping", mappingName);
     }
 
-    void logError(String mappingName, RuntimeException e) {
+    void logError(String mappingName, Exception e) {
         log.error("Error executing '{}' request mapping asynchronously", mappingName, e);
     }
 }

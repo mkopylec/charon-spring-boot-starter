@@ -8,18 +8,28 @@ import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 
 import static com.github.mkopylec.charon.forwarding.Utils.toMillis;
 
+// TODO SSL tests
 class OkClientHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
 
-    @Override
-    public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {
-        OkHttpClient client = new Builder()
+    private OkHttpClient httpClient;
+
+    OkClientHttpRequestFactoryCreator() {
+        httpClient = new Builder()
                 .followRedirects(false)
                 .followSslRedirects(false)
                 .build();
-        OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory(client);
+    }
+
+    @Override
+    public ClientHttpRequestFactory createRequestFactory(TimeoutConfiguration configuration) {
+        OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory(httpClient);
         requestFactory.setConnectTimeout(toMillis(configuration.getConnection()));
         requestFactory.setReadTimeout(toMillis(configuration.getRead()));
         requestFactory.setWriteTimeout(toMillis(configuration.getWrite()));
         return requestFactory;
+    }
+
+    void setHttpClient(OkHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 }

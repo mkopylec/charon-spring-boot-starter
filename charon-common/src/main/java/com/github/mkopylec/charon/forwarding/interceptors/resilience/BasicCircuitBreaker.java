@@ -1,10 +1,14 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
+import java.util.function.Function;
+
 import com.github.mkopylec.charon.configuration.Valid;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
 import org.slf4j.Logger;
+
 import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
@@ -13,11 +17,12 @@ import static io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.custom;
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.of;
 import static io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.ofCircuitBreakerRegistry;
 
-abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreakerRegistry> implements Ordered, Valid {
+abstract class BasicCircuitBreaker<R> extends BasicResilienceHandler<CircuitBreakerRegistry> implements Ordered, Valid {
 
     private static final String CIRCUIT_BREAKER_METRICS_NAME = "circuit-breaking";
 
     private Logger log;
+    private Function<CallNotPermittedException, R> fallback;
 
     BasicCircuitBreaker(Logger log) {
         // TODO Handle 5xx after https://github.com/resilience4j/resilience4j/issues/384 is done
@@ -32,6 +37,10 @@ abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreaker
         return CIRCUIT_BREAKER_HANDLER.getOrder();
     }
 
+    void setFallback(Function<CallNotPermittedException, R> fallback) {
+        this.fallback = fallback;
+    }
+
     TaggedCircuitBreakerMetrics createMetrics(CircuitBreakerRegistry registry, String mappingName) {
         String bufferedCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "buffered-calls");
         String callsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "calls");
@@ -44,6 +53,14 @@ abstract class BasicCircuitBreaker extends BasicResilienceHandler<CircuitBreaker
                 .stateMetricName(stateMetricName)
                 .build();
         return ofCircuitBreakerRegistry(metricNames, registry);
+    }
+
+    R executeFallback(CallNotPermittedException ex) {
+        if (fallback == null) {
+            throw ex;
+        }
+        log.debug("Circuit breaker call not permitted, executing fallback");
+        return fallback.apply(ex);
     }
 
     void logStart(String mappingName) {

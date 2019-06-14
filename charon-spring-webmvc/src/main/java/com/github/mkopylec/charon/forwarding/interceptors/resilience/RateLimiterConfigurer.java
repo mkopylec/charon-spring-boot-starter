@@ -1,7 +1,7 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig.Builder;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import static io.github.resilience4j.ratelimiter.RateLimiterRegistry.of;
@@ -16,8 +16,8 @@ public class RateLimiterConfigurer extends RequestForwardingInterceptorConfigure
         return new RateLimiterConfigurer();
     }
 
-    public RateLimiterConfigurer configuration(RateLimiterConfig.Builder rateLimiterConfigBuilder) {
-        configuredObject.setRegistry(of(rateLimiterConfigBuilder.build()));
+    public RateLimiterConfigurer configuration(Builder rateLimiterConfiguration) {
+        configuredObject.setRegistry(of(rateLimiterConfiguration.build()));
         return this;
     }
 

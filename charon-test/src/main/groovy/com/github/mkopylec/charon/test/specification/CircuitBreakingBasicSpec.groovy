@@ -9,6 +9,7 @@ import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatSe
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
 import static org.springframework.http.HttpStatus.BAD_REQUEST
+import static org.springframework.http.HttpStatus.CREATED
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 
 abstract class CircuitBreakingBasicSpec extends BasicSpec {
@@ -48,11 +49,35 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
                 .bodyContains("CircuitBreaker 'exception circuit breaking' is OPEN and does not permit further calls")
+        assertThatServers(localhost8080)
+                .haveNotReceivedRequest()
         assertThatMetrics()
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.max-buffered-calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.state')
+    }
+
+    @DirtiesContext
+    def "Should execute circuit breaker fallback while forwarding request when proper interceptor is set"() {
+        given:
+        outgoingServers(localhost8080)
+                .stubResponse(INTERNAL_SERVER_ERROR, 'response body', 2)
+
+        when:
+        http.sendRequest(GET, '/fallback/circuit/breaking')
+        def response = http.sendRequest(GET, '/fallback/circuit/breaking')
+
+        then:
+        assertThat(response)
+                .hasStatus(CREATED)
+        assertThatServers(localhost8080)
+                .haveNotReceivedRequest()
+        assertThatMetrics()
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.buffered-calls')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.calls')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.max-buffered-calls')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.state')
     }
 
     @DirtiesContext
