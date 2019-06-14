@@ -1,56 +1,57 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
-import static org.apache.commons.lang3.BooleanUtils.isTrue;
-
 class RetryingState {
 
-    private static ThreadLocal<Integer> retryAttempts = new ThreadLocal<>();
-    private static ThreadLocal<Boolean> firstAttempt = new ThreadLocal<>();
-    private static ThreadLocal<Boolean> nextAttempt = new ThreadLocal<>();
-    private static ThreadLocal<Integer> afterRetryerIndex = new ThreadLocal<>();
+    private static ThreadLocal<State> state = new ThreadLocal<>();
 
-    static boolean isFirstRetryAttempt() {
-        return getRetryAttempts() == 1 && isTrue(firstAttempt.get());
-    }
-
-    static void firstRetryAttemptApplied() {
-        firstAttempt.set(false);
-    }
-
-    static boolean isSucceedingRetryAttempt() {
-        return getRetryAttempts() > 1 && isTrue(nextAttempt.get()) && afterRetryerIndex.get() != null;
-    }
-
-    static void succeedingRetryAttemptApplied() {
-        nextAttempt.set(false);
-    }
-
-    static int getAfterRetryerIndex() {
-        return afterRetryerIndex.get();
-    }
-
-    static void setAfterRetryerIndex(int index) {
-        afterRetryerIndex.set(index);
-    }
-
-    static void nextRetryAttempt() {
-        int attempt = getRetryAttempts();
-        retryAttempts.set(++attempt);
-        if (attempt == 1) {
-            firstAttempt.set(true);
+    static State getRetryState() {
+        if (state.get() == null) {
+            state.set(new State());
         }
-        nextAttempt.set(true);
+        return state.get();
     }
 
-    static void clearRetryAttempts() {
-        retryAttempts.remove();
-        firstAttempt.remove();
-        nextAttempt.remove();
-        afterRetryerIndex.remove();
+    static void clearRetryState() {
+        state.remove();
     }
 
-    private static int getRetryAttempts() {
-        Integer attempt = retryAttempts.get();
-        return attempt != null ? attempt : 0;
+    static class State {
+
+        private int retryAttempts;
+        private boolean firstAttempt;
+        private boolean nextAttempt;
+        private Integer afterRetryerIndex;
+
+        boolean isFirstRetryAttempt() {
+            return retryAttempts == 1 && firstAttempt;
+        }
+
+        void firstRetryAttemptApplied() {
+            firstAttempt = false;
+        }
+
+        boolean isSucceedingRetryAttempt() {
+            return retryAttempts > 1 && nextAttempt && afterRetryerIndex != null;
+        }
+
+        void succeedingRetryAttemptApplied() {
+            nextAttempt = false;
+        }
+
+        int getAfterRetryerIndex() {
+            return afterRetryerIndex;
+        }
+
+        void setAfterRetryerIndex(int index) {
+            afterRetryerIndex = index;
+        }
+
+        void nextRetryAttempt() {
+            retryAttempts++;
+            if (retryAttempts == 1) {
+                firstAttempt = true;
+            }
+            nextAttempt = true;
+        }
     }
 }

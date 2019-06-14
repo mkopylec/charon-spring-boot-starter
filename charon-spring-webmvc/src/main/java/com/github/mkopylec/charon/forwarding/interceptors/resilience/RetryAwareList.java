@@ -7,12 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.firstRetryAttemptApplied;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getAfterRetryerIndex;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isFirstRetryAttempt;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.isSucceedingRetryAttempt;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.setAfterRetryerIndex;
-import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.succeedingRetryAttemptApplied;
+import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getRetryState;
 
 public class RetryAwareList<E> extends ArrayList<E> {
 
@@ -100,16 +95,16 @@ public class RetryAwareList<E> extends ArrayList<E> {
         }
 
         private void handleFirstRetryAttempt(int cursor) {
-            if (isFirstRetryAttempt()) {
-                setAfterRetryerIndex(cursor);
-                firstRetryAttemptApplied();
+            if (getRetryState().isFirstRetryAttempt()) {
+                getRetryState().setAfterRetryerIndex(cursor);
+                getRetryState().firstRetryAttemptApplied();
             }
         }
 
         private int resolveCursorForSucceedingRetryAttempt(int cursor) {
-            if (isSucceedingRetryAttempt()) {
-                cursor = getAfterRetryerIndex();
-                succeedingRetryAttemptApplied();
+            if (getRetryState().isSucceedingRetryAttempt()) {
+                cursor = getRetryState().getAfterRetryerIndex();
+                getRetryState().succeedingRetryAttemptApplied();
             }
             return cursor;
         }
