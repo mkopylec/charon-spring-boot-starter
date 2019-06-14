@@ -2,8 +2,6 @@ package com.github.mkopylec.charon.forwarding.interceptors;
 
 import java.io.IOException;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
-
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 
@@ -12,12 +10,10 @@ import static com.github.mkopylec.charon.forwarding.RequestForwardingException.r
 public class HttpRequestExecution {
 
     private String mappingName;
-    private CustomConfiguration customConfiguration;
     private ClientHttpRequestExecution requestExecution;
 
-    HttpRequestExecution(String mappingName, CustomConfiguration customConfiguration, ClientHttpRequestExecution requestExecution) {
+    HttpRequestExecution(String mappingName, ClientHttpRequestExecution requestExecution) {
         this.mappingName = mappingName;
-        this.customConfiguration = customConfiguration;
         this.requestExecution = requestExecution;
     }
 
@@ -34,9 +30,5 @@ public class HttpRequestExecution {
 
     public String getMappingName() {
         return mappingName;
-    }
-
-    public <P> P getCustomProperty(String name) {
-        return customConfiguration.getProperty(name);
     }
 }

@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
-
 import org.springframework.core.Ordered;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -10,12 +8,10 @@ import org.springframework.http.client.ClientHttpResponse;
 public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ordered {
 
     private String mappingName;
-    private CustomConfiguration customConfiguration;
     private RequestForwardingInterceptor requestForwardingInterceptor;
 
-    public HttpRequestInterceptor(String mappingName, CustomConfiguration customConfiguration, RequestForwardingInterceptor requestForwardingInterceptor) {
+    public HttpRequestInterceptor(String mappingName, RequestForwardingInterceptor requestForwardingInterceptor) {
         this.mappingName = mappingName;
-        this.customConfiguration = customConfiguration;
         this.requestForwardingInterceptor = requestForwardingInterceptor;
     }
 
@@ -26,7 +22,7 @@ public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ord
                 : new HttpRequest(request, body);
         HttpRequestExecution requestExecution = execution instanceof HttpRequestExecution
                 ? (HttpRequestExecution) execution
-                : new HttpRequestExecution(mappingName, customConfiguration, execution);
+                : new HttpRequestExecution(mappingName, execution);
         return requestForwardingInterceptor.forward(httpRequest, requestExecution);
     }
 

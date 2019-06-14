@@ -1,6 +1,5 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.forwarding.CustomConfigurer;
 import com.github.mkopylec.charon.forwarding.WebClientConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
@@ -37,11 +36,6 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
     public CharonConfigurer add(RequestMappingConfigurer requestMappingConfigurer) {
         configuredObject.addRequestForwardingConfiguration(requestMappingConfigurer.configure());
-        return this;
-    }
-
-    public CharonConfigurer set(CustomConfigurer customConfigurer) {
-        configuredObject.setCustomConfiguration(customConfigurer.configure());
         return this;
     }
 

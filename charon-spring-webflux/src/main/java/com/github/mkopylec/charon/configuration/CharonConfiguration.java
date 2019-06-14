@@ -1,14 +1,12 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
 import static java.util.Collections.unmodifiableList;
@@ -20,7 +18,6 @@ public class CharonConfiguration implements Valid {
     private WebClientConfiguration webClientConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestMappingConfiguration> requestMappingConfigurations;
-    private CustomConfiguration customConfiguration;
 
     CharonConfiguration() {
         filterOrder = HIGHEST_PRECEDENCE;
@@ -28,7 +25,6 @@ public class CharonConfiguration implements Valid {
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(forwardingLogger().configure());
         requestMappingConfigurations = new ArrayList<>();
-        customConfiguration = custom().configure();
     }
 
     int getFilterOrder() {
@@ -60,15 +56,10 @@ public class CharonConfiguration implements Valid {
         requestMappingConfigurations.add(requestMappingConfiguration);
     }
 
-    void setCustomConfiguration(CustomConfiguration customConfiguration) {
-        this.customConfiguration = customConfiguration;
-    }
-
     void mergeWithRequestForwardingConfigurations() {
         requestMappingConfigurations.forEach(configuration -> {
             configuration.mergeRestTemplateConfiguration(webClientConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
-            configuration.mergeCustomConfiguration(customConfiguration);
         });
     }
 

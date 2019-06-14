@@ -1,14 +1,15 @@
 package com.github.mkopylec.charon.forwarding;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
+
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.OkClientHttpRequestFactoryCreatorConfigurer.okClientHttpRequestFactoryCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -51,7 +52,7 @@ public class RestTemplateConfiguration implements Valid {
 
     private List<HttpRequestInterceptor> createHttpRequestInterceptors(RequestMappingConfiguration configuration) {
         return configuration.getRequestForwardingInterceptors().stream()
-                .map(interceptor -> new HttpRequestInterceptor(configuration.getName(), configuration.getCustomConfiguration(), interceptor))
+                .map(interceptor -> new HttpRequestInterceptor(configuration.getName(), interceptor))
                 .collect(toList());
     }
 }

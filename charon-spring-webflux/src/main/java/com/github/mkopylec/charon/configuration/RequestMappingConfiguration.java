@@ -1,14 +1,14 @@
 package com.github.mkopylec.charon.configuration;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
-import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
-import org.springframework.core.Ordered;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+
+import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProtocolHeadersRewriterConfigurer.requestProtocolHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
@@ -26,7 +26,6 @@ public class RequestMappingConfiguration implements Valid {
     private WebClientConfiguration webClientConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestForwardingInterceptorType> unsetRequestForwardingInterceptors;
-    private CustomConfiguration customConfiguration;
 
     RequestMappingConfiguration(String name) {
         this.name = name;
@@ -89,20 +88,6 @@ public class RequestMappingConfiguration implements Valid {
         this.requestForwardingInterceptors.addAll(globalInterceptors);
         this.requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
         unsetRequestForwardingInterceptors.forEach(interceptorType -> removeRequestForwardingInterceptor(this.requestForwardingInterceptors, interceptorType.getOrder()));
-    }
-
-    public CustomConfiguration getCustomConfiguration() {
-        return customConfiguration;
-    }
-
-    void setCustomConfiguration(CustomConfiguration customConfiguration) {
-        this.customConfiguration = customConfiguration;
-    }
-
-    void mergeCustomConfiguration(CustomConfiguration customConfiguration) {
-        if (this.customConfiguration == null) {
-            this.customConfiguration = customConfiguration;
-        }
     }
 
     @Override

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
-import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROTOCOL_HEADERS_REWRITER;
@@ -26,7 +25,6 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
-import static com.github.mkopylec.charon.test.CustomConfigurationResponseRewriterConfigurer.customConfigurationResponseRewriter;
 import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
 import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
 import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
@@ -36,8 +34,6 @@ import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.singletonList;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Configuration
 class ReverseProxyConfiguration {
@@ -50,7 +46,6 @@ class ReverseProxyConfiguration {
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
                 .set(webClient().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))
-                .set(custom().set("default-custom-property", FORBIDDEN))
                 .add(requestMapping("default")
                         .pathRegex("/default"))
                 .add(requestMapping("asynchronous forwarding")
@@ -134,13 +129,6 @@ class ReverseProxyConfiguration {
                         .pathRegex("/multiple/mappings/found.*"))
                 .add(requestMapping("multiple mappings found 2")
                         .pathRegex("/multiple/mappings/found.*"))
-                .add(requestMapping("default custom configuration")
-                        .pathRegex("/default/custom/configuration.*")
-                        .set(customConfigurationResponseRewriter()))
-                .add(requestMapping("mapping custom configuration")
-                        .pathRegex("/mapping/custom/configuration.*")
-                        .set(custom().set("mapping-custom-property", UNAUTHORIZED))
-                        .set(customConfigurationResponseRewriter()))
                 .add(requestMapping("request body rewriting")
                         .pathRegex("/request/body/rewriting.*")
                         .set(requestBodyRewriter()))

@@ -1,6 +1,5 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import io.netty.channel.ChannelException;
 import reactor.core.publisher.Mono;
 
@@ -11,12 +10,10 @@ import static com.github.mkopylec.charon.forwarding.RequestForwardingException.r
 public class HttpRequestExecution {
 
     private String mappingName;
-    private CustomConfiguration customConfiguration;
     private ExchangeFunction exchange;
 
-    HttpRequestExecution(String mappingName, CustomConfiguration customConfiguration, ExchangeFunction exchange) {
+    HttpRequestExecution(String mappingName, ExchangeFunction exchange) {
         this.mappingName = mappingName;
-        this.customConfiguration = customConfiguration;
         this.exchange = exchange;
     }
 
@@ -32,9 +29,5 @@ public class HttpRequestExecution {
 
     public String getMappingName() {
         return mappingName;
-    }
-
-    public <P> P getCustomProperty(String name) {
-        return customConfiguration.getProperty(name);
     }
 }

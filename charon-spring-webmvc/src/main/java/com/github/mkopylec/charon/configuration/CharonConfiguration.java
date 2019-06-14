@@ -3,12 +3,10 @@ package com.github.mkopylec.charon.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
-import static com.github.mkopylec.charon.forwarding.CustomConfigurer.custom;
 import static com.github.mkopylec.charon.forwarding.RestTemplateConfigurer.restTemplate;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;
 import static java.util.Collections.unmodifiableList;
@@ -20,7 +18,6 @@ public class CharonConfiguration implements Valid {
     private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestMappingConfiguration> requestMappingConfigurations;
-    private CustomConfiguration customConfiguration;
 
     CharonConfiguration() {
         filterOrder = HIGHEST_PRECEDENCE;
@@ -28,7 +25,6 @@ public class CharonConfiguration implements Valid {
         requestForwardingInterceptors = new ArrayList<>();
         addRequestForwardingInterceptor(forwardingLogger().configure());
         requestMappingConfigurations = new ArrayList<>();
-        customConfiguration = custom().configure();
     }
 
     int getFilterOrder() {
@@ -60,15 +56,10 @@ public class CharonConfiguration implements Valid {
         requestMappingConfigurations.add(requestMappingConfiguration);
     }
 
-    void setCustomConfiguration(CustomConfiguration customConfiguration) {
-        this.customConfiguration = customConfiguration;
-    }
-
     void mergeWithRequestForwardingConfigurations() {
         requestMappingConfigurations.forEach(configuration -> {
             configuration.mergeRestTemplateConfiguration(restTemplateConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
-            configuration.mergeCustomConfiguration(customConfiguration);
         });
     }
 

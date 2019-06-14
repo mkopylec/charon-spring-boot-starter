@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.github.mkopylec.charon.forwarding.CustomConfiguration;
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
@@ -27,7 +26,6 @@ public class RequestMappingConfiguration implements Valid {
     private RestTemplateConfiguration restTemplateConfiguration;
     private List<RequestForwardingInterceptor> requestForwardingInterceptors;
     private List<RequestForwardingInterceptorType> unsetRequestForwardingInterceptors;
-    private CustomConfiguration customConfiguration;
 
     RequestMappingConfiguration(String name) {
         this.name = name;
@@ -90,20 +88,6 @@ public class RequestMappingConfiguration implements Valid {
         this.requestForwardingInterceptors.addAll(globalInterceptors);
         this.requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
         unsetRequestForwardingInterceptors.forEach(interceptorType -> removeRequestForwardingInterceptor(this.requestForwardingInterceptors, interceptorType.getOrder()));
-    }
-
-    public CustomConfiguration getCustomConfiguration() {
-        return customConfiguration;
-    }
-
-    void setCustomConfiguration(CustomConfiguration customConfiguration) {
-        this.customConfiguration = customConfiguration;
-    }
-
-    void mergeCustomConfiguration(CustomConfiguration customConfiguration) {
-        if (this.customConfiguration == null) {
-            this.customConfiguration = customConfiguration;
-        }
     }
 
     @Override
