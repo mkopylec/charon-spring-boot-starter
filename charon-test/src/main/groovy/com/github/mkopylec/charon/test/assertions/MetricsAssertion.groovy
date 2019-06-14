@@ -21,6 +21,11 @@ class MetricsAssertion {
         return this
     }
 
+    MetricsAssertion haveCapturedRate(String metricsName) {
+        assert meterRegistry.counter(metricsName).count() == 1
+        return this
+    }
+
     MetricsAssertion haveCapturedNothing() {
         assert meterRegistry.meters.isEmpty()
         return this

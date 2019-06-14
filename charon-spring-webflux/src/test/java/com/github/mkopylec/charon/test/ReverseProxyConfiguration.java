@@ -17,7 +17,8 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_COOKIE_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.AsynchronousForwarderConfigurer.asynchronousForwarder;
-import static com.github.mkopylec.charon.forwarding.interceptors.latency.LatencyMeterConfigurer.latencyMeter;
+import static com.github.mkopylec.charon.forwarding.interceptors.metrics.LatencyMeterConfigurer.latencyMeter;
+import static com.github.mkopylec.charon.forwarding.interceptors.metrics.RateMeterConfigurer.rateMeter;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.CircuitBreakerConfigurer.circuitBreaker;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RateLimiterConfigurer.rateLimiter;
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryerConfigurer.retryer;
@@ -125,6 +126,13 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("latency metering")
                         .pathRegex("/latency/metering.*")
                         .set(latencyMeter().meterRegistry(meterRegistry())))
+                .add(requestMapping("rate metering")
+                        .pathRegex("/rate/metering.*")
+                        .set(rateMeter().meterRegistry(meterRegistry())))
+                .add(requestMapping("exception rate metering")
+                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
+                        .pathRegex("/exception/rate/metering.*")
+                        .set(rateMeter().meterRegistry(meterRegistry())))
                 .add(requestMapping("multiple mappings found 1")
                         .pathRegex("/multiple/mappings/found.*"))
                 .add(requestMapping("multiple mappings found 2")

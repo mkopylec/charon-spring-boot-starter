@@ -7,8 +7,8 @@ import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonCo
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient
-import static com.github.mkopylec.charon.forwarding.interceptors.latency.LatencyMeterConfigurer.latencyMeter
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger
+import static com.github.mkopylec.charon.forwarding.interceptors.metrics.LatencyMeterConfigurer.latencyMeter
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatException
 import static java.time.Duration.ofMillis

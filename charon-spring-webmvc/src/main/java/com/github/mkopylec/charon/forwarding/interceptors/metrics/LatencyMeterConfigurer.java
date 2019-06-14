@@ -1,4 +1,4 @@
-package com.github.mkopylec.charon.forwarding.interceptors.latency;
+package com.github.mkopylec.charon.forwarding.interceptors.metrics;
 
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import io.micrometer.core.instrument.MeterRegistry;
