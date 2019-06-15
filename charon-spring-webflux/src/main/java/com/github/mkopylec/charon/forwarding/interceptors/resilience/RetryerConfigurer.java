@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
+import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import io.github.resilience4j.retry.RetryConfig.Builder;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,7 +17,7 @@ public class RetryerConfigurer extends RequestForwardingInterceptorConfigurer<Re
         return new RetryerConfigurer();
     }
 
-    public RetryerConfigurer configuration(Builder retryConfiguration) {
+    public RetryerConfigurer configuration(Builder<HttpResponse> retryConfiguration) {
         configuredObject.setRegistry(of(retryConfiguration.build()));
         return this;
     }

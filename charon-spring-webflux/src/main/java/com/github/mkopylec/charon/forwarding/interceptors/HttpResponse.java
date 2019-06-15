@@ -1,5 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
+import java.util.List;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,10 +15,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -33,7 +34,7 @@ public class HttpResponse implements ClientResponse {
     }
 
     HttpResponse(ClientResponse response) {
-        body = response.bodyToMono(byte[].class);
+        body = response.bodyToMono(byte[].class); // Releases connection
         delegate = response;
     }
 

@@ -9,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.ACCEPTED;
-import static org.springframework.web.reactive.function.BodyExtractors.toDataBuffers;
 import static reactor.core.publisher.Mono.just;
 
 class AsynchronousForwarder extends BasicAsynchronousForwarder implements RequestForwardingInterceptor {
@@ -38,7 +37,6 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
                     } else {
                         log.debug(logMessage, execution.getMappingName(), response.rawStatusCode());
                     }
-                    response.body(toDataBuffers()); // Consume body to release connection
                     logEnd(execution.getMappingName());
                 })
                 .doOnError(Exception.class, e -> logError(execution.getMappingName(), e))

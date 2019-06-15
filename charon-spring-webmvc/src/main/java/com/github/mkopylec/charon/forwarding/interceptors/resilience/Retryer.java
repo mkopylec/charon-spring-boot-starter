@@ -11,12 +11,12 @@ import static com.github.mkopylec.charon.forwarding.interceptors.resilience.Retr
 import static com.github.mkopylec.charon.forwarding.interceptors.resilience.RetryingState.getRetryState;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class Retryer extends BasicRetryer implements RequestForwardingInterceptor {
+class Retryer extends BasicRetryer<HttpResponse> implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(Retryer.class);
 
     Retryer() {
-        super(result -> ((HttpResponse) result).getStatusCode().is5xxServerError(), log);
+        super(result -> result.getStatusCode().is5xxServerError(), log);
     }
 
     @Override
@@ -28,7 +28,9 @@ class Retryer extends BasicRetryer implements RequestForwardingInterceptor {
         try {
             response = retry.executeSupplier(() -> {
                 getRetryState().nextRetryAttempt();
-                return execution.execute(request);
+                HttpResponse httpResponse = execution.execute(request);
+                httpResponse.close();
+                return httpResponse;
             });
         } finally {
             clearRetryState();

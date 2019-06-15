@@ -49,7 +49,7 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
                 .bodyContains("CircuitBreaker 'exception circuit breaking' is OPEN and does not permit further calls")
-        assertThatServers(localhost8080)
+        assertThatServers(localhost8080, localhost8081)
                 .haveNotReceivedRequest()
         assertThatMetrics()
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.buffered-calls')
@@ -60,10 +60,6 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
     @DirtiesContext
     def "Should execute circuit breaker fallback while forwarding request when proper interceptor is set"() {
-        given:
-        outgoingServers(localhost8080)
-                .stubResponse(INTERNAL_SERVER_ERROR, 'response body', 2)
-
         when:
         http.sendRequest(GET, '/fallback/circuit/breaking')
         def response = http.sendRequest(GET, '/fallback/circuit/breaking')
@@ -71,7 +67,7 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(CREATED)
-        assertThatServers(localhost8080)
+        assertThatServers(localhost8080, localhost8081)
                 .haveNotReceivedRequest()
         assertThatMetrics()
                 .haveCaptured('charon.fallback circuit breaking.circuit-breaking.buffered-calls')

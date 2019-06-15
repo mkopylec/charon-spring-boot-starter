@@ -17,7 +17,7 @@ abstract class AsynchronousForwardingBasicSpec extends BasicSpec {
     def "Should asynchronously forward request and receive #status response status when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080, localhost8081)
-                .stubResponse(status)
+                .stubResponse(status, 'response body')
 
         when:
         def response = http.sendRequest(GET, '/asynchronous/forwarding')

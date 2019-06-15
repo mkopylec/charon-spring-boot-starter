@@ -11,12 +11,12 @@ import reactor.core.publisher.Mono;
 import static io.github.resilience4j.reactor.retry.RetryOperator.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class Retryer extends BasicRetryer implements RequestForwardingInterceptor {
+class Retryer extends BasicRetryer<HttpResponse> implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(Retryer.class);
 
     Retryer() {
-        super(result -> ((HttpResponse) result).statusCode().is5xxServerError(), log);
+        super(result -> result.statusCode().is5xxServerError(), log);
     }
 
     @Override

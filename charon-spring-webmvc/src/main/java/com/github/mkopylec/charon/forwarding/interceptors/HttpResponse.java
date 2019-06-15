@@ -16,7 +16,6 @@ public class HttpResponse implements ClientHttpResponse {
     private HttpStatus status;
     private HttpHeaders headers;
     private byte[] body;
-    private ClientHttpResponse delegate;
 
     public HttpResponse(HttpStatus status) {
         this.status = status;
@@ -28,7 +27,7 @@ public class HttpResponse implements ClientHttpResponse {
         status = response.getStatusCode();
         headers = response.getHeaders();
         body = toByteArray(response.getBody());
-        delegate = response;
+        response.close();
     }
 
     @Override
@@ -77,8 +76,5 @@ public class HttpResponse implements ClientHttpResponse {
 
     @Override
     public void close() {
-        if (delegate != null) {
-            delegate.close();
-        }
     }
 }

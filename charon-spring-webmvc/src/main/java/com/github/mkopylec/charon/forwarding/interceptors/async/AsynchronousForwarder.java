@@ -25,7 +25,8 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
 
     private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        try (HttpResponse response = execution.execute(request)) {
+        try {
+            HttpResponse response = execution.execute(request);
             String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
             if (response.getStatusCode().is5xxServerError()) {
                 log.error(logMessage, execution.getMappingName(), response.getRawStatusCode());
