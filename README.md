@@ -5,7 +5,7 @@
 
 Charon is a **reverse proxy** implementation.
 It automatically forwards HTTP requests from one web application to another and sends back the received HTTP response to the client.
-There are some alternative reverse proxy implementations like: [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
+There are some alternative reverse proxy implementations like [Zuul](https://github.com/Netflix/zuul/wiki) or [Smiley's HTTP Proxy Servlet](https://github.com/mitre/HTTP-Proxy-Servlet).
 Zuul is highly bounded to [Spring Cloud Netflix](https://spring.io/projects/spring-cloud-netflix), Smiley's HTTP Proxy Servlet is a simple one, without advanced features.
 Charon is a universal Spring Boot tool. It already has a lot of features implemented and its architecture provides an easy way to add new ones.
 
