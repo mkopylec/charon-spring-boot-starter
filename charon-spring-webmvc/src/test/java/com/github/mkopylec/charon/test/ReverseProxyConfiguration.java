@@ -46,7 +46,7 @@ class ReverseProxyConfiguration {
         }
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
-                .set(restTemplate().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))
+                .set(restTemplate().set(timeout().connection(ofSeconds(1)).read(ofMinutes(10)).write(ofMinutes(10))))
                 .add(requestMapping("default")
                         .pathRegex("/default"))
                 .add(requestMapping("asynchronous forwarding")
