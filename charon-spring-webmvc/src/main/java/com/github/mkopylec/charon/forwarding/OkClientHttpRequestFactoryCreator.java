@@ -8,7 +8,6 @@ import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 
 import static com.github.mkopylec.charon.forwarding.Utils.toMillis;
 
-// TODO SSL tests
 class OkClientHttpRequestFactoryCreator implements ClientHttpRequestFactoryCreator {
 
     private OkHttpClient httpClient;

@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.test.specification
 
 import spock.lang.Unroll
 
+import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.DELETE
@@ -17,6 +18,10 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
 
     @Unroll
     def "Should forward request with #method method by default"() {
+        given:
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
+
         when:
         http.sendRequest(method, '/default')
 
@@ -30,6 +35,10 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
 
     @Unroll
     def "Should forward request with '#body' body and set 'Content-Length' header to #contentLength by default"() {
+        given:
+        outgoingServers(localhost8080, localhost8081)
+                .stubResponse(OK)
+
         when:
         http.sendRequest(POST, '/default', body)
 
@@ -44,8 +53,12 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
         'request body' | '12'
     }
 
-    void setup() {
-        outgoingServers(localhost8080, localhost8081)
-                .stubResponse(OK)
+    def "Should forward an SSL request by default"() {
+        when:
+        def response = http.sendRequest(GET, 'https://github.com')
+
+        then:
+        assertThat(response)
+                .hasStatus(OK)
     }
 }
