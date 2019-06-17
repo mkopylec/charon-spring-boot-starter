@@ -4,11 +4,9 @@ import com.github.mkopylec.charon.configuration.Valid;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
-
 import static org.springframework.util.Assert.notNull;
 
-abstract class BasicMeter implements Ordered, Valid {
+abstract class BasicMeter implements Valid {
 
     private Logger log;
     private MeterRegistry meterRegistry;

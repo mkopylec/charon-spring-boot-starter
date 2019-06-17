@@ -3,13 +3,12 @@ package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 import java.util.function.Predicate;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.MetricNames;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
-
-import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RETRYING_HANDLER;
@@ -17,7 +16,7 @@ import static io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.ofRetr
 import static io.github.resilience4j.retry.RetryRegistry.of;
 import static java.time.Duration.ofMillis;
 
-abstract class BasicRetryer<R> extends BasicResilienceHandler<RetryRegistry> implements Ordered, Valid {
+abstract class BasicRetryer<R> extends BasicResilienceHandler<RetryRegistry> implements Valid {
 
     private static final String RETRYING_METRICS_NAME = "retrying";
 
@@ -32,9 +31,8 @@ abstract class BasicRetryer<R> extends BasicResilienceHandler<RetryRegistry> imp
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return RETRYING_HANDLER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return RETRYING_HANDLER;
     }
 
     TaggedRetryMetrics createMetrics(RetryRegistry registry, String mappingName) {

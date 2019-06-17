@@ -1,5 +1,6 @@
 package com.github.mkopylec.charon.forwarding.interceptors.metrics;
 
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
 import org.springframework.http.HttpStatus;
@@ -15,9 +16,8 @@ abstract class BasicRateMeter extends BasicMeter {
         super(log);
     }
 
-    @Override
-    public int getOrder() {
-        return RATE_METER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return RATE_METER;
     }
 
     void captureResponseStatusMetric(String mappingName, HttpStatus responseStatus) {

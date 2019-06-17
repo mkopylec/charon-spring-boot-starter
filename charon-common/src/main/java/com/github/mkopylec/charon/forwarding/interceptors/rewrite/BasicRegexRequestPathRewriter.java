@@ -6,9 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-
-import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
@@ -16,7 +15,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static java.util.regex.Pattern.compile;
 import static org.springframework.web.util.UriComponentsBuilder.fromUri;
 
-abstract class BasicRegexRequestPathRewriter implements Ordered, Valid {
+abstract class BasicRegexRequestPathRewriter implements Valid {
 
     private Logger log;
     private Pattern incomingRequestPathRegex;
@@ -28,9 +27,8 @@ abstract class BasicRegexRequestPathRewriter implements Ordered, Valid {
         outgoingRequestPathTemplate = new PathTemplate("/<path>");
     }
 
-    @Override
-    public int getOrder() {
-        return REQUEST_PATH_REWRITER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return REQUEST_PATH_REWRITER;
     }
 
     void setPaths(String incomingRequestPathRegex, String outgoingRequestPathTemplate) {

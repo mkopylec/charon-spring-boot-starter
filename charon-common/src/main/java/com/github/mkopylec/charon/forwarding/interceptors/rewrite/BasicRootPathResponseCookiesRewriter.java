@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -19,7 +19,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-class BasicRootPathResponseCookiesRewriter implements Ordered, Valid {
+class BasicRootPathResponseCookiesRewriter implements Valid {
 
     private Logger log;
 
@@ -27,9 +27,8 @@ class BasicRootPathResponseCookiesRewriter implements Ordered, Valid {
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return RESPONSE_COOKIE_REWRITER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return RESPONSE_COOKIE_REWRITER;
     }
 
     void rewriteCookies(HttpHeaders headers, String cookieHeaderName, Consumer<HttpHeaders> headersSetter) {

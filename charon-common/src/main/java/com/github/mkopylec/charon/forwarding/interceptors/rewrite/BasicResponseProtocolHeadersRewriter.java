@@ -3,9 +3,9 @@ package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 import java.util.function.Consumer;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -14,7 +14,7 @@ import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.SERVER;
 import static org.springframework.http.HttpHeaders.TRANSFER_ENCODING;
 
-abstract class BasicResponseProtocolHeadersRewriter implements Ordered, Valid {
+abstract class BasicResponseProtocolHeadersRewriter implements Valid {
 
     private static final String PUBLIC_KEY_PINS = "Public-Key-Pins";
     private static final String STRICT_TRANSPORT_SECURITY = "Strict-Transport-Security";
@@ -25,9 +25,8 @@ abstract class BasicResponseProtocolHeadersRewriter implements Ordered, Valid {
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return RESPONSE_PROTOCOL_HEADERS_REWRITER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return RESPONSE_PROTOCOL_HEADERS_REWRITER;
     }
 
     void rewriteHeaders(HttpHeaders headers, Consumer<HttpHeaders> headersSetter) {

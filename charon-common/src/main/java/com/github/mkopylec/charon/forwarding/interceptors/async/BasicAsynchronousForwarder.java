@@ -1,13 +1,12 @@
 package com.github.mkopylec.charon.forwarding.interceptors.async;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-
-import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.ASYNCHRONOUS_FORWARDING_HANDLER;
 
-abstract class BasicAsynchronousForwarder implements Ordered, Valid {
+abstract class BasicAsynchronousForwarder implements Valid {
 
     private Logger log;
     ThreadPool threadPool;
@@ -17,9 +16,8 @@ abstract class BasicAsynchronousForwarder implements Ordered, Valid {
         threadPool = new ThreadPool();
     }
 
-    @Override
-    public int getOrder() {
-        return ASYNCHRONOUS_FORWARDING_HANDLER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return ASYNCHRONOUS_FORWARDING_HANDLER;
     }
 
     void setThreadPool(ThreadPool threadPool) {
