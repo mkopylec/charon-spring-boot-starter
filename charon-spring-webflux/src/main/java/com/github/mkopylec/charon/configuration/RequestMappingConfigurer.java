@@ -33,4 +33,10 @@ public class RequestMappingConfigurer extends Configurer<RequestMappingConfigura
         configuredObject.removeRequestForwardingInterceptor(requestForwardingInterceptorType);
         return this;
     }
+
+    @Override
+    protected RequestMappingConfiguration configure() {
+        configuredObject.setRequestMappingConfigurer(this);
+        return super.configure();
+    }
 }

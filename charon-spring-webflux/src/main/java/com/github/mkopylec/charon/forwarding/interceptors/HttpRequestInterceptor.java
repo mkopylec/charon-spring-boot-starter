@@ -2,13 +2,12 @@ package com.github.mkopylec.charon.forwarding.interceptors;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.Ordered;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 
-public class HttpRequestInterceptor implements ExchangeFilterFunction, Ordered {
+public class HttpRequestInterceptor implements ExchangeFilterFunction {
 
     private String mappingName;
     private RequestForwardingInterceptor requestForwardingInterceptor;
@@ -28,10 +27,5 @@ public class HttpRequestInterceptor implements ExchangeFilterFunction, Ordered {
                 : new HttpRequestExecution(mappingName, exchange);
         return requestForwardingInterceptor.forward(httpRequest, requestExecution)
                 .map(httpResponse -> httpResponse);
-    }
-
-    @Override
-    public int getOrder() {
-        return requestForwardingInterceptor.getOrder();
     }
 }

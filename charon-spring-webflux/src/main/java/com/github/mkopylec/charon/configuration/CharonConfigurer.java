@@ -6,6 +6,8 @@ import com.github.mkopylec.charon.forwarding.WebClientConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
+import static org.springframework.util.Assert.notNull;
+
 public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
     private CharonConfigurer() {
@@ -31,24 +33,27 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
         return this;
     }
 
-    public <C extends RequestForwardingInterceptorConfigurer<?>> CharonConfigurer update(C requestForwardingInterceptorConfigurer, Consumer<C> requestForwardingInterceptorConfigurerUpdate) {
-        // TODO Should allow different configs for different profiles. Implement update for every Configurer. Should updates be invoked in merge phase or right away?
-        return this;
-    }
-
     public CharonConfigurer unset(RequestForwardingInterceptorType requestForwardingInterceptorType) {
         configuredObject.removeRequestForwardingInterceptor(requestForwardingInterceptorType);
         return this;
     }
 
     public CharonConfigurer add(RequestMappingConfigurer requestMappingConfigurer) {
-        configuredObject.addRequestForwardingConfiguration(requestMappingConfigurer.configure());
+        configuredObject.addRequestMappingConfiguration(requestMappingConfigurer.configure());
+        return this;
+    }
+
+    public CharonConfigurer update(String requestMappingName, Consumer<RequestMappingConfigurer> requestMappingConfigurerUpdate) {
+        RequestMappingConfigurer requestMappingConfigurer = configuredObject.getRequestMappingConfigurer(requestMappingName);
+        notNull(requestMappingConfigurer, "Request mapping '" + requestMappingName + "' not found");
+        requestMappingConfigurerUpdate.accept(requestMappingConfigurer);
+        configuredObject.addRequestMappingConfiguration(requestMappingConfigurer.configure());
         return this;
     }
 
     @Override
     protected CharonConfiguration configure() {
-        configuredObject.mergeWithRequestForwardingConfigurations();
+        configuredObject.mergeWithRequestMappingConfigurations();
         return super.configure();
     }
 }

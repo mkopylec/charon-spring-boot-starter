@@ -48,30 +48,35 @@ public class CharonConfiguration implements Valid {
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
-        removeRequestForwardingInterceptor(requestForwardingInterceptor.getOrder());
+        removeRequestForwardingInterceptor(requestForwardingInterceptor.getType());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
     void removeRequestForwardingInterceptor(RequestForwardingInterceptorType requestForwardingInterceptorType) {
-        removeRequestForwardingInterceptor(requestForwardingInterceptorType.getOrder());
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getType().equals(requestForwardingInterceptorType));
     }
 
     List<RequestMappingConfiguration> getRequestMappingConfigurations() {
         return unmodifiableList(requestMappingConfigurations);
     }
 
-    void addRequestForwardingConfiguration(RequestMappingConfiguration requestMappingConfiguration) {
+    RequestMappingConfigurer getRequestMappingConfigurer(String requestMappingName) {
+        return requestMappingConfigurations.stream()
+                .filter(configuration -> configuration.getName().equals(requestMappingName))
+                .findFirst()
+                .map(RequestMappingConfiguration::getRequestMappingConfigurer)
+                .orElse(null);
+    }
+
+    void addRequestMappingConfiguration(RequestMappingConfiguration requestMappingConfiguration) {
+        requestMappingConfigurations.remove(requestMappingConfiguration);
         requestMappingConfigurations.add(requestMappingConfiguration);
     }
 
-    void mergeWithRequestForwardingConfigurations() {
+    void mergeWithRequestMappingConfigurations() {
         requestMappingConfigurations.forEach(configuration -> {
             configuration.mergeRestTemplateConfiguration(restTemplateConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
         });
-    }
-
-    private void removeRequestForwardingInterceptor(int interceptorOrder) {
-        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == interceptorOrder);
     }
 }

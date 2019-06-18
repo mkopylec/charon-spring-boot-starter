@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.test;
 
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-import org.springframework.core.Ordered;
 
-class BasicResponseBodyRewriter implements Ordered {
+class BasicResponseBodyRewriter {
 
     private Logger log;
 
@@ -11,9 +11,8 @@ class BasicResponseBodyRewriter implements Ordered {
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return 666;
+    public RequestForwardingInterceptorType getType() {
+        return new RequestForwardingInterceptorType(667);
     }
 
     void logStart(String mappingName) {

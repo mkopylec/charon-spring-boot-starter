@@ -9,7 +9,6 @@ public interface RequestForwardingInterceptor extends Valid, Comparable<RequestF
 
     RequestForwardingInterceptorType getType();
 
-    // TODO Check if working correctly
     @Override
     default int compareTo(RequestForwardingInterceptor requestForwardingInterceptor) {
         return getType().compareTo(requestForwardingInterceptor.getType());

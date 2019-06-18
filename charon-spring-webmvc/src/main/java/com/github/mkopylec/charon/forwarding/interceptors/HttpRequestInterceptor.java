@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import org.springframework.core.Ordered;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ordered {
+public class HttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
     private String mappingName;
     private RequestForwardingInterceptor requestForwardingInterceptor;
@@ -24,10 +23,5 @@ public class HttpRequestInterceptor implements ClientHttpRequestInterceptor, Ord
                 ? (HttpRequestExecution) execution
                 : new HttpRequestExecution(mappingName, execution);
         return requestForwardingInterceptor.forward(httpRequest, requestExecution);
-    }
-
-    @Override
-    public int getOrder() {
-        return requestForwardingInterceptor.getOrder();
     }
 }

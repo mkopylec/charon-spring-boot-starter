@@ -60,13 +60,22 @@ public class CharonConfiguration implements Valid {
         return unmodifiableList(requestMappingConfigurations);
     }
 
-    void addRequestForwardingConfiguration(RequestMappingConfiguration requestMappingConfiguration) {
+    RequestMappingConfigurer getRequestMappingConfigurer(String requestMappingName) {
+        return requestMappingConfigurations.stream()
+                .filter(configuration -> configuration.getName().equals(requestMappingName))
+                .findFirst()
+                .map(RequestMappingConfiguration::getRequestMappingConfigurer)
+                .orElse(null);
+    }
+
+    void addRequestMappingConfiguration(RequestMappingConfiguration requestMappingConfiguration) {
+        requestMappingConfigurations.remove(requestMappingConfiguration);
         requestMappingConfigurations.add(requestMappingConfiguration);
     }
 
-    void mergeWithRequestForwardingConfigurations() {
+    void mergeWithRequestMappingConfigurations() {
         requestMappingConfigurations.forEach(configuration -> {
-            configuration.mergeRestTemplateConfiguration(webClientConfiguration);
+            configuration.mergeWebClientConfiguration(webClientConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
         });
     }

@@ -7,6 +7,7 @@ import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping;
@@ -39,17 +40,35 @@ import static java.util.Collections.singletonList;
 @Configuration
 class ReverseProxyConfiguration {
 
-    @Bean
-    CharonConfigurer charonConfigurer(@Value("${default-charon-configuration}") boolean defaultConfiguration) {
+    private static final String CHARON_CONFIGURER_BEAN = "charonConfigurer";
+
+    @Value("${default-charon-configuration}")
+    private boolean defaultConfiguration;
+
+    @Profile("default")
+    @Bean(CHARON_CONFIGURER_BEAN)
+    CharonConfigurer defaultProfileCharonConfigurer() {
         if (defaultConfiguration) {
             return null;
         }
+        return charonConfigurer();
+    }
+
+    @Profile("defined")
+    @Bean("charonConfigurer")
+    CharonConfigurer definedProfileCharonConfigurer() {
+        return charonConfigurer()
+                .set(requestServerNameRewriter().outgoingServers("localhost:8081"))
+                .add(requestMapping("new mapping")
+                        .pathRegex("/new/mapping"))
+                .add(requestMapping("request body rewriting")
+                        .pathRegex("/overwritten/request/body/rewriting.*"))
+                .update("response body rewriting", configurer -> configurer.pathRegex("/updated/response/body/rewriting.*"));
+    }
+
+    private CharonConfigurer charonConfigurer() {
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
-
-                // TODO Remove
-                .update(requestServerNameRewriter(), requestServerNameRewriter -> requestServerNameRewriter.outgoingServers("host.com"))
-
                 .set(webClient().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))
                 .add(requestMapping("default")
                         .pathRegex("/default"))

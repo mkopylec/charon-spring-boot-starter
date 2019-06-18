@@ -4,15 +4,13 @@ import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
-
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.ERROR;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.INFO;
 import static org.springframework.util.Assert.notNull;
 
-abstract class BasicForwardingLogger implements Ordered, Valid {
+abstract class BasicForwardingLogger implements Valid {
 
     private Logger log;
     LogLevel successLogLevel;

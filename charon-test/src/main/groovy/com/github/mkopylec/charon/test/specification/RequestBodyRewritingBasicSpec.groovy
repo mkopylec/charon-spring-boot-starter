@@ -23,7 +23,7 @@ abstract class RequestBodyRewritingBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(OK)
         assertThatServers(localhost8080, localhost8081)
-                .haveReceivedRequest(POST, '/request/body/rewriting', ['Content-Length': '23'], 'Rewritten response body')
+                .haveReceivedRequest(POST, '/request/body/rewriting', ['Content-Length': '22'], 'Rewritten request body')
 
         where:
         originalBody << ['', 'original body']
