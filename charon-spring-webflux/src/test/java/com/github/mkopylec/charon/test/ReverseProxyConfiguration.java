@@ -46,6 +46,10 @@ class ReverseProxyConfiguration {
         }
         return charonConfiguration()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081"))
+
+                // TODO Remove
+                .update(requestServerNameRewriter(), requestServerNameRewriter -> requestServerNameRewriter.outgoingServers("host.com"))
+
                 .set(webClient().set(timeout().read(ofMinutes(10)).write(ofMinutes(10))))
                 .add(requestMapping("default")
                         .pathRegex("/default"))

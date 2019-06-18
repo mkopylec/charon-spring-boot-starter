@@ -8,14 +8,12 @@ import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 
-import org.springframework.core.Ordered;
-
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProtocolHeadersRewriterConfigurer.requestProtocolHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestProxyHeadersRewriterConfigurer.requestProxyHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.ResponseProtocolHeadersRewriterConfigurer.responseProtocolHeadersRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RootPathResponseCookiesRewriterConfigurer.rootPathResponseCookiesRewriter;
+import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableList;
-import static java.util.Comparator.comparingInt;
 import static java.util.regex.Pattern.compile;
 import static org.springframework.util.Assert.hasText;
 
@@ -74,7 +72,7 @@ public class RequestMappingConfiguration implements Valid {
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
-        removeRequestForwardingInterceptor(requestForwardingInterceptors, requestForwardingInterceptor.getOrder());
+        removeRequestForwardingInterceptor(requestForwardingInterceptors, requestForwardingInterceptor.getType());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
@@ -84,10 +82,10 @@ public class RequestMappingConfiguration implements Valid {
 
     void mergeRequestForwardingInterceptors(List<RequestForwardingInterceptor> requestForwardingInterceptors) {
         List<RequestForwardingInterceptor> globalInterceptors = new ArrayList<>(requestForwardingInterceptors);
-        this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getOrder()));
+        this.requestForwardingInterceptors.forEach(interceptor -> removeRequestForwardingInterceptor(globalInterceptors, interceptor.getType()));
         this.requestForwardingInterceptors.addAll(globalInterceptors);
-        this.requestForwardingInterceptors.sort(comparingInt(Ordered::getOrder));
-        unsetRequestForwardingInterceptors.forEach(interceptorType -> removeRequestForwardingInterceptor(this.requestForwardingInterceptors, interceptorType.getOrder()));
+        sort(this.requestForwardingInterceptors);
+        unsetRequestForwardingInterceptors.forEach(interceptorType -> removeRequestForwardingInterceptor(this.requestForwardingInterceptors, interceptorType));
     }
 
     @Override
@@ -95,7 +93,7 @@ public class RequestMappingConfiguration implements Valid {
         return "'" + name + "'";
     }
 
-    private void removeRequestForwardingInterceptor(List<RequestForwardingInterceptor> requestForwardingInterceptors, int order) {
-        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == order);
+    private void removeRequestForwardingInterceptor(List<RequestForwardingInterceptor> requestForwardingInterceptors, RequestForwardingInterceptorType requestForwardingInterceptorType) {
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getType().equals(requestForwardingInterceptorType));
     }
 }

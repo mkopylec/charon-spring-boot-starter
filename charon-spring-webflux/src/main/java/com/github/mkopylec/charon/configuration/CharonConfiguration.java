@@ -48,12 +48,12 @@ public class CharonConfiguration implements Valid {
     }
 
     void addRequestForwardingInterceptor(RequestForwardingInterceptor requestForwardingInterceptor) {
-        // TODO (Multiple profiles) If interceptor already exists, cannot copy its non-null values, cause null can be the desired value
+        removeRequestForwardingInterceptor(requestForwardingInterceptor.getType());
         requestForwardingInterceptors.add(requestForwardingInterceptor);
     }
 
     void removeRequestForwardingInterceptor(RequestForwardingInterceptorType requestForwardingInterceptorType) {
-        removeRequestForwardingInterceptor(requestForwardingInterceptorType.getOrder());
+        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getType().equals(requestForwardingInterceptorType));
     }
 
     List<RequestMappingConfiguration> getRequestMappingConfigurations() {
@@ -69,9 +69,5 @@ public class CharonConfiguration implements Valid {
             configuration.mergeRestTemplateConfiguration(webClientConfiguration);
             configuration.mergeRequestForwardingInterceptors(requestForwardingInterceptors);
         });
-    }
-
-    private void removeRequestForwardingInterceptor(int interceptorOrder) {
-        requestForwardingInterceptors.removeIf(interceptor -> interceptor.getOrder() == interceptorOrder);
     }
 }

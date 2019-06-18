@@ -1,5 +1,7 @@
 package com.github.mkopylec.charon.configuration;
 
+import java.util.function.Consumer;
+
 import com.github.mkopylec.charon.forwarding.WebClientConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
@@ -26,6 +28,11 @@ public class CharonConfigurer extends Configurer<CharonConfiguration> {
 
     public CharonConfigurer set(RequestForwardingInterceptorConfigurer<?> requestForwardingInterceptorConfigurer) {
         configuredObject.addRequestForwardingInterceptor(requestForwardingInterceptorConfigurer.configure());
+        return this;
+    }
+
+    public <C extends RequestForwardingInterceptorConfigurer<?>> CharonConfigurer update(C requestForwardingInterceptorConfigurer, Consumer<C> requestForwardingInterceptorConfigurerUpdate) {
+        // TODO Should allow different configs for different profiles. Implement update for every Configurer. Should updates be invoked in merge phase or right away?
         return this;
     }
 

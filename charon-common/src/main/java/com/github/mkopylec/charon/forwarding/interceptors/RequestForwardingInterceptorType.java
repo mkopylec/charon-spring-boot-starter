@@ -1,8 +1,11 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
-public class RequestForwardingInterceptorType {
+public class RequestForwardingInterceptorType implements Comparable<RequestForwardingInterceptorType> {
 
     public static final RequestForwardingInterceptorType FORWARDING_LOGGER = new RequestForwardingInterceptorType(0);
     public static final RequestForwardingInterceptorType ASYNCHRONOUS_FORWARDING_HANDLER = new RequestForwardingInterceptorType(100);
@@ -27,5 +30,34 @@ public class RequestForwardingInterceptorType {
 
     public int getOrder() {
         return order;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        RequestForwardingInterceptorType rhs = (RequestForwardingInterceptorType) obj;
+        return new EqualsBuilder()
+                .append(this.order, rhs.order)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(order)
+                .toHashCode();
+    }
+
+    @Override
+    public int compareTo(RequestForwardingInterceptorType requestForwardingInterceptorType) {
+        return order - requestForwardingInterceptorType.getOrder();
     }
 }
