@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
+import java.util.function.Function;
+
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
-
-import java.util.function.Function;
 
 abstract class BasicResilienceHandler<R> {
 

@@ -1,12 +1,11 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics;
 import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics.MetricNames;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import org.slf4j.Logger;
-
-import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RATE_LIMITING_HANDLER;
@@ -16,7 +15,7 @@ import static io.github.resilience4j.ratelimiter.RateLimiterRegistry.of;
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofSeconds;
 
-abstract class BasicRateLimiter extends BasicResilienceHandler<RateLimiterRegistry> implements Ordered, Valid {
+abstract class BasicRateLimiter extends BasicResilienceHandler<RateLimiterRegistry> implements Valid {
 
     private static final String RATE_LIMITING_METRICS_NAME = "rate-limiting";
 
@@ -31,9 +30,8 @@ abstract class BasicRateLimiter extends BasicResilienceHandler<RateLimiterRegist
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return RATE_LIMITING_HANDLER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return RATE_LIMITING_HANDLER;
     }
 
     TaggedRateLimiterMetrics createMetrics(RateLimiterRegistry registry, String mappingName) {

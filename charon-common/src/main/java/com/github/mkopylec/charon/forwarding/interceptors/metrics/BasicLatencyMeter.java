@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors.metrics;
 
 import java.time.Duration;
 
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
@@ -15,9 +16,8 @@ abstract class BasicLatencyMeter extends BasicMeter {
         super(log);
     }
 
-    @Override
-    public int getOrder() {
-        return LATENCY_METER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return LATENCY_METER;
     }
 
     void captureLatencyMetric(String mappingName, long startingTime) {

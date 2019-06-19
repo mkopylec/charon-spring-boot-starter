@@ -3,9 +3,9 @@ package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 import java.util.function.Consumer;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -13,7 +13,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static org.springframework.http.HttpHeaders.CONNECTION;
 import static org.springframework.http.HttpHeaders.TE;
 
-abstract class BasicRequestProtocolHeadersRewriter implements Ordered, Valid {
+abstract class BasicRequestProtocolHeadersRewriter implements Valid {
 
     private Logger log;
 
@@ -21,9 +21,8 @@ abstract class BasicRequestProtocolHeadersRewriter implements Ordered, Valid {
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return REQUEST_PROTOCOL_HEADERS_REWRITER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return REQUEST_PROTOCOL_HEADERS_REWRITER;
     }
 
     void rewriteHeaders(HttpHeaders headers, Consumer<HttpHeaders> headersSetter) {

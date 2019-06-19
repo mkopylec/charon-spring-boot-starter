@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -16,7 +16,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardi
 import static java.lang.String.valueOf;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
-abstract class BasicRequestProxyHeadersRewriter implements Ordered, Valid {
+abstract class BasicRequestProxyHeadersRewriter implements Valid {
 
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
@@ -29,9 +29,8 @@ abstract class BasicRequestProxyHeadersRewriter implements Ordered, Valid {
         this.log = log;
     }
 
-    @Override
-    public int getOrder() {
-        return REQUEST_PROXY_HEADERS_REWRITER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return REQUEST_PROXY_HEADERS_REWRITER;
     }
 
     void rewriteHeaders(HttpHeaders headers, URI uri, Consumer<HttpHeaders> headersSetter) {

@@ -1,8 +1,8 @@
 package com.github.mkopylec.charon.forwarding.interceptors.log;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-import org.springframework.core.Ordered;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
@@ -10,7 +10,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.ER
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.INFO;
 import static org.springframework.util.Assert.notNull;
 
-abstract class BasicForwardingLogger implements Ordered, Valid {
+abstract class BasicForwardingLogger implements Valid {
 
     private Logger log;
     LogLevel successLogLevel;
@@ -34,9 +34,8 @@ abstract class BasicForwardingLogger implements Ordered, Valid {
         notNull(unexpectedErrorLogLevel, "No unexpected error log level set");
     }
 
-    @Override
-    public int getOrder() {
-        return FORWARDING_LOGGER.getOrder();
+    public RequestForwardingInterceptorType getType() {
+        return FORWARDING_LOGGER;
     }
 
     void setSuccessLogLevel(LogLevel successLogLevel) {

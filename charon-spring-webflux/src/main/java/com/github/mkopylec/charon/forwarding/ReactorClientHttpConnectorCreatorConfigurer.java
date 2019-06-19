@@ -12,7 +12,6 @@ public class ReactorClientHttpConnectorCreatorConfigurer extends ClientHttpConne
         return new ReactorClientHttpConnectorCreatorConfigurer();
     }
 
-    // TODO doc
     public ReactorClientHttpConnectorCreatorConfigurer httpClient(HttpClient httpClient) {
         configuredObject.setHttpClient(httpClient);
         return this;

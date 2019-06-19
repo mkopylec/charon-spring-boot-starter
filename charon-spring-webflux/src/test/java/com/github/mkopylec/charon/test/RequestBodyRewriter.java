@@ -27,7 +27,7 @@ class RequestBodyRewriter extends BasicRequestBodyRewriter implements RequestFor
     }
 
     private void rewriteRequest(HttpRequest request) {
-        String rewrittenBody = "Rewritten response body";
+        String rewrittenBody = "Rewritten request body";
         request.setBody(fromObject(rewrittenBody));
         log.debug("Request body rewritten to '{}'", rewrittenBody);
     }
