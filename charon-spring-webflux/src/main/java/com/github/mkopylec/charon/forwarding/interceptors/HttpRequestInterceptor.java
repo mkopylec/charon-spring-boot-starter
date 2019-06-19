@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import reactor.core.publisher.Mono;
-
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+import reactor.core.publisher.Mono;
 
 public class HttpRequestInterceptor implements ExchangeFilterFunction {
 
@@ -25,7 +24,6 @@ public class HttpRequestInterceptor implements ExchangeFilterFunction {
         HttpRequestExecution requestExecution = exchange instanceof HttpRequestExecution
                 ? (HttpRequestExecution) exchange
                 : new HttpRequestExecution(mappingName, exchange);
-        return requestForwardingInterceptor.forward(httpRequest, requestExecution)
-                .map(httpResponse -> httpResponse);
+        return requestForwardingInterceptor.forward(httpRequest, requestExecution).cast(ClientResponse.class);
     }
 }
