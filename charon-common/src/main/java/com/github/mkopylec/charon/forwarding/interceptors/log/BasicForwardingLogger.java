@@ -3,11 +3,16 @@ package com.github.mkopylec.charon.forwarding.interceptors.log;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+
+import java.net.URI;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.ERROR;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.INFO;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCause;
 import static org.springframework.util.Assert.notNull;
 
 abstract class BasicForwardingLogger implements Valid {
@@ -54,7 +59,23 @@ abstract class BasicForwardingLogger implements Valid {
         this.unexpectedErrorLogLevel = unexpectedErrorLogLevel;
     }
 
-    void log(LogLevel level, String message, Object... parameters) {
+    void logForwardingResult(HttpStatus responseStatus, HttpMethod originalRequestMethod, HttpMethod forwardedRequestMethod, URI originalRequestUri, URI forwardedRequestUri, String mappingName) {
+        String logMessage = "Forwarding: {} {} -> '{}' -> {} {} {}";
+        if (responseStatus.is5xxServerError()) {
+            log(serverErrorLogLevel, logMessage, originalRequestMethod, originalRequestUri, mappingName, forwardedRequestMethod, forwardedRequestUri, responseStatus.value());
+        } else if (responseStatus.is4xxClientError()) {
+            log(clientErrorLogLevel, logMessage, originalRequestMethod, originalRequestUri, mappingName, forwardedRequestMethod, forwardedRequestUri, responseStatus.value());
+        } else {
+            log(successLogLevel, logMessage, originalRequestMethod, originalRequestUri, mappingName, forwardedRequestMethod, forwardedRequestUri, responseStatus.value());
+        }
+    }
+
+    void logForwardingError(RuntimeException e, HttpMethod originalRequestMethod, URI originalRequestUri, String mappingName) {
+        Throwable cause = getRootCause(e);
+        log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> {}: {}", originalRequestMethod, originalRequestUri, mappingName, cause.getClass().getName(), cause.getMessage());
+    }
+
+    private void log(LogLevel level, String message, Object... parameters) {
         switch (level) {
             case ERROR:
                 log.error(message, parameters);

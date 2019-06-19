@@ -3,7 +3,6 @@ package com.github.mkopylec.charon.test;
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -177,6 +176,6 @@ class ReverseProxyConfiguration {
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081", "localhost:8082").loadBalancer(lowestPortLoadBalancer())))
                 .add(requestMapping("timeout")
                         .pathRegex("/timeout.*")
-                        .set(webClient().set(timeout().read(ofMillis(10)).write(ofMillis(10)))));
+                        .set(webClient().set(timeout().read(ofMillis(500)))));
     }
 }
