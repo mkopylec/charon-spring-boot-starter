@@ -19,6 +19,7 @@ import static org.springframework.http.HttpHeaders.WWW_AUTHENTICATE;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.util.Assert.isTrue;
 
+// TODO Authentication tests
 abstract class CommonAuthenticator implements Valid {
 
     private Logger log;
@@ -33,7 +34,7 @@ abstract class CommonAuthenticator implements Valid {
 
     @Override
     public void validate() {
-        isTrue(isNotBlank(realm), "No authentication realm set"); // TODO test here and in subclasses
+        isTrue(isNotBlank(realm), "No authentication realm set");
     }
 
     public RequestForwardingInterceptorType getType() {

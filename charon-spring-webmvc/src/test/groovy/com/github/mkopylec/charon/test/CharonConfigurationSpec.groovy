@@ -10,6 +10,10 @@ import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger
 import static com.github.mkopylec.charon.forwarding.interceptors.metrics.LatencyMeterConfigurer.latencyMeter
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter
+import static com.github.mkopylec.charon.forwarding.interceptors.security.BasicAuthenticatorConfigurer.basicAuthenticator
+import static com.github.mkopylec.charon.forwarding.interceptors.security.BearerAuthenticatorConfigurer.bearerAuthenticator
+import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryTokenValidatorConfigurer.inMemoryTokenValidator
+import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryUserValidatorConfigurer.inMemoryUserValidator
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatException
 import static java.time.Duration.ofMillis
 
@@ -86,5 +90,41 @@ class CharonConfigurationSpec extends Specification {
         timeout().read(ofMillis(-1))       | 'Invalid read timeout value: -1 ms'
         timeout().write(null)              | 'No write timeout set'
         timeout().write(ofMillis(-1))      | 'Invalid write timeout value: -1 ms'
+    }
+
+    @Unroll
+    def "Should properly validate basic authenticator resulting in '#message' error"() {
+        when:
+        charonConfiguration()
+                .set(authenticator)
+
+        then:
+        def exception = thrown(IllegalArgumentException)
+        assertThatException(exception)
+                .hasMessage(message)
+
+        where:
+        authenticator                                                           | message
+        basicAuthenticator()                                                    | 'No credentials validator set'
+        basicAuthenticator().userValidator(inMemoryUserValidator()).realm(null) | 'No authentication realm set'
+        basicAuthenticator().userValidator(inMemoryUserValidator()).realm(' ')  | 'No authentication realm set'
+    }
+
+    @Unroll
+    def "Should properly validate bearer authenticator resulting in '#message' error"() {
+        when:
+        charonConfiguration()
+                .set(authenticator)
+
+        then:
+        def exception = thrown(IllegalArgumentException)
+        assertThatException(exception)
+                .hasMessage(message)
+
+        where:
+        authenticator                                                              | message
+        bearerAuthenticator()                                                      | 'No credentials validator set'
+        bearerAuthenticator().tokenValidator(inMemoryTokenValidator()).realm(null) | 'No authentication realm set'
+        bearerAuthenticator().tokenValidator(inMemoryTokenValidator()).realm(' ')  | 'No authentication realm set'
     }
 }
