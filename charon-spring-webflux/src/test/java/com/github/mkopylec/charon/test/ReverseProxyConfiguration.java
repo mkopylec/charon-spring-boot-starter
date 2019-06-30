@@ -54,7 +54,7 @@ class ReverseProxyConfiguration {
     }
 
     @Profile("defined")
-    @Bean("charonConfigurer")
+    @Bean(CHARON_CONFIGURER_BEAN)
     CharonConfigurer definedProfileCharonConfigurer() {
         return charonConfigurer()
                 .set(requestServerNameRewriter().outgoingServers("localhost:8081"))
