@@ -12,7 +12,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.http.HttpHeaders.SET_COOKIE2;
 
-class RemovingResponseCookiesRewriter extends BasicRemovingResponseCookiesRewriter implements RequestForwardingInterceptor {
+class RemovingResponseCookiesRewriter extends CommonRemovingResponseCookiesRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RemovingResponseCookiesRewriter.class);
 

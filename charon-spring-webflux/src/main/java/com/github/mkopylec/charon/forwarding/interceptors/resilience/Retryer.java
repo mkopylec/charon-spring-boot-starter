@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import static io.github.resilience4j.reactor.retry.RetryOperator.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class Retryer extends BasicRetryer<HttpResponse> implements RequestForwardingInterceptor {
+class Retryer extends CommonRetryer<HttpResponse> implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(Retryer.class);
 
@@ -22,7 +22,7 @@ class Retryer extends BasicRetryer<HttpResponse> implements RequestForwardingInt
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        Retry retry = registry.retry(execution.getMappingName());
+        Retry retry = getRegistry().retry(execution.getMappingName());
         setupMetrics(registry -> createMetrics(registry, execution.getMappingName()));
         return execution.execute(request)
                 .transform(of(retry))

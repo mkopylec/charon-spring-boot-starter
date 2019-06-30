@@ -8,10 +8,9 @@ import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpStatus.ACCEPTED;
 import static reactor.core.publisher.Mono.just;
 
-class AsynchronousForwarder extends BasicAsynchronousForwarder implements RequestForwardingInterceptor {
+class AsynchronousForwarder extends CommonAsynchronousForwarder implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(AsynchronousForwarder.class);
 
@@ -21,8 +20,8 @@ class AsynchronousForwarder extends BasicAsynchronousForwarder implements Reques
 
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
-        threadPool.execute(() -> forwardAsynchronously(request, execution));
-        return just(new HttpResponse(ACCEPTED));
+        getThreadPool().execute(() -> forwardAsynchronously(request, execution));
+        return just(new HttpResponse(getResponseStatus()));
     }
 
     private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {

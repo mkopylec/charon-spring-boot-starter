@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import static java.lang.System.nanoTime;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class LatencyMeter extends BasicLatencyMeter implements RequestForwardingInterceptor {
+class LatencyMeter extends CommonLatencyMeter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(LatencyMeter.class);
 

@@ -1,17 +1,18 @@
 package com.github.mkopylec.charon.forwarding.interceptors.log;
 
+import java.net.URI;
+
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
-import org.springframework.http.HttpMethod;
 
-import java.net.URI;
+import org.springframework.http.HttpMethod;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class ForwardingLogger extends BasicForwardingLogger implements RequestForwardingInterceptor {
+class ForwardingLogger extends CommonForwardingLogger implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(ForwardingLogger.class);
 
