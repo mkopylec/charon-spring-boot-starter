@@ -16,8 +16,7 @@ class InMemoryUserValidator implements UserValidator {
     }
 
     @Override
-    public Mono<Boolean> validate(String userName, String password) {
-        User user = new User(userName, password);
+    public Mono<Boolean> validate(User user) {
         return just(validUsers.contains(user));
     }
 

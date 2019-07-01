@@ -2,17 +2,15 @@ package com.github.mkopylec.charon.forwarding.interceptors.security;
 
 import reactor.core.publisher.Mono;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.util.Base64Utils.decodeFromString;
+import static reactor.core.publisher.Mono.just;
 
-public interface UserValidator extends CredentialsValidator {
+public interface UserValidator extends BasicUserValidator, CredentialsValidator {
 
     @Override
     default Mono<Boolean> validate(String credentials) {
-        String[] splitCredentials = new String(decodeFromString(credentials), UTF_8).split(":");
-        String password = splitCredentials.length > 1 ? splitCredentials[1] : null;
-        return validate(splitCredentials[0], password);
+        User user = extractUser(credentials);
+        return user.isEmpty() ? just(false) : validate(user);
     }
 
-    Mono<Boolean> validate(String userName, String password);
+    Mono<Boolean> validate(User user);
 }

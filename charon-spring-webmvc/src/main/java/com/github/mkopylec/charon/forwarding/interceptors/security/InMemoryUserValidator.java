@@ -12,8 +12,7 @@ class InMemoryUserValidator implements UserValidator {
     }
 
     @Override
-    public boolean validate(String userName, String password) {
-        User user = new User(userName, password);
+    public boolean validate(User user) {
         return validUsers.contains(user);
     }
 

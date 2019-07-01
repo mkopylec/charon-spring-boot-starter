@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.test;
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,10 @@ import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RegexRe
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RemovingResponseCookiesRewriterConfigurer.removingResponseCookiesRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestHostHeaderRewriterConfigurer.requestHostHeaderRewriter;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RequestServerNameRewriterConfigurer.requestServerNameRewriter;
+import static com.github.mkopylec.charon.forwarding.interceptors.security.BasicAuthenticatorConfigurer.basicAuthenticator;
+import static com.github.mkopylec.charon.forwarding.interceptors.security.BearerAuthenticatorConfigurer.bearerAuthenticator;
+import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryTokenValidatorConfigurer.inMemoryTokenValidator;
+import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryUserValidatorConfigurer.inMemoryUserValidator;
 import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
 import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
 import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
@@ -171,6 +176,14 @@ class ReverseProxyConfiguration {
                 .add(requestMapping("response body rewriting")
                         .pathRegex("/response/body/rewriting.*")
                         .set(responseBodyRewriter()))
+                .add(requestMapping("basic authentication")
+                        .pathRegex("/basic/authentication.*")
+                        .set(basicAuthenticator().userValidator(inMemoryUserValidator()
+                                .validUser("user", "password"))))
+                .add(requestMapping("bearer authentication")
+                        .pathRegex("/bearer/authentication.*")
+                        .set(bearerAuthenticator().tokenValidator(inMemoryTokenValidator()
+                                .validTokens("token"))))
                 .add(requestMapping("custom load balancer")
                         .pathRegex("/custom/load/balancer.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080", "localhost:8081", "localhost:8082").loadBalancer(lowestPortLoadBalancer())))

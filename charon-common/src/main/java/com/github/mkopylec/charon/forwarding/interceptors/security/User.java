@@ -3,14 +3,31 @@ package com.github.mkopylec.charon.forwarding.interceptors.security;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-class User {
+import static org.apache.commons.lang3.StringUtils.isAllBlank;
+
+public class User {
 
     private String name;
     private String password;
 
+    User() {
+    }
+
     User(String name, String password) {
         this.name = name;
         this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    boolean isEmpty() {
+        return isAllBlank(name, password);
     }
 
     @Override
