@@ -40,6 +40,10 @@ abstract class CommonAuthenticator implements Valid {
         return AUTHENTICATOR;
     }
 
+    Logger getLog() {
+        return log;
+    }
+
     void setRealm(String realm) {
         this.realm = realm;
     }
@@ -51,7 +55,6 @@ abstract class CommonAuthenticator implements Valid {
     String extractCredentials(HttpHeaders requestHeaders) {
         String authorization = requestHeaders.getFirst(AUTHORIZATION);
         if (isBlank(authorization)) {
-            log.debug("No 'Authorization' request header found");
             return null;
         }
         return removeStartIgnoreCase(authorization.trim(), authenticationType.toString()).trim();
@@ -61,7 +64,7 @@ abstract class CommonAuthenticator implements Valid {
         HttpHeaders rewrittenHeaders = copyHeaders(responseHeaders);
         rewrittenHeaders.set(WWW_AUTHENTICATE, authenticationType + " realm=\"" + realm + "\"");
         responseHeadersSetter.accept(rewrittenHeaders);
-        log.debug("Response headers rewritten from {} to {}", responseHeaders, rewrittenHeaders);
+        log.debug("Authentication failed, response headers rewritten from {} to {}", responseHeaders, rewrittenHeaders);
     }
 
     void logStart(String mappingName) {

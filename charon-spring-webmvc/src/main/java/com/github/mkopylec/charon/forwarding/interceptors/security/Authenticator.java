@@ -27,6 +27,7 @@ abstract class Authenticator<V extends CredentialsValidator> extends CommonAuthe
         if (!authenticated) {
             return getFailedAuthenticationResponse();
         }
+        getLog().debug("Authentication successful");
         HttpResponse response = execution.execute(request);
         logEnd(execution.getMappingName());
         return response;

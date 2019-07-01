@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.util.Assert.notNull;
+import static reactor.core.publisher.Mono.fromRunnable;
 import static reactor.core.publisher.Mono.just;
 
 abstract class Authenticator<V extends CredentialsValidator> extends CommonAuthenticator implements RequestForwardingInterceptor {
@@ -28,7 +29,8 @@ abstract class Authenticator<V extends CredentialsValidator> extends CommonAuthe
         return credentialsValidator.validate(credentials)
                 .filter(authenticated -> !authenticated)
                 .map(notAuthenticated -> getFailedAuthenticationResponse())
-                .switchIfEmpty(execution.execute(request))
+                .switchIfEmpty(fromRunnable(() -> getLog().debug("Authentication successful"))
+                        .then(execution.execute(request)))
                 .doOnSuccess(response -> logEnd(execution.getMappingName()));
     }
 
