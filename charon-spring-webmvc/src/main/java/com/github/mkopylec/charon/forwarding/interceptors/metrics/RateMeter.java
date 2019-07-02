@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class RateMeter extends BasicRateMeter implements RequestForwardingInterceptor {
+class RateMeter extends CommonRateMeter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RateMeter.class);
 

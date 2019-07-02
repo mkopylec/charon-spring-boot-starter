@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class RateLimiter extends BasicRateLimiter implements RequestForwardingInterceptor {
+class RateLimiter extends CommonRateLimiter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RateLimiter.class);
 
@@ -19,7 +19,7 @@ class RateLimiter extends BasicRateLimiter implements RequestForwardingIntercept
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        io.github.resilience4j.ratelimiter.RateLimiter rateLimiter = registry.rateLimiter(execution.getMappingName());
+        io.github.resilience4j.ratelimiter.RateLimiter rateLimiter = getRegistry().rateLimiter(execution.getMappingName());
         setupMetrics(registry -> createMetrics(registry, execution.getMappingName()));
         HttpResponse response = rateLimiter.executeSupplier(() -> execution.execute(request));
         logEnd(execution.getMappingName());

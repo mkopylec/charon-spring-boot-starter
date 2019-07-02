@@ -16,8 +16,8 @@ subprojects {
     }
 
     ext {
-        springBootVersion = '2.1.4.RELEASE' // TODO 2.1.5.RELEASE depends on broken reactor-netty
-        resilience4jVersion = '0.15.0'
+        springBootVersion = '2.1.6.RELEASE'
+        resilience4jVersion = '0.16.0'
         okHttpVersion = '3.14.2'
 
         group = 'com.github.mkopylec'
@@ -57,12 +57,12 @@ subprojects {
     version = scmVersion.version
 
     dependencies {
-        compile group: 'org.springframework', name: 'spring-web', version: '5.1.6.RELEASE'
+        compile group: 'org.springframework', name: 'spring-web', version: '5.1.8.RELEASE'
         compile group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-micrometer', version: resilience4jVersion
-        compile group: 'io.micrometer', name: 'micrometer-core', version: '1.1.4'
+        compile group: 'io.micrometer', name: 'micrometer-core', version: '1.1.5'
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
         compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.3'
         compile group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -90,5 +90,5 @@ nexusStaging {
 }
 
 wrapper {
-    gradleVersion = '5.4.1'
+    gradleVersion = '5.5'
 }

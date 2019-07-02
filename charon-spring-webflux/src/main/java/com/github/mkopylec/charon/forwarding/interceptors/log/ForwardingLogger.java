@@ -13,7 +13,7 @@ import org.springframework.http.HttpMethod;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class ForwardingLogger extends BasicForwardingLogger implements RequestForwardingInterceptor {
+class ForwardingLogger extends CommonForwardingLogger implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(ForwardingLogger.class);
 
@@ -23,22 +23,13 @@ class ForwardingLogger extends BasicForwardingLogger implements RequestForwardin
 
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
-        HttpMethod oldMethod = request.method();
-        URI oldUri = request.url();
-        String forwardingName = execution.getMappingName();
+        HttpMethod originalMethod = request.method();
+        URI originalUri = request.url();
+        String mappingName = execution.getMappingName();
         return execution.execute(request)
-                .doOnSuccess(response -> {
-                    String logMessage = "Forwarding: {} {} -> '{}' -> {} {} {}";
-                    if (response.statusCode().is5xxServerError()) {
-                        log(serverErrorLogLevel, logMessage, oldMethod, oldUri, forwardingName, request.method(), request.url(), response.rawStatusCode());
-                    } else if (response.statusCode().is4xxClientError()) {
-                        log(clientErrorLogLevel, logMessage, oldMethod, oldUri, forwardingName, request.method(), request.url(), response.rawStatusCode());
-                    } else {
-                        log(successLogLevel, logMessage, oldMethod, oldUri, forwardingName, request.method(), request.url(), response.rawStatusCode());
-                    }
-                })
+                .doOnSuccess(response -> logForwardingResult(response.statusCode(), originalMethod, request.method(), originalUri, request.url(), mappingName))
                 .doOnError(RuntimeException.class, e -> {
-                    log(unexpectedErrorLogLevel, "Forwarding: {} {} -> '{}' -> {}: {}", oldMethod, oldUri, forwardingName, e.getClass().getName(), e.getMessage());
+                    logForwardingError(e, originalMethod, originalUri, mappingName);
                     throw e;
                 });
     }

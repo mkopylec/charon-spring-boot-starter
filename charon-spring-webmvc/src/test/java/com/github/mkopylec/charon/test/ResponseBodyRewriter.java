@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class ResponseBodyRewriter extends BasicResponseBodyRewriter implements RequestForwardingInterceptor {
+class ResponseBodyRewriter extends CommonResponseBodyRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(ResponseBodyRewriter.class);
 

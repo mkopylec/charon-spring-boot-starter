@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class RequestServerNameRewriter extends BasicRequestServerNameRewriter implements RequestForwardingInterceptor {
+class RequestServerNameRewriter extends CommonRequestServerNameRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RequestServerNameRewriter.class);
 

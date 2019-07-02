@@ -18,6 +18,7 @@ Charon is a universal Spring Boot tool. It already has a lot of features impleme
 - [Resilience4j](https://resilience4j.github.io/resilience4j/) support
 - metrics support based on [Micrometer](https://micrometer.io/)
 - asynchronous request forwarding
+- authentication
 - cookies rewriting
 - 'X-Forwarded' HTTP headers support
 - forwarding process intercepting

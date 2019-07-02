@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class RequestProtocolHeadersRewriter extends BasicRequestProtocolHeadersRewriter implements RequestForwardingInterceptor {
+class RequestProtocolHeadersRewriter extends CommonRequestProtocolHeadersRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RequestProtocolHeadersRewriter.class);
 

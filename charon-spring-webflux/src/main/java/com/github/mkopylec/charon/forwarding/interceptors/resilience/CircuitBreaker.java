@@ -12,7 +12,7 @@ import static io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBrea
 import static org.slf4j.LoggerFactory.getLogger;
 import static reactor.core.publisher.Mono.just;
 
-class CircuitBreaker extends BasicCircuitBreaker<HttpResponse> implements RequestForwardingInterceptor {
+class CircuitBreaker extends CommonCircuitBreaker<HttpResponse> implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(CircuitBreaker.class);
 
@@ -23,7 +23,7 @@ class CircuitBreaker extends BasicCircuitBreaker<HttpResponse> implements Reques
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        io.github.resilience4j.circuitbreaker.CircuitBreaker circuitBreaker = registry.circuitBreaker(execution.getMappingName());
+        io.github.resilience4j.circuitbreaker.CircuitBreaker circuitBreaker = getRegistry().circuitBreaker(execution.getMappingName());
         setupMetrics(registry -> createMetrics(registry, execution.getMappingName()));
         return execution.execute(request)
                 .transform(of(circuitBreaker))

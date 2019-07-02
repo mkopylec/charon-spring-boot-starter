@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-class RegexRequestPathRewriter extends BasicRegexRequestPathRewriter implements RequestForwardingInterceptor {
+class RegexRequestPathRewriter extends CommonRegexRequestPathRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(RegexRequestPathRewriter.class);
 

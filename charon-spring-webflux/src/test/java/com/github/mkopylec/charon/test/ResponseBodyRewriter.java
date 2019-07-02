@@ -11,7 +11,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static reactor.core.publisher.Mono.defer;
 import static reactor.core.publisher.Mono.just;
 
-class ResponseBodyRewriter extends BasicResponseBodyRewriter implements RequestForwardingInterceptor {
+class ResponseBodyRewriter extends CommonResponseBodyRewriter implements RequestForwardingInterceptor {
 
     private static final Logger log = getLogger(ResponseBodyRewriter.class);
 
