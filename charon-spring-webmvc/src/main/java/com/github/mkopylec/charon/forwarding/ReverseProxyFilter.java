@@ -1,20 +1,17 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
-
 import org.springframework.core.Ordered;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered {
 
@@ -24,9 +21,9 @@ public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered 
     private RestTemplateProvider restTemplateProvider;
     private HttpResponseMapper httpResponseMapper;
 
-    public ReverseProxyFilter(int order, List<RequestMappingConfiguration> requestMappingConfigurations) {
+    public ReverseProxyFilter(int order, RequestMappingProvider requestMappingProvider) {
         this.order = order;
-        requestMappingResolver = new RequestMappingResolver(requestMappingConfigurations);
+        requestMappingResolver = new RequestMappingResolver(requestMappingProvider);
         httpRequestMapper = new HttpRequestMapper();
         restTemplateProvider = new RestTemplateProvider();
         httpResponseMapper = new HttpResponseMapper();

@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import org.slf4j.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
 import static java.util.stream.Collectors.joining;
@@ -16,15 +15,15 @@ class RequestMappingResolver {
 
     private static final Logger log = getLogger(RequestMappingResolver.class);
 
-    private List<RequestMappingConfiguration> requestMappingConfigurations;
+    private RequestMappingProvider requestMappingProvider;
 
-    RequestMappingResolver(List<RequestMappingConfiguration> requestMappingConfigurations) {
-        this.requestMappingConfigurations = requestMappingConfigurations;
+    RequestMappingResolver(RequestMappingProvider requestMappingProvider) {
+        this.requestMappingProvider = requestMappingProvider;
     }
 
     RequestMappingConfiguration resolveRequestMapping(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        List<RequestMappingConfiguration> configurations = requestMappingConfigurations.stream()
+        List<RequestMappingConfiguration> configurations = requestMappingProvider.getRequestMappingConfigurations().stream()
                 .filter(configuration -> configuration.getPathRegex().matcher(requestURI).matches())
                 .collect(toList());
         if (configurations.isEmpty()) {
