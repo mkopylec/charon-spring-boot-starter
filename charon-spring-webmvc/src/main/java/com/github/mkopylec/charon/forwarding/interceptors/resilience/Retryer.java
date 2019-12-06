@@ -16,7 +16,7 @@ class Retryer extends CommonRetryer<HttpResponse> implements RequestForwardingIn
     private static final Logger log = getLogger(Retryer.class);
 
     Retryer() {
-        super(result -> result.getStatusCode().is5xxServerError(), log);
+        super(response -> response.getStatusCode().is5xxServerError(), log);
     }
 
     @Override

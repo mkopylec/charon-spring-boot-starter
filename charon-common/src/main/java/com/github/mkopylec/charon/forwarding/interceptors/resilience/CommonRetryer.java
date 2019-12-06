@@ -1,20 +1,19 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
-import java.util.function.Predicate;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
-import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.MetricNames;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
+
+import java.util.function.Predicate;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RETRYING_HANDLER;
 import static io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics.ofRetryRegistry;
 import static io.github.resilience4j.retry.RetryRegistry.of;
-import static java.time.Duration.ofMillis;
+import static java.time.Duration.ZERO;
 
 abstract class CommonRetryer<R> extends CommonResilienceHandler<RetryRegistry> implements Valid {
 
@@ -22,7 +21,7 @@ abstract class CommonRetryer<R> extends CommonResilienceHandler<RetryRegistry> i
 
     CommonRetryer(Predicate<R> retryOnResult, Logger log) {
         super(log, of(RetryConfig.<R>custom()
-                .waitDuration(ofMillis(10))
+                .waitDuration(ZERO)
                 .retryOnResult(retryOnResult)
                 .retryOnException(throwable -> true)
                 .build()));
@@ -34,7 +33,7 @@ abstract class CommonRetryer<R> extends CommonResilienceHandler<RetryRegistry> i
 
     TaggedRetryMetrics createMetrics(RetryRegistry registry, String mappingName) {
         String callsMetricName = metricName(mappingName, RETRYING_METRICS_NAME, "calls");
-        MetricNames metricNames = MetricNames.custom()
+        TaggedRetryMetrics.MetricNames metricNames = TaggedRetryMetrics.MetricNames.custom()
                 .callsMetricName(callsMetricName)
                 .build();
         return ofRetryRegistry(metricNames, registry);

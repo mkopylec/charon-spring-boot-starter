@@ -1,14 +1,13 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
-import java.util.function.Function;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
-import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics.MetricNames;
 import org.slf4j.Logger;
+
+import java.util.function.Function;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.CIRCUIT_BREAKER_HANDLER;
@@ -40,13 +39,17 @@ abstract class CommonCircuitBreaker<R> extends CommonResilienceHandler<CircuitBr
     TaggedCircuitBreakerMetrics createMetrics(CircuitBreakerRegistry registry, String mappingName) {
         String bufferedCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "buffered-calls");
         String callsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "calls");
-        String maxBufferedCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "max-buffered-calls");
         String stateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "state");
-        MetricNames metricNames = MetricNames.custom()
+        String failureRateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "failure-rate");
+        String slowCallRateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "slow-calls-rate");
+        String slowCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "slow-calls");
+        TaggedCircuitBreakerMetrics.MetricNames metricNames = TaggedCircuitBreakerMetrics.MetricNames.custom()
                 .bufferedCallsMetricName(bufferedCallsMetricName)
                 .callsMetricName(callsMetricName)
-                .maxBufferedCallsMetricName(maxBufferedCallsMetricName)
                 .stateMetricName(stateMetricName)
+                .failureRateMetricName(failureRateMetricName)
+                .slowCallRateMetricName(slowCallRateMetricName)
+                .slowCallsMetricName(slowCallsMetricName)
                 .build();
         return ofCircuitBreakerRegistry(metricNames, registry);
     }

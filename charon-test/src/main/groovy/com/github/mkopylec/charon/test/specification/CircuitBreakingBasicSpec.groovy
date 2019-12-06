@@ -35,8 +35,10 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThatMetrics()
                 .haveCaptured('charon.circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.circuit breaking.circuit-breaking.calls')
-                .haveCaptured('charon.circuit breaking.circuit-breaking.max-buffered-calls')
                 .haveCaptured('charon.circuit breaking.circuit-breaking.state')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.failure-rate')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.slow-calls-rate')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.slow-calls')
     }
 
     @DirtiesContext
@@ -54,8 +56,10 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThatMetrics()
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.calls')
-                .haveCaptured('charon.exception circuit breaking.circuit-breaking.max-buffered-calls')
                 .haveCaptured('charon.exception circuit breaking.circuit-breaking.state')
+                .haveCaptured('charon.exception circuit breaking.circuit-breaking.failure-rate')
+                .haveCaptured('charon.exception circuit breaking.circuit-breaking.slow-calls-rate')
+                .haveCaptured('charon.exception circuit breaking.circuit-breaking.slow-calls')
     }
 
     @DirtiesContext
@@ -72,8 +76,10 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThatMetrics()
                 .haveCaptured('charon.fallback circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.fallback circuit breaking.circuit-breaking.calls')
-                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.max-buffered-calls')
                 .haveCaptured('charon.fallback circuit breaking.circuit-breaking.state')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.failure-rate')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.slow-calls-rate')
+                .haveCaptured('charon.fallback circuit breaking.circuit-breaking.slow-calls')
     }
 
     @DirtiesContext
@@ -94,7 +100,9 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
         assertThatMetrics()
                 .haveCaptured('charon.circuit breaking.circuit-breaking.buffered-calls')
                 .haveCaptured('charon.circuit breaking.circuit-breaking.calls')
-                .haveCaptured('charon.circuit breaking.circuit-breaking.max-buffered-calls')
                 .haveCaptured('charon.circuit breaking.circuit-breaking.state')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.failure-rate')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.slow-calls-rate')
+                .haveCaptured('charon.circuit breaking.circuit-breaking.slow-calls')
     }
 }
