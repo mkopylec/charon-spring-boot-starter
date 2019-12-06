@@ -3,7 +3,6 @@ package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics;
-import io.github.resilience4j.micrometer.tagged.TaggedRateLimiterMetrics.MetricNames;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import org.slf4j.Logger;
 
@@ -34,7 +33,7 @@ abstract class CommonRateLimiter extends CommonResilienceHandler<RateLimiterRegi
     TaggedRateLimiterMetrics createMetrics(RateLimiterRegistry registry, String mappingName) {
         String availablePermissionsMetricName = metricName(mappingName, RATE_LIMITING_METRICS_NAME, "available-permissions");
         String waitingThreadsMetricName = metricName(mappingName, RATE_LIMITING_METRICS_NAME, "waiting-threads");
-        MetricNames metricNames = MetricNames.custom()
+        TaggedRateLimiterMetrics.MetricNames metricNames = TaggedRateLimiterMetrics.MetricNames.custom()
                 .availablePermissionsMetricName(availablePermissionsMetricName)
                 .waitingThreadsMetricName(waitingThreadsMetricName)
                 .build();
