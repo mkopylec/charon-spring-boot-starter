@@ -35,11 +35,16 @@ abstract class CommonRequestProxyHeadersRewriter implements Valid {
 
     void rewriteHeaders(HttpHeaders headers, URI uri, Consumer<HttpHeaders> headersSetter) {
         HttpHeaders rewrittenHeaders = copyHeaders(headers);
-        List<String> forwardedFor = rewrittenHeaders.get(X_FORWARDED_FOR);
-        if (isEmpty(forwardedFor)) {
-            forwardedFor = new ArrayList<>(1);
-        }
+//        List<String> forwardedFor = rewrittenHeaders.get(X_FORWARDED_FOR);
+//        if (isEmpty(forwardedFor)) {
+//            forwardedFor = new ArrayList<>(1);
+//        }
+//        forwardedFor.add(uri.getAuthority());
+
+        //this will fix issue https://github.com/mkopylec/charon-spring-boot-starter/issues/102
+        List<String> forwardedFor = new ArrayList<>(rewrittenHeaders.get(X_FORWARDED_FOR));
         forwardedFor.add(uri.getAuthority());
+
         rewrittenHeaders.put(X_FORWARDED_FOR, forwardedFor);
         rewrittenHeaders.set(X_FORWARDED_PROTO, uri.getScheme());
         rewrittenHeaders.set(X_FORWARDED_HOST, uri.getHost());
