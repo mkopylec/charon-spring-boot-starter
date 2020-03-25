@@ -1,5 +1,5 @@
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.11.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.10.2'
     id 'io.codearte.nexus-staging' version '0.21.2'
 }
 
@@ -49,9 +49,6 @@ subprojects {
     scmVersion {
         tag {
             prefix = ''
-        }
-        repository {
-            customKey = project.file(project.ext.githubKey)
         }
     }
 
