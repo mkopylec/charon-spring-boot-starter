@@ -38,8 +38,12 @@ abstract class CommonRequestProxyHeadersRewriter implements Valid {
         List<String> forwardedFor = rewrittenHeaders.get(X_FORWARDED_FOR);
         if (isEmpty(forwardedFor)) {
             forwardedFor = new ArrayList<>(1);
+        } else {
+            forwardedFor = new ArrayList<>(forwardedFor);
         }
+
         forwardedFor.add(uri.getAuthority());
+
         rewrittenHeaders.put(X_FORWARDED_FOR, forwardedFor);
         rewrittenHeaders.set(X_FORWARDED_PROTO, uri.getScheme());
         rewrittenHeaders.set(X_FORWARDED_HOST, uri.getHost());
