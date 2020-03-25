@@ -50,6 +50,9 @@ subprojects {
         tag {
             prefix = ''
         }
+        repository {
+            customKey = project.file(project.ext.githubKey)
+        }
     }
 
     group = project.ext.group
