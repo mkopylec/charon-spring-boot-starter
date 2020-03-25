@@ -152,4 +152,9 @@ public class HttpResponse implements ClientResponse {
     public Mono<WebClientResponseException> createException() {
         return delegate.createException();
     }
+
+    @Override
+    public String logPrefix() {
+        return delegate.logPrefix();
+    }
 }

@@ -1,20 +1,19 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+import org.slf4j.Logger;
+import org.springframework.http.HttpHeaders;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.mkopylec.charon.configuration.Valid;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
-import org.slf4j.Logger;
-
-import org.springframework.http.HttpHeaders;
-
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_PROXY_HEADERS_REWRITER;
 import static java.lang.String.valueOf;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 abstract class CommonRequestProxyHeadersRewriter implements Valid {
 
@@ -35,15 +34,8 @@ abstract class CommonRequestProxyHeadersRewriter implements Valid {
 
     void rewriteHeaders(HttpHeaders headers, URI uri, Consumer<HttpHeaders> headersSetter) {
         HttpHeaders rewrittenHeaders = copyHeaders(headers);
-        List<String> forwardedFor = rewrittenHeaders.get(X_FORWARDED_FOR);
-        if (isEmpty(forwardedFor)) {
-            forwardedFor = new ArrayList<>(1);
-        } else {
-            forwardedFor = new ArrayList<>(forwardedFor);
-        }
-
+        List<String> forwardedFor = new ArrayList<>(emptyIfNull(rewrittenHeaders.get(X_FORWARDED_FOR)));
         forwardedFor.add(uri.getAuthority());
-
         rewrittenHeaders.put(X_FORWARDED_FOR, forwardedFor);
         rewrittenHeaders.set(X_FORWARDED_PROTO, uri.getScheme());
         rewrittenHeaders.set(X_FORWARDED_HOST, uri.getHost());
