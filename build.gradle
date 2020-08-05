@@ -1,5 +1,5 @@
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.11.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.12.0'
     id 'io.codearte.nexus-staging' version '0.21.2'
 }
 
@@ -16,9 +16,9 @@ subprojects {
     }
 
     ext {
-        springBootVersion = '2.2.5.RELEASE'
-        resilience4jVersion = '1.3.1'
-        okHttpVersion = '3.14.4'
+        springBootVersion = '2.3.2.RELEASE'
+        resilience4jVersion = '1.5.0'
+        okHttpVersion = '3.14.9'
 
         group = 'com.github.mkopylec'
         pomContent = {
@@ -57,15 +57,15 @@ subprojects {
     version = scmVersion.version
 
     dependencies {
-        compile group: 'org.springframework', name: 'spring-web', version: '5.2.4.RELEASE'
+        compile group: 'org.springframework', name: 'spring-web', version: '5.2.8.RELEASE'
         compile group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion
         compile group: 'io.github.resilience4j', name: 'resilience4j-micrometer', version: resilience4jVersion
-        compile group: 'io.micrometer', name: 'micrometer-core', version: '1.3.5'
-        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+        compile group: 'io.micrometer', name: 'micrometer-core', version: '1.5.3'
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
         compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-        compile group: 'commons-io', name: 'commons-io', version: '2.6'
+        compile group: 'commons-io', name: 'commons-io', version: '2.7'
     }
 
     publishing {
@@ -90,5 +90,5 @@ nexusStaging {
 }
 
 wrapper {
-    gradleVersion = '6.2.2'
+    gradleVersion = '6.5.1'
 }

@@ -4,6 +4,7 @@ import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.micrometer.tagged.CircuitBreakerMetricNames;
 import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import org.slf4j.Logger;
 
@@ -43,7 +44,7 @@ abstract class CommonCircuitBreaker<R> extends CommonResilienceHandler<CircuitBr
         String failureRateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "failure-rate");
         String slowCallRateMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "slow-calls-rate");
         String slowCallsMetricName = metricName(mappingName, CIRCUIT_BREAKER_METRICS_NAME, "slow-calls");
-        TaggedCircuitBreakerMetrics.MetricNames metricNames = TaggedCircuitBreakerMetrics.MetricNames.custom()
+        CircuitBreakerMetricNames metricNames = CircuitBreakerMetricNames.custom()
                 .bufferedCallsMetricName(bufferedCallsMetricName)
                 .callsMetricName(callsMetricName)
                 .stateMetricName(stateMetricName)

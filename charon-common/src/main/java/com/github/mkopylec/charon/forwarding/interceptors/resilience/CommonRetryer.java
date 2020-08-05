@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+import io.github.resilience4j.micrometer.tagged.RetryMetricNames;
 import io.github.resilience4j.micrometer.tagged.TaggedRetryMetrics;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
@@ -33,7 +34,7 @@ abstract class CommonRetryer<R> extends CommonResilienceHandler<RetryRegistry> i
 
     TaggedRetryMetrics createMetrics(RetryRegistry registry, String mappingName) {
         String callsMetricName = metricName(mappingName, RETRYING_METRICS_NAME, "calls");
-        TaggedRetryMetrics.MetricNames metricNames = TaggedRetryMetrics.MetricNames.custom()
+        RetryMetricNames metricNames = RetryMetricNames.custom()
                 .callsMetricName(callsMetricName)
                 .build();
         return ofRetryRegistry(metricNames, registry);
