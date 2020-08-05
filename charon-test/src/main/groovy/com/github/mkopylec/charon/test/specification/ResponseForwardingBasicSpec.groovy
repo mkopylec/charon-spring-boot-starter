@@ -60,6 +60,6 @@ abstract class ResponseForwardingBasicSpec extends BasicSpec {
                 .hasBody(body)
 
         where:
-        body << [null, '  ', 'response body']
+        body << [null, 'response body']
     }
 }
