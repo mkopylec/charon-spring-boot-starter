@@ -90,5 +90,5 @@ nexusStaging {
 }
 
 wrapper {
-    gradleVersion = '6.5.1'
+    gradleVersion = '6.8.1'
 }
