@@ -24,7 +24,7 @@ abstract class CommonRetryer<R> extends CommonResilienceHandler<RetryRegistry> i
         super(log, of(RetryConfig.<R>custom()
                 .waitDuration(ZERO)
                 .retryOnResult(retryOnResult)
-                .retryOnException(throwable -> true)
+                .retryExceptions(Throwable.class)
                 .build()));
     }
 

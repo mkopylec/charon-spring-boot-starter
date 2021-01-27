@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -122,19 +122,20 @@ class ReverseProxyConfiguration {
                         .pathRegex("/circuit/breaking.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
                         .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
-                                .ringBufferSizeInClosedState(1))
+                                .slidingWindowSize(1)
+                                .recordResult(result -> ((HttpResponse) result).statusCode().is5xxServerError()))
                                 .meterRegistry(meterRegistry())))
                 .add(requestMapping("exception circuit breaking")
                         .pathRegex("/exception/circuit/breaking.*")
                         .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
-                                .ringBufferSizeInClosedState(1))
+                                .slidingWindowSize(1))
                                 .meterRegistry(meterRegistry())))
                 .add(requestMapping("fallback circuit breaking")
                         .pathRegex("/fallback/circuit/breaking.*")
                         .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .set(circuitBreaker().fallback(new CircuitBreakerFallback()).configuration(CircuitBreakerConfig.custom()
-                                .ringBufferSizeInClosedState(1))
+                                .slidingWindowSize(1))
                                 .meterRegistry(meterRegistry())))
                 .add(requestMapping("retrying")
                         .pathRegex("/retrying.*")

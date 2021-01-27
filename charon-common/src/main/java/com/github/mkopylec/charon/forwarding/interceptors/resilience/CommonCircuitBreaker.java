@@ -9,6 +9,7 @@ import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
 import org.slf4j.Logger;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.CIRCUIT_BREAKER_HANDLER;
@@ -22,9 +23,11 @@ abstract class CommonCircuitBreaker<R> extends CommonResilienceHandler<CircuitBr
 
     private Function<CallNotPermittedException, R> fallback;
 
-    CommonCircuitBreaker(Logger log) {
+    @SuppressWarnings("unchecked")
+    CommonCircuitBreaker(Predicate<R> failOnResult, Logger log) {
         // TODO Handle 5xx after https://github.com/resilience4j/resilience4j/issues/384 is done
         super(log, of(custom()
+                .recordResult(result -> failOnResult.test((R) result))
                 .recordExceptions(Throwable.class)
                 .build()));
     }

@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static org.springframework.web.reactive.function.client.ClientRequest.from;
@@ -78,6 +79,11 @@ public class HttpRequest implements ClientRequest {
     @Override
     public Map<String, Object> attributes() {
         return delegate.attributes();
+    }
+
+    @Override
+    public Consumer<ClientHttpRequest> httpRequest() {
+        return delegate.httpRequest();
     }
 
     @Override

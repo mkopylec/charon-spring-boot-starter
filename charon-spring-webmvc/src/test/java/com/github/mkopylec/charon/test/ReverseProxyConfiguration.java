@@ -1,6 +1,7 @@
 package com.github.mkopylec.charon.test;
 
 import com.github.mkopylec.charon.configuration.CharonConfigurer;
+import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -121,7 +122,8 @@ class ReverseProxyConfiguration {
                         .pathRegex("/circuit/breaking.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
                         .set(circuitBreaker().configuration(CircuitBreakerConfig.custom()
-                                .slidingWindowSize(1))
+                                .slidingWindowSize(1)
+                                .recordResult(result -> ((HttpResponse) result).getStatusCode().is5xxServerError()))
                                 .meterRegistry(meterRegistry())))
                 .add(requestMapping("exception circuit breaking")
                         .pathRegex("/exception/circuit/breaking.*")

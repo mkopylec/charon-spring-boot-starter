@@ -17,7 +17,7 @@ class CircuitBreaker extends CommonCircuitBreaker<HttpResponse> implements Reque
     private static final Logger log = getLogger(CircuitBreaker.class);
 
     CircuitBreaker() {
-        super(log);
+        super(response -> response.statusCode().is5xxServerError(), log);
     }
 
     @Override
