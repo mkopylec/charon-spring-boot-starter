@@ -25,7 +25,6 @@ abstract class CommonCircuitBreaker<R> extends CommonResilienceHandler<CircuitBr
 
     @SuppressWarnings("unchecked")
     CommonCircuitBreaker(Predicate<R> failOnResult, Logger log) {
-        // TODO Handle 5xx after https://github.com/resilience4j/resilience4j/issues/384 is done
         super(log, of(custom()
                 .recordResult(result -> failOnResult.test((R) result))
                 .recordExceptions(Throwable.class)
