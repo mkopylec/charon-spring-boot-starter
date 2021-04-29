@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
@@ -46,8 +48,10 @@ abstract class CommonRegexRequestPathRewriter implements Valid {
         } catch (IllegalArgumentException e) {
             throw requestForwardingError("Path rewriter regex pattern " + incomingRequestPathRegex + " does not contain groups required to fill request path template " + outgoingRequestPathTemplate, e);
         }
+        
+        UriComponents rewrittenPathEncodedURI = UriComponentsBuilder.fromPath(rewrittenPath).build().encode();
         URI rewrittenUri = fromUri(uri)
-                .replacePath(rewrittenPath)
+                .replacePath(rewrittenPathEncodedURI.getPath())
                 .build(true)
                 .toUri();
         rewrittenUriSetter.accept(rewrittenUri);
