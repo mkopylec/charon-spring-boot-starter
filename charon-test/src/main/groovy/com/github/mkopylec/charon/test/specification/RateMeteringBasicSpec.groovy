@@ -46,7 +46,7 @@ abstract class RateMeteringBasicSpec extends BasicSpec {
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
         assertThatMetrics()
-                .haveCapturedRate("charon.exception rate metering.response.exception.${meteredExceptionName()}")
+                .haveCapturedRate('charon.exception rate metering.response.exception.unknownhostexception')
     }
 
     def "Should not meter request forwarding rate by default"() {
@@ -65,6 +65,4 @@ abstract class RateMeteringBasicSpec extends BasicSpec {
         assertThatMetrics()
                 .haveCapturedNothing()
     }
-
-    protected abstract String meteredExceptionName()
 }

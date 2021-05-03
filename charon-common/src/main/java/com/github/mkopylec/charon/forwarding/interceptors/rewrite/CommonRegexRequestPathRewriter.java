@@ -37,7 +37,7 @@ abstract class CommonRegexRequestPathRewriter implements Valid {
     }
 
     void rewritePath(URI uri, Consumer<URI> rewrittenUriSetter) {
-        String requestPath = uri.getPath();
+        String requestPath = uri.getRawPath();
         Matcher matcher = incomingRequestPathRegex.matcher(requestPath);
         requestForwardingErrorIf(!matcher.find(), () -> "Incoming request path " + requestPath + " does not match path rewriter regex pattern " + incomingRequestPathRegex);
         String rewrittenPath;

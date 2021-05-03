@@ -1,11 +1,11 @@
 apply plugin: 'jacoco'
 
 dependencies {
-    compile project(':charon-common').sourceSets.main.output
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
-    compile group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
+    api project(':charon-common').sourceSets.main.output
+    api group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
+    api group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
 
-    testCompile project(':charon-test')
+    testImplementation project(':charon-test')
 }
 
 jacoco {
