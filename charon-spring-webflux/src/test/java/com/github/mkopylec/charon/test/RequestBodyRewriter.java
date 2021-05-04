@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 class RequestBodyRewriter extends CommonRequestBodyRewriter implements RequestForwardingInterceptor {
 
@@ -28,7 +28,7 @@ class RequestBodyRewriter extends CommonRequestBodyRewriter implements RequestFo
 
     private void rewriteRequest(HttpRequest request) {
         String rewrittenBody = "Rewritten request body";
-        request.setBody(fromObject(rewrittenBody));
+        request.setBody(fromValue(rewrittenBody));
         log.debug("Request body rewritten to '{}'", rewrittenBody);
     }
 }

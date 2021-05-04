@@ -31,6 +31,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.security.BasicA
 import static com.github.mkopylec.charon.forwarding.interceptors.security.BearerAuthenticatorConfigurer.bearerAuthenticator;
 import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryTokenValidatorConfigurer.inMemoryTokenValidator;
 import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryUserValidatorConfigurer.inMemoryUserValidator;
+import static com.github.mkopylec.charon.test.ExceptionThrowerConfigurer.exceptionThrower;
 import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
 import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
 import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
@@ -93,6 +94,9 @@ class ReverseProxyConfiguration {
                         .pathRegex("/request/host/header.*")
                         .set(requestServerNameRewriter().outgoingServers("localhost:8080"))
                         .set(requestHostHeaderRewriter()))
+                .add(requestMapping("regex request path rewriting encoded")
+                        .pathRegex("/regex/request/path%20encoded")
+                        .set(regexRequestPathRewriter()))
                 .add(requestMapping("regex request path rewriting groups")
                         .pathRegex("/regex/request/path/groups")
                         .set(regexRequestPathRewriter().paths("/regex/request/(?<path>.*)", "/group/template/<path>")))
@@ -164,8 +168,8 @@ class ReverseProxyConfiguration {
                         .pathRegex("/rate/metering.*")
                         .set(rateMeter().meterRegistry(meterRegistry())))
                 .add(requestMapping("exception rate metering")
-                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
                         .pathRegex("/exception/rate/metering.*")
+                        .set(exceptionThrower())
                         .set(rateMeter().meterRegistry(meterRegistry())))
                 .add(requestMapping("multiple mappings found 1")
                         .pathRegex("/multiple/mappings/found.*"))

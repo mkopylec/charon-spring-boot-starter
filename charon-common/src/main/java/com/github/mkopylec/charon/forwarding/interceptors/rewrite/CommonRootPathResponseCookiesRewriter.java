@@ -19,7 +19,7 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-class CommonRootPathResponseCookiesRewriter implements Valid {
+abstract class CommonRootPathResponseCookiesRewriter implements Valid {
 
     private Logger log;
 

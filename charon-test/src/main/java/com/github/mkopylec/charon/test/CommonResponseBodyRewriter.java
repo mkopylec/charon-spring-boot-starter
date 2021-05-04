@@ -3,7 +3,7 @@ package com.github.mkopylec.charon.test;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-class CommonResponseBodyRewriter {
+abstract class CommonResponseBodyRewriter {
 
     private Logger log;
 

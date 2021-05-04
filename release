@@ -8,5 +8,5 @@ if [ -z "$VERSION" ]; then
     echo "Set release version using -v option"
     exit 1
 else
-    ./gradlew clean test release -Prelease.forceVersion=$VERSION && ./gradlew publishToSonatype -PsignArtifacts && ./gradlew closeAndReleaseRepository
+    ./gradlew clean test release -Prelease.forceVersion=$VERSION && ./gradlew publishToSonatype -PsignArtifacts && ./gradlew closeAndReleaseStagingRepository
 fi

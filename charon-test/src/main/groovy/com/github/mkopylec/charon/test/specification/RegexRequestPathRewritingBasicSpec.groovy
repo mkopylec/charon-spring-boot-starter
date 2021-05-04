@@ -27,6 +27,7 @@ abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
         '/regex/request/path/groups'             | '/group/template/path/groups'
         '/regex/request/path/groups/in/incoming' | '/no/group/template'
         '/regex/request/path/no/groups'          | '/no/group/template'
+        '/regex/request/path encoded'            | '/regex/request/path%20encoded'
     }
 
     def "Should not rewrite request path using regex by default"() {
