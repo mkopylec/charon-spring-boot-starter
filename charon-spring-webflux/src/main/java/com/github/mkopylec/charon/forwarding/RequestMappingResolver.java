@@ -23,7 +23,7 @@ class RequestMappingResolver {
     }
 
     RequestMappingConfiguration resolveRequestMapping(ServerHttpRequest request) {
-        String requestURI = request.getURI().getPath();
+        String requestURI = request.getURI().getRawPath();
         List<RequestMappingConfiguration> configurations = requestMappingConfigurations.stream()
                 .filter(configuration -> configuration.getPathRegex().matcher(requestURI).matches())
                 .collect(toList());
