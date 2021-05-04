@@ -9,7 +9,6 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.valueOf;
-import static org.springframework.web.reactive.function.BodyExtractors.toDataBuffers;
 
 class RetryAttemptsResponseHeaderSetter implements ExchangeFilterFunction {
 
@@ -21,7 +20,6 @@ class RetryAttemptsResponseHeaderSetter implements ExchangeFilterFunction {
         return next.exchange(request)
                 .map(response -> response.mutate()
                         .headers(httpHeaders -> httpHeaders.set("Retry-Attempts", valueOf(attempt.incrementAndGet())))
-                        .body(response.body(toDataBuffers())) // Need to consume body, otherwise the request will HANG after ReverseProxyFilter.
                         .build());
     }
 }
