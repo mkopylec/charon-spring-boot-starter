@@ -14,7 +14,7 @@ abstract class CommonExceptionThrower {
     }
 
     public RequestForwardingInterceptorType getType() {
-        return new RequestForwardingInterceptorType(LOWEST_PRECEDENCE - 1);
+        return new RequestForwardingInterceptorType(201);
     }
 
     void logStart(String mappingName) {

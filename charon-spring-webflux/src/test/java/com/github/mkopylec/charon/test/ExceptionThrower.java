@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static reactor.core.publisher.Mono.error;
 
 class ExceptionThrower extends CommonExceptionThrower implements RequestForwardingInterceptor {
 
@@ -20,6 +21,6 @@ class ExceptionThrower extends CommonExceptionThrower implements RequestForwardi
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        throw createFailure();
+        return error(createFailure());
     }
 }
