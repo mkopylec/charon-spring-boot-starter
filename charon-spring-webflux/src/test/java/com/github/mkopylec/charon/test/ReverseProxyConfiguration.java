@@ -31,6 +31,7 @@ import static com.github.mkopylec.charon.forwarding.interceptors.security.BasicA
 import static com.github.mkopylec.charon.forwarding.interceptors.security.BearerAuthenticatorConfigurer.bearerAuthenticator;
 import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryTokenValidatorConfigurer.inMemoryTokenValidator;
 import static com.github.mkopylec.charon.forwarding.interceptors.security.InMemoryUserValidatorConfigurer.inMemoryUserValidator;
+import static com.github.mkopylec.charon.test.ExceptionThrowerConfigurer.exceptionThrower;
 import static com.github.mkopylec.charon.test.LowestPortLoadBalancerConfigurer.lowestPortLoadBalancer;
 import static com.github.mkopylec.charon.test.RequestBodyRewriterConfigurer.requestBodyRewriter;
 import static com.github.mkopylec.charon.test.ResponseBodyRewriterConfigurer.responseBodyRewriter;
@@ -167,7 +168,7 @@ class ReverseProxyConfiguration {
                         .pathRegex("/rate/metering.*")
                         .set(rateMeter().meterRegistry(meterRegistry())))
                 .add(requestMapping("exception rate metering")
-                        .set(requestServerNameRewriter().outgoingServers("http://non-existing.host"))
+                        .set(exceptionThrower())
                         .pathRegex("/exception/rate/metering.*")
                         .set(rateMeter().meterRegistry(meterRegistry())))
                 .add(requestMapping("multiple mappings found 1")
