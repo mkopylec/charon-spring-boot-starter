@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.CommonHttpRequest;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
@@ -50,9 +51,10 @@ abstract class CommonRequestServerNameRewriter implements Valid {
                 .collect(toList());
     }
 
-    void rewriteServerName(URI uri, Consumer<URI> rewrittenUriSetter) {
+    void rewriteServerName(CommonHttpRequest request, Consumer<URI> rewrittenUriSetter) {
+        URI uri = request.url();
         String oldServerName = uri.getScheme() + "://" + uri.getAuthority();
-        URI rewrittenServerName = loadBalancer.chooseServer(outgoingServers);
+        URI rewrittenServerName = loadBalancer.chooseServer(request, outgoingServers);
         URI rewrittenUri = fromUri(uri)
                 .scheme(rewrittenServerName.getScheme())
                 .host(rewrittenServerName.getHost())

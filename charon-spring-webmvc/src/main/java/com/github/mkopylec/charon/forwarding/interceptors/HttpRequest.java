@@ -7,7 +7,7 @@ import org.springframework.http.HttpMethod;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 
-public class HttpRequest implements org.springframework.http.HttpRequest {
+public class HttpRequest implements CommonHttpRequest, org.springframework.http.HttpRequest {
 
     private URI uri;
     private HttpMethod method;
@@ -19,6 +19,21 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         method = request.getMethod();
         headers = request.getHeaders();
         this.body = body;
+    }
+
+    @Override
+    public HttpMethod method() {
+        return method;
+    }
+
+    @Override
+    public URI url() {
+        return uri;
+    }
+
+    @Override
+    public HttpHeaders headers() {
+        return headers;
     }
 
     @Override

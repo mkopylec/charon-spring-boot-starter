@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static org.springframework.web.reactive.function.client.ClientRequest.from;
 
-public class HttpRequest implements ClientRequest {
+public class HttpRequest implements CommonHttpRequest, ClientRequest {
 
     private ClientRequest delegate;
 

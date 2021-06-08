@@ -19,7 +19,7 @@ class RequestServerNameRewriter extends CommonRequestServerNameRewriter implemen
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteServerName(request.getURI(), request::setUri);
+        rewriteServerName(request, request::setUri);
         HttpResponse response = execution.execute(request);
         logEnd(execution.getMappingName());
         return response;

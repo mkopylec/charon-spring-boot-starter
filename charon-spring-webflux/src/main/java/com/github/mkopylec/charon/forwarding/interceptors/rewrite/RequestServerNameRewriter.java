@@ -20,7 +20,7 @@ class RequestServerNameRewriter extends CommonRequestServerNameRewriter implemen
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteServerName(request.url(), request::setUrl);
+        rewriteServerName(request, request::setUrl);
         return execution.execute(request)
                 .doOnSuccess(response -> logEnd(execution.getMappingName()));
     }
