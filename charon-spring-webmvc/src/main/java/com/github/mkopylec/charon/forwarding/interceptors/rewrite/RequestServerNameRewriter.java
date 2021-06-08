@@ -19,7 +19,8 @@ class RequestServerNameRewriter extends CommonRequestServerNameRewriter implemen
     @Override
     public HttpResponse forward(HttpRequest request, HttpRequestExecution execution) {
         logStart(execution.getMappingName());
-        rewriteServerName(request.getURI(), request::setUri);
+        BodilessHttpRequest bodilessRequest = new BodilessHttpRequest(request.getMethod(), request.getURI(), request.getHeaders());
+        rewriteServerName(bodilessRequest, request::setUri);
         HttpResponse response = execution.execute(request);
         logEnd(execution.getMappingName());
         return response;

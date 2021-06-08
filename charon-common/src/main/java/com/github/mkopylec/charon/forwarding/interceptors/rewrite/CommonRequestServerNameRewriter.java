@@ -1,13 +1,13 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+import org.slf4j.Logger;
+
 import java.net.URI;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-
-import com.github.mkopylec.charon.configuration.Valid;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
-import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.REQUEST_SERVER_NAME_REWRITER;
 import static com.github.mkopylec.charon.forwarding.interceptors.rewrite.RandomLoadBalancerConfigurer.randomLoadBalancer;
@@ -50,17 +50,16 @@ abstract class CommonRequestServerNameRewriter implements Valid {
                 .collect(toList());
     }
 
-    void rewriteServerName(URI uri, Consumer<URI> rewrittenUriSetter) {
-        String oldServerName = uri.getScheme() + "://" + uri.getAuthority();
-        URI rewrittenServerName = loadBalancer.chooseServer(outgoingServers);
-        URI rewrittenUri = fromUri(uri)
+    void rewriteServerName(BodilessHttpRequest request, Consumer<URI> rewrittenUriSetter) {
+        URI rewrittenServerName = loadBalancer.chooseServer(outgoingServers, request);
+        URI rewrittenUri = fromUri(request.getUrl())
                 .scheme(rewrittenServerName.getScheme())
                 .host(rewrittenServerName.getHost())
                 .port(rewrittenServerName.getPort())
                 .build(true)
                 .toUri();
         rewrittenUriSetter.accept(rewrittenUri);
-        log.debug("Request server name rewritten from {} to {}", oldServerName, rewrittenServerName);
+        log.debug("Request server name rewritten from {} to {}", request.getServerName(), rewrittenServerName);
     }
 
     void logStart(String mappingName) {
