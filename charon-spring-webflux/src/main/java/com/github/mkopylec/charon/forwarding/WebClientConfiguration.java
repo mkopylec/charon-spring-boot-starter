@@ -9,6 +9,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor
 
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
@@ -20,6 +21,7 @@ public class WebClientConfiguration implements Valid {
 
     private TimeoutConfiguration timeoutConfiguration;
     private ClientHttpConnectorCreator clientHttpConnectorCreator;
+    private ExchangeStrategies exchangeStrategies;
     private List<ExchangeFilterFunction> exchangeFilterFunctions;
 
     WebClientConfiguration() {
@@ -36,6 +38,10 @@ public class WebClientConfiguration implements Valid {
         this.clientHttpConnectorCreator = clientHttpConnectorCreator;
     }
 
+    void setExchangeStrategies(ExchangeStrategies exchangeStrategies) {
+        this.exchangeStrategies = exchangeStrategies;
+    }
+
     void setExchangeFilterFunctions(List<ExchangeFilterFunction> exchangeFilterFunctions) {
         this.exchangeFilterFunctions.addAll(exchangeFilterFunctions);
     }
@@ -46,6 +52,7 @@ public class WebClientConfiguration implements Valid {
         interceptors.addAll(exchangeFilterFunctions);
         return builder()
                 .clientConnector(connector)
+                .exchangeStrategies(this.exchangeStrategies)
                 .filters(filters -> filters.addAll(interceptors))
                 .build();
     }
