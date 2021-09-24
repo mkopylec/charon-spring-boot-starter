@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.mkopylec.charon.configuration.Configurer;
 
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 public class WebClientConfigurer extends Configurer<WebClientConfiguration> {
 
@@ -23,6 +24,11 @@ public class WebClientConfigurer extends Configurer<WebClientConfiguration> {
 
     public WebClientConfigurer set(ClientHttpConnectorCreatorConfigurer<?> clientHttpConnectorCreatorConfigurer) {
         configuredObject.setClientHttpConnectorCreator(clientHttpConnectorCreatorConfigurer.configure());
+        return this;
+    }
+
+    public WebClientConfigurer set(ExchangeStrategies exchangeStrategies) {
+        configuredObject.setExchangeStrategies(exchangeStrategies);
         return this;
     }
 
