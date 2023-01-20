@@ -28,7 +28,6 @@ class CharonAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     ReverseProxyFilter reverseProxyFilter(ObjectProvider<CharonConfigurer> charonConfigurer) {
-        log.info("Charon registering reverse proxy filter {}", charonConfigurer);
         CharonConfigurer configurer = charonConfigurer.getIfAvailable();
         if (configurer == null) {
             log.warn("No Charon configuration detected, all incoming requests will be handled locally");
