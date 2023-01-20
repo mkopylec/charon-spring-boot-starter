@@ -20,11 +20,6 @@ class CharonAutoConfiguration {
 
     private static final Logger log = getLogger(CharonAutoConfiguration.class);
 
-    @PostConstruct
-    public void init() {
-        log.info("INIT CHARON AUTO CONFIG");
-    }
-
     @Bean
     @ConditionalOnMissingBean
     ReverseProxyFilter reverseProxyFilter(ObjectProvider<CharonConfigurer> charonConfigurer) {
