@@ -3,6 +3,7 @@ package com.github.mkopylec.charon.forwarding.interceptors;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpResponse;
@@ -39,13 +40,8 @@ public class HttpResponse implements ClientResponse {
     }
 
     @Override
-    public HttpStatus statusCode() {
+    public HttpStatusCode statusCode() {
         return delegate.statusCode();
-    }
-
-    @Override
-    public int rawStatusCode() {
-        return delegate.rawStatusCode();
     }
 
     public void setStatusCode(HttpStatus status) {
@@ -154,7 +150,17 @@ public class HttpResponse implements ClientResponse {
     }
 
     @Override
+    public <T> Mono<T> createError() {
+        return createException().flatMap(Mono::error);
+    }
+
+    @Override
     public String logPrefix() {
         return delegate.logPrefix();
+    }
+
+    @Override
+    public Builder mutate() {
+        return ClientResponse.super.mutate();
     }
 }

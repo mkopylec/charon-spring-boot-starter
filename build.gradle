@@ -10,14 +10,14 @@ subprojects {
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
 
-    sourceCompatibility = 1.8
+    sourceCompatibility = '17'
 
     repositories {
         mavenCentral()
     }
 
     ext {
-        springBootVersion = '2.4.5'
+        springBootVersion = '3.0.0'
         resilience4jVersion = '1.7.0'
         okHttpVersion = '3.14.9'
 
@@ -58,7 +58,7 @@ subprojects {
     version = scmVersion.version
 
     dependencies {
-        api group: 'org.springframework', name: 'spring-web', version: '5.3.6'
+        api group: 'org.springframework', name: 'spring-web', version: '6.0.2'
         api group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
         api group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
         api group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion
@@ -81,5 +81,5 @@ nexusPublishing {
 }
 
 wrapper {
-    gradleVersion = '7.0'
+    gradleVersion = '7.6'
 }

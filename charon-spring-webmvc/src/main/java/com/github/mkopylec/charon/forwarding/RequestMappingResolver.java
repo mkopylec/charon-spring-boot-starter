@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.forwarding;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import org.slf4j.Logger;

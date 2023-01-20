@@ -5,6 +5,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import org.slf4j.Logger;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.ASYNCHRONOUS_FORWARDING_HANDLER;
 import static com.github.mkopylec.charon.forwarding.interceptors.async.ThreadPoolConfigurer.threadPool;
@@ -36,7 +37,7 @@ abstract class CommonAsynchronousForwarder implements Valid {
         return ACCEPTED;
     }
 
-    void logForwardingResult(HttpStatus responseStatus, String mappingName) {
+    void logForwardingResult(HttpStatusCode responseStatus, String mappingName) {
         String logMessage = "Asynchronous execution of '{}' request mapping resulted in {} response status";
         if (responseStatus.is5xxServerError()) {
             log.error(logMessage, mappingName, responseStatus.value());

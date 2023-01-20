@@ -1,4 +1,4 @@
-rootProject.name = 'charon-spring-boot-starter'
+rootProject.name = 'dabbawala-charon-spring-boot-starter'
 include 'charon-common'
 include 'charon-test'
 include 'charon-spring-webmvc'

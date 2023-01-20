@@ -4,6 +4,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import org.slf4j.Logger;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RATE_METER;
@@ -20,7 +21,7 @@ abstract class CommonRateMeter extends CommonMeter {
         return RATE_METER;
     }
 
-    void captureResponseStatusMetric(String mappingName, HttpStatus responseStatus) {
+    void captureResponseStatusMetric(String mappingName, HttpStatusCode responseStatus) {
         String metricName = metricName(mappingName, "response", "status", valueOf(responseStatus.value()));
         getMeterRegistry().counter(metricName).increment();
     }
