@@ -31,11 +31,6 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
     }
 
     @Override
-    public String getMethodValue() {
-        return method.name();
-    }
-
-    @Override
     public HttpMethod getMethod() {
         return method;
     }
