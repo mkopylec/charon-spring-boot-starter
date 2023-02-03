@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
 
@@ -46,7 +45,7 @@ public class HttpResponse implements ClientHttpResponse {
         return status.toString();
     }
 
-    public void setStatusCode(HttpStatus status) {
+    public void setStatusCode(HttpStatusCode status) {
         this.status = status;
     }
 

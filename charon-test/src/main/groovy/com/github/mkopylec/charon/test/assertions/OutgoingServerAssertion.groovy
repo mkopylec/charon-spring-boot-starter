@@ -53,13 +53,13 @@ class OutgoingServerAssertion {
         }
         if (times == 0) {
             if (matchesCount < outgoingServers.size()) {
-                throw new AssertionError(error)
+                throw new AssertionError(error as Object)
             } else {
                 return this
             }
         }
         if (matchesCount != 1) {
-            throw new AssertionError(error)
+            throw new AssertionError(error as Object)
         }
         return this
     }

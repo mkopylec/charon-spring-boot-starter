@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -10,8 +8,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should rewrite response cookies #incomingHeaders by removing '#removedHeaders' headers when proper interceptor is set"() {
+    def "Should rewrite response cookies by removing headers when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)
@@ -32,8 +29,7 @@ abstract class RemovingResponseCookiesRewritingBasicSpec extends BasicSpec {
         ['Set-Cookie2': 'cookie=value; Path=/'] | 'Set-Cookie2'
     }
 
-    @Unroll
-    def "Should not remove response cookies #incomingHeaders by default"() {
+    def "Should not remove response cookies by default"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)

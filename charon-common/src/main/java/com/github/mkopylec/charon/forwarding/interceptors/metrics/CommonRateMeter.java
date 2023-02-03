@@ -3,7 +3,6 @@ package com.github.mkopylec.charon.forwarding.interceptors.metrics;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;

@@ -15,7 +15,6 @@ import static java.net.URI.create;
 import static java.util.Collections.list;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.springframework.http.HttpMethod.resolve;
 import static org.springframework.http.HttpMethod.valueOf;
 
 class HttpRequestMapper {

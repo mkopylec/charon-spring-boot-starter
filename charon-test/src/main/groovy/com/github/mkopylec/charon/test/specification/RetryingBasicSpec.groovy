@@ -101,7 +101,7 @@ abstract class RetryingBasicSpec extends BasicSpec {
         then:
         assertThat(response)
                 .hasStatus(INTERNAL_SERVER_ERROR)
-                .bodyContains('non-existing.host')
+                .bodyContains('non-existing.charonhost')
         assertThatMetrics()
                 .haveCaptured('charon.exception retrying.retrying.calls')
     }

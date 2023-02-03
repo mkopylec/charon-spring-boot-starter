@@ -4,7 +4,6 @@ import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.ASYNCHRONOUS_FORWARDING_HANDLER;
@@ -33,7 +32,7 @@ abstract class CommonAsynchronousForwarder implements Valid {
         this.threadPool = threadPool;
     }
 
-    HttpStatus getResponseStatus() {
+    HttpStatusCode getResponseStatus() {
         return ACCEPTED;
     }
 

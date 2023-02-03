@@ -13,7 +13,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 
 abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
-    @DirtiesContext
+    @DirtiesContext // TODO Resilience4j features support resetting but charon uses internal registries. Try to find out how to reset them to speed up the tests.
     def "Should break circuit while forwarding request on HTTP 5xx response when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)

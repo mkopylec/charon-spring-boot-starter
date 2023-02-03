@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -10,8 +8,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RequestProxyHeadersRewritingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should rewrite request proxy headers from #originalHeaders to #rewritenHeaders by default"() {
+    def "Should rewrite request proxy headers by default"() {
         when:
         def response = http.sendRequest(GET, '/default', originalHeaders)
 

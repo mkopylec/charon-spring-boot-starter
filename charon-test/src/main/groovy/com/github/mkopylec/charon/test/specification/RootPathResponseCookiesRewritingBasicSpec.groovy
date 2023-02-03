@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -10,8 +8,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should rewrite response cookies from #incomingHeaders to #outgoingHeaders by default"() {
+    def "Should rewrite response cookies by default"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)
@@ -36,8 +33,7 @@ abstract class RootPathResponseCookiesRewritingBasicSpec extends BasicSpec {
         ['Set-Cookie2': 'cookie=value; Path=/path'] | ['Set-Cookie2': 'cookie=value; Path=/']
     }
 
-    @Unroll
-    def "Should not rewrite response cookies #incomingHeaders when proper interceptor is unset"() {
+    def "Should not rewrite response cookies when proper interceptor is unset"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, incomingHeaders)

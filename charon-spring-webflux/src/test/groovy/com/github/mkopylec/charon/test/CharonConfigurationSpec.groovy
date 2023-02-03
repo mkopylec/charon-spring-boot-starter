@@ -1,7 +1,6 @@
 package com.github.mkopylec.charon.test
 
 import spock.lang.Specification
-import spock.lang.Unroll
 
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration
 import static com.github.mkopylec.charon.configuration.RequestMappingConfigurer.requestMapping
@@ -41,8 +40,7 @@ class CharonConfigurationSpec extends Specification {
                 .hasMessage('No meter registry set')
     }
 
-    @Unroll
-    def "Should properly validate forwarding logger resulting in '#message' error"() {
+    def "Should properly validate forwarding logger"() {
         when:
         charonConfiguration()
                 .set(logger)
@@ -71,8 +69,7 @@ class CharonConfigurationSpec extends Specification {
                 .hasMessage('No outgoing servers set')
     }
 
-    @Unroll
-    def "Should properly validate web client resulting in '#message' error"() {
+    def "Should properly validate web client"() {
         when:
         charonConfiguration()
                 .set(webClient().set(timeOut))
@@ -92,8 +89,7 @@ class CharonConfigurationSpec extends Specification {
         timeout().write(ofMillis(-1))      | 'Invalid write timeout value: -1 ms'
     }
 
-    @Unroll
-    def "Should properly validate basic authenticator resulting in '#message' error"() {
+    def "Should properly validate basic authenticator"() {
         when:
         charonConfiguration()
                 .set(authenticator)
@@ -110,8 +106,7 @@ class CharonConfigurationSpec extends Specification {
         basicAuthenticator().userValidator(inMemoryUserValidator()).realm(' ')  | 'No authentication realm set'
     }
 
-    @Unroll
-    def "Should properly validate bearer authenticator resulting in '#message' error"() {
+    def "Should properly validate bearer authenticator"() {
         when:
         charonConfiguration()
                 .set(authenticator)
