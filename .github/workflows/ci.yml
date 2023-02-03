@@ -13,7 +13,7 @@ concurrency:
 jobs:
   CI:
     name: CI
-    runs-on: [ self-hosted, ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0
         with:
