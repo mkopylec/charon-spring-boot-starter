@@ -15,6 +15,10 @@ jacoco {
 
 jacocoTestReport {
     sourceSets project(':charon-common').sourceSets.main
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
 }
 
 jar {
