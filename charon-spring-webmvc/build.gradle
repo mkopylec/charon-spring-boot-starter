@@ -9,14 +9,11 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = '0.8.5'
+    toolVersion = '0.8.8'
 }
 
 jacocoTestReport {
     sourceSets project(':charon-common').sourceSets.main
-    reports {
-        xml.enabled = true
-    }
 }
 
 jar {

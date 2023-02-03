@@ -1,9 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
 import com.github.mkopylec.charon.forwarding.ReverseProxyFilter;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import static com.github.mkopylec.charon.configuration.CharonConfigurer.charonConfiguration;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnBean(CharonConfigurer.class)
 class CharonAutoConfiguration {
 

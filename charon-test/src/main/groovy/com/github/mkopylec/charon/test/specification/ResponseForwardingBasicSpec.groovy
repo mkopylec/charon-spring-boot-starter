@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
 import static org.springframework.http.HttpMethod.GET
@@ -14,8 +12,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class ResponseForwardingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should forward #status response status by default"() {
+    def "Should forward response status by default"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(status)
@@ -45,8 +42,7 @@ abstract class ResponseForwardingBasicSpec extends BasicSpec {
                 .containsHeaders(['Location': 'https://github.com'])
     }
 
-    @Unroll
-    def "Should forward '#body' response body by default"() {
+    def "Should forward response body by default"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(OK, body)

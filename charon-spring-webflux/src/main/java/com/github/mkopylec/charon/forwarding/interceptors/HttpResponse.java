@@ -2,7 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpResponse;
@@ -19,7 +19,6 @@ import java.util.List;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static org.springframework.web.reactive.function.client.ClientResponse.create;
-import static org.springframework.web.reactive.function.client.ClientResponse.from;
 import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
@@ -28,7 +27,7 @@ public class HttpResponse implements ClientResponse {
     private Mono<byte[]> body;
     private ClientResponse delegate;
 
-    public HttpResponse(HttpStatus status) {
+    public HttpResponse(HttpStatusCode status) {
         body = empty();
         delegate = create(status).build();
     }
@@ -39,17 +38,12 @@ public class HttpResponse implements ClientResponse {
     }
 
     @Override
-    public HttpStatus statusCode() {
+    public HttpStatusCode statusCode() {
         return delegate.statusCode();
     }
 
-    @Override
-    public int rawStatusCode() {
-        return delegate.rawStatusCode();
-    }
-
-    public void setStatusCode(HttpStatus status) {
-        delegate = from(delegate)
+    public void setStatusCode(HttpStatusCode status) {
+        delegate = delegate.mutate()
                 .statusCode(status)
                 .build();
     }
@@ -60,7 +54,7 @@ public class HttpResponse implements ClientResponse {
     }
 
     public void setHeaders(HttpHeaders headers) {
-        delegate = from(delegate)
+        delegate = delegate.mutate()
                 .headers(httpHeaders -> {
                     httpHeaders.clear();
                     httpHeaders.putAll(headers);
@@ -151,6 +145,11 @@ public class HttpResponse implements ClientResponse {
     @Override
     public Mono<WebClientResponseException> createException() {
         return delegate.createException();
+    }
+
+    @Override
+    public <T> Mono<T> createError() {
+        return delegate.createError();
     }
 
     @Override

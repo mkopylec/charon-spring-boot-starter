@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -13,8 +11,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class AsynchronousForwardingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should asynchronously forward request and receive #status response status when proper interceptor is set"() {
+    def "Should asynchronously forward request and receive response status when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080, localhost8081)
                 .stubResponse(status, 'response body')

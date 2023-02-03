@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import org.springframework.test.annotation.DirtiesContext
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatMetrics
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
@@ -11,7 +9,6 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class LatencyMeteringBasicSpec extends BasicSpec {
 
-    @DirtiesContext
     def "Should meter request forwarding latency when proper interceptor is set"() {
         when:
         def response = http.sendRequest(GET, '/latency/metering')

@@ -3,20 +3,18 @@ apply plugin: 'jacoco'
 dependencies {
     api project(':charon-common').sourceSets.main.output
     api group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: springBootVersion
+    api group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: springBootVersion
     api group: 'io.github.resilience4j', name: 'resilience4j-reactor', version: resilience4jVersion
 
     testImplementation project(':charon-test')
 }
 
 jacoco {
-    toolVersion = '0.8.5'
+    toolVersion = '0.8.8'
 }
 
 jacocoTestReport {
     sourceSets project(':charon-common').sourceSets.main
-    reports {
-        xml.enabled = true
-    }
 }
 
 jar {

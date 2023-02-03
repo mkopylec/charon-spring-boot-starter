@@ -7,7 +7,7 @@ import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInter
 import org.slf4j.Logger;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;
@@ -60,7 +60,7 @@ abstract class CommonForwardingLogger implements Valid {
         this.unexpectedErrorLogLevel = unexpectedErrorLogLevel;
     }
 
-    void logForwardingResult(HttpStatus responseStatus, HttpMethod originalRequestMethod, HttpMethod forwardedRequestMethod, URI originalRequestUri, URI forwardedRequestUri, String mappingName) {
+    void logForwardingResult(HttpStatusCode responseStatus, HttpMethod originalRequestMethod, HttpMethod forwardedRequestMethod, URI originalRequestUri, URI forwardedRequestUri, String mappingName) {
         String logMessage = "Forwarding: {} {} -> '{}' -> {} {} {}";
         if (responseStatus.is5xxServerError()) {
             log(serverErrorLogLevel, logMessage, originalRequestMethod, originalRequestUri, mappingName, forwardedRequestMethod, forwardedRequestUri, responseStatus.value());
@@ -78,21 +78,11 @@ abstract class CommonForwardingLogger implements Valid {
 
     private void log(LogLevel level, String message, Object... parameters) {
         switch (level) {
-            case ERROR:
-                log.error(message, parameters);
-                break;
-            case WARN:
-                log.warn(message, parameters);
-                break;
-            case INFO:
-                log.info(message, parameters);
-                break;
-            case DEBUG:
-                log.debug(message, parameters);
-                break;
-            case TRACE:
-                log.trace(message, parameters);
-                break;
+            case ERROR -> log.error(message, parameters);
+            case WARN -> log.warn(message, parameters);
+            case INFO -> log.info(message, parameters);
+            case DEBUG -> log.debug(message, parameters);
+            case TRACE -> log.trace(message, parameters);
         }
     }
 }

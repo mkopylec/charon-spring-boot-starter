@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -11,8 +9,7 @@ import static org.springframework.http.HttpStatus.OK
 
 abstract class RegexRequestPathRewritingBasicSpec extends BasicSpec {
 
-    @Unroll
-    def "Should rewrite request path using regex from #incomingPath to #outgoingPath when proper interceptor is set"() {
+    def "Should rewrite request path using regex when proper interceptor is set"() {
         when:
         def response = http.sendRequest(GET, incomingPath)
 
