@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static org.apache.commons.io.IOUtils.toByteArray;
@@ -27,7 +27,7 @@ public class HttpResponse implements ClientHttpResponse {
         status = response.getStatusCode();
         headers = response.getHeaders();
         body = toByteArray(response.getBody());
-        response.close();
+        response.close(); // Releases connection
     }
 
     @Override
@@ -76,5 +76,6 @@ public class HttpResponse implements ClientHttpResponse {
 
     @Override
     public void close() {
+        // Already closed in constructor
     }
 }

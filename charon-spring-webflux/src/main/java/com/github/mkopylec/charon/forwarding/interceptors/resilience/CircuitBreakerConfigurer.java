@@ -1,12 +1,12 @@
 package com.github.mkopylec.charon.forwarding.interceptors.resilience;
 
-import java.util.function.Function;
-
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.Builder;
 import io.micrometer.core.instrument.MeterRegistry;
+
+import java.util.function.Function;
 
 import static io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry.of;
 

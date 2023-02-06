@@ -5,9 +5,8 @@ import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestExecution;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import org.slf4j.Logger;
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpHeaders;
+import reactor.core.publisher.Mono;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;

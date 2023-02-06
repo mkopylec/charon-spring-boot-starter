@@ -1,9 +1,8 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
 import io.netty.channel.ChannelException;
-import reactor.core.publisher.Mono;
-
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+import reactor.core.publisher.Mono;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 

@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors.async;
 
+import com.github.mkopylec.charon.configuration.Valid;
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import com.github.mkopylec.charon.configuration.Valid;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.forwarding;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.List;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
 
 import static java.net.URI.create;
 import static java.util.Collections.list;

@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors.security;
 
+import reactor.core.publisher.Mono;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import reactor.core.publisher.Mono;
 
 import static reactor.core.publisher.Mono.just;
 

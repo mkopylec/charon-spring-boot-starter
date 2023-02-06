@@ -1,15 +1,14 @@
 package com.github.mkopylec.charon.test;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.github.mkopylec.charon.forwarding.interceptors.HttpResponse;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static java.lang.String.valueOf;

@@ -1,13 +1,13 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
+import com.github.mkopylec.charon.configuration.Valid;
+import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+import org.slf4j.Logger;
+
 import java.net.URI;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.github.mkopylec.charon.configuration.Valid;
-import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
-import org.slf4j.Logger;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;

@@ -114,7 +114,7 @@ public class HttpResponse implements ClientResponse {
 
     @Override
     public Mono<Void> releaseBody() {
-        throw requestForwardingError("Method not implemented");
+        return empty(); // Already released in constructor
     }
 
     @Override

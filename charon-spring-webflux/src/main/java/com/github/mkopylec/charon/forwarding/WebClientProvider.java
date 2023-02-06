@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding;
 
+import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
-
-import org.springframework.web.reactive.function.client.WebClient;
 
 class WebClientProvider {
 

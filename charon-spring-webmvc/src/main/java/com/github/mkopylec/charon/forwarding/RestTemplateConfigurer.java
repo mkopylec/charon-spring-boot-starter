@@ -1,10 +1,9 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.Configurer;
-
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+
+import java.util.List;
 
 public class RestTemplateConfigurer extends Configurer<RestTemplateConfiguration> {
 

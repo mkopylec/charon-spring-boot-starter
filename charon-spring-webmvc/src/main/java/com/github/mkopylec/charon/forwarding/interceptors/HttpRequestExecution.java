@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import java.io.IOException;
-
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.IOException;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 

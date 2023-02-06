@@ -1,10 +1,9 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.io.IOException;
-
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.http.ResponseEntity;
+
+import java.io.IOException;
 
 class HttpResponseMapper {
 
@@ -15,7 +14,7 @@ class HttpResponseMapper {
     }
 
     private void setStatus(ResponseEntity<byte[]> responseEntity, HttpServletResponse response) {
-        response.setStatus(responseEntity.getStatusCodeValue());
+        response.setStatus(responseEntity.getStatusCode().value());
     }
 
     private void setHeaders(ResponseEntity<byte[]> responseEntity, HttpServletResponse response) {

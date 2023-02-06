@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors.metrics;
 
-import java.time.Duration;
-
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
+
+import java.time.Duration;
 
 import static com.github.mkopylec.charon.forwarding.Utils.metricName;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.LATENCY_METER;
