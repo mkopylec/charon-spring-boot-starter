@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,7 +15,7 @@ import static java.net.URI.create;
 import static java.util.Collections.list;
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.springframework.http.HttpMethod.resolve;
+import static org.springframework.http.HttpMethod.valueOf;
 
 class HttpRequestMapper {
 
@@ -33,7 +33,7 @@ class HttpRequestMapper {
     }
 
     private HttpMethod extractMethod(HttpServletRequest request) {
-        return resolve(request.getMethod());
+        return valueOf(request.getMethod());
     }
 
     private HttpHeaders extractHeaders(HttpServletRequest request) {

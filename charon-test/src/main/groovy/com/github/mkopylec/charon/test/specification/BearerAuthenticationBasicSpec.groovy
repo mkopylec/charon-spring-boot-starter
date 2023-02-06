@@ -1,7 +1,5 @@
 package com.github.mkopylec.charon.test.specification
 
-import spock.lang.Unroll
-
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThat
 import static com.github.mkopylec.charon.test.assertions.Assertions.assertThatServers
 import static com.github.mkopylec.charon.test.stubs.OutgoingServersStubs.outgoingServers
@@ -24,8 +22,7 @@ abstract class BearerAuthenticationBasicSpec extends BasicSpec {
                 .hasStatus(OK)
     }
 
-    @Unroll
-    def "Should not forward request after unsuccessful bearer authentication for #headers request headers"() {
+    def "Should not forward request after unsuccessful bearer authentication for invalid 'Authorization' header"() {
         when:
         def response = http.sendRequest(GET, '/bearer/authentication', headers)
 

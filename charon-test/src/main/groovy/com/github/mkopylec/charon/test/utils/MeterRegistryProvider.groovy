@@ -12,6 +12,6 @@ class MeterRegistryProvider {
     }
 
     static void clearMetrics() {
-        meterRegistry.meters.each { meterRegistry.remove(it.id) }
+        meterRegistry.clear()
     }
 }

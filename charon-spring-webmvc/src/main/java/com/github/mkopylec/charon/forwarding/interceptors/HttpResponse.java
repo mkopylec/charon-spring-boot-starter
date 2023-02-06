@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -13,11 +13,11 @@ import static org.apache.commons.io.IOUtils.toByteArray;
 
 public class HttpResponse implements ClientHttpResponse {
 
-    private HttpStatus status;
+    private HttpStatusCode status;
     private HttpHeaders headers;
     private byte[] body;
 
-    public HttpResponse(HttpStatus status) {
+    public HttpResponse(HttpStatusCode status) {
         this.status = status;
         headers = new HttpHeaders();
         body = new byte[]{};
@@ -31,7 +31,7 @@ public class HttpResponse implements ClientHttpResponse {
     }
 
     @Override
-    public HttpStatus getStatusCode() {
+    public HttpStatusCode getStatusCode() {
         return status;
     }
 
@@ -42,10 +42,10 @@ public class HttpResponse implements ClientHttpResponse {
 
     @Override
     public String getStatusText() {
-        return status.getReasonPhrase();
+        return status.toString();
     }
 
-    public void setStatusCode(HttpStatus status) {
+    public void setStatusCode(HttpStatusCode status) {
         this.status = status;
     }
 
