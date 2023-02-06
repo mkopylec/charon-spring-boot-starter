@@ -1,14 +1,14 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.github.mkopylec.charon.forwarding.RestTemplateConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableList;

@@ -1,13 +1,12 @@
 package com.github.mkopylec.charon.forwarding.interceptors.log;
 
-import java.net.URI;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+
+import java.net.URI;
 
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.FORWARDING_LOGGER;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.LogLevel.DEBUG;

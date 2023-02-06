@@ -1,8 +1,8 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.time.Duration;
-
 import org.springframework.http.HttpHeaders;
+
+import java.time.Duration;
 
 import static java.lang.String.join;
 

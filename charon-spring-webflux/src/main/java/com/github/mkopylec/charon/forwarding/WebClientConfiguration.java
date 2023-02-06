@@ -1,15 +1,15 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.HttpRequestInterceptor;
-
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.ReactorClientHttpConnectorCreatorConfigurer.reactorClientHttpConnectorCreator;
 import static com.github.mkopylec.charon.forwarding.TimeoutConfigurer.timeout;
@@ -21,6 +21,7 @@ public class WebClientConfiguration implements Valid {
     private TimeoutConfiguration timeoutConfiguration;
     private ClientHttpConnectorCreator clientHttpConnectorCreator;
     private List<ExchangeFilterFunction> exchangeFilterFunctions;
+    private ExchangeStrategies exchangeStrategies;
 
     WebClientConfiguration() {
         this.timeoutConfiguration = timeout().configure();
@@ -40,6 +41,10 @@ public class WebClientConfiguration implements Valid {
         this.exchangeFilterFunctions.addAll(exchangeFilterFunctions);
     }
 
+    void setExchangeStrategies(ExchangeStrategies exchangeStrategies) {
+        this.exchangeStrategies = exchangeStrategies;
+    }
+
     WebClient configure(RequestMappingConfiguration configuration) {
         ClientHttpConnector connector = clientHttpConnectorCreator.createConnector(timeoutConfiguration);
         List<ExchangeFilterFunction> interceptors = new ArrayList<>(createHttpRequestInterceptors(configuration));
@@ -47,6 +52,7 @@ public class WebClientConfiguration implements Valid {
         return builder()
                 .clientConnector(connector)
                 .filters(filters -> filters.addAll(interceptors))
+                .exchangeStrategies(exchangeStrategies)
                 .build();
     }
 

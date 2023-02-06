@@ -1,8 +1,8 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
-import java.util.List;
-
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
+
+import java.util.List;
 
 import static java.util.Arrays.asList;
 

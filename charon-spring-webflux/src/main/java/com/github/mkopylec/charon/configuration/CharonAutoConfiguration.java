@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.configuration;
 
 import com.github.mkopylec.charon.forwarding.ReverseProxyFilter;
 import org.slf4j.Logger;
-
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

@@ -2,7 +2,6 @@ package com.github.mkopylec.charon.forwarding;
 
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
-
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 

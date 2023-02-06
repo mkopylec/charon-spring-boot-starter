@@ -1,11 +1,10 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.util.List;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingErrorIf;
 import static java.util.stream.Collectors.joining;

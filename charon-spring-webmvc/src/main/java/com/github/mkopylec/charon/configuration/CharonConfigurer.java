@@ -1,10 +1,10 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.function.Consumer;
-
 import com.github.mkopylec.charon.forwarding.RestTemplateConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorConfigurer;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+
+import java.util.function.Consumer;
 
 import static org.springframework.util.Assert.notNull;
 

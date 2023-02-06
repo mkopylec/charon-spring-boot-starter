@@ -1,20 +1,18 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.io.IOException;
-import java.util.List;
-
+import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import com.github.mkopylec.charon.configuration.RequestMappingConfiguration;
-
 import org.springframework.core.Ordered;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
 
 public class ReverseProxyFilter extends OncePerRequestFilter implements Ordered {
 

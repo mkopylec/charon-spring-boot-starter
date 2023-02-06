@@ -1,9 +1,9 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import java.net.URI;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+
+import java.net.URI;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 

@@ -1,8 +1,8 @@
 package com.github.mkopylec.charon.forwarding;
 
-import java.time.Duration;
-
 import com.github.mkopylec.charon.configuration.Valid;
+
+import java.time.Duration;
 
 import static java.time.Duration.ofMillis;
 import static org.springframework.util.Assert.isTrue;

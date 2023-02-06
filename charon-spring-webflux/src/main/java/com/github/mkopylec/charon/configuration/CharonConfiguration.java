@@ -1,11 +1,11 @@
 package com.github.mkopylec.charon.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.github.mkopylec.charon.forwarding.WebClientConfiguration;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptor;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.WebClientConfigurer.webClient;
 import static com.github.mkopylec.charon.forwarding.interceptors.log.ForwardingLoggerConfigurer.forwardingLogger;

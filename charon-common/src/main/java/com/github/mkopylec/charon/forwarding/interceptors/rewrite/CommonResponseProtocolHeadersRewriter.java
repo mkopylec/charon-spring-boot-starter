@@ -1,12 +1,11 @@
 package com.github.mkopylec.charon.forwarding.interceptors.rewrite;
 
-import java.util.function.Consumer;
-
 import com.github.mkopylec.charon.configuration.Valid;
 import com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType;
 import org.slf4j.Logger;
-
 import org.springframework.http.HttpHeaders;
+
+import java.util.function.Consumer;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 import static com.github.mkopylec.charon.forwarding.interceptors.RequestForwardingInterceptorType.RESPONSE_PROTOCOL_HEADERS_REWRITER;
