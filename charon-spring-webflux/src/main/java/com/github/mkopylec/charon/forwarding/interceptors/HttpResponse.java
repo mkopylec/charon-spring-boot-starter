@@ -2,6 +2,7 @@ package com.github.mkopylec.charon.forwarding.interceptors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.List;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
@@ -26,15 +28,22 @@ public class HttpResponse implements ClientResponse {
 
     private Mono<byte[]> body;
     private ClientResponse delegate;
+    private HttpRequest request;
 
     public HttpResponse(HttpStatusCode status) {
-        body = empty();
-        delegate = create(status).build();
+        this(status, null);
     }
 
-    HttpResponse(ClientResponse response) {
+    public HttpResponse(HttpStatusCode status, HttpRequest request) {
+        body = empty();
+        delegate = create(status).build();
+        this.request = request;
+    }
+
+    HttpResponse(ClientResponse response, HttpRequest request) {
         body = response.bodyToMono(byte[].class); // Releases connection
         delegate = response;
+        this.request = request;
     }
 
     @Override
@@ -70,6 +79,27 @@ public class HttpResponse implements ClientResponse {
     @Override
     public ExchangeStrategies strategies() {
         return delegate.strategies();
+    }
+
+    @Override
+    public org.springframework.http.HttpRequest request() {
+        return request != null ? new org.springframework.http.HttpRequest() {
+
+            @Override
+            public HttpMethod getMethod() {
+                return request.method();
+            }
+
+            @Override
+            public URI getURI() {
+                return request.url();
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                return request.headers();
+            }
+        } : null;
     }
 
     public Mono<byte[]> getBody() {

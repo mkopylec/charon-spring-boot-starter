@@ -22,7 +22,7 @@ abstract class BasicSpec extends Specification {
     protected HttpClient http
 
     void cleanup() {
-        outgoingServers(localhost8080, localhost8081).clearStubs()
+//        outgoingServers(localhost8080, localhost8081).clearStubs()
         clearMetrics()
     }
 }

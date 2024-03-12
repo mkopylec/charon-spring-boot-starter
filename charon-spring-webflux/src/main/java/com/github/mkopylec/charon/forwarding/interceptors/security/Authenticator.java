@@ -24,11 +24,11 @@ abstract class Authenticator<V extends CredentialsValidator> extends CommonAuthe
         logStart(execution.getMappingName());
         String credentials = extractCredentials(request.headers());
         if (credentials == null) {
-            return just(getFailedAuthenticationResponse());
+            return just(getFailedAuthenticationResponse(request));
         }
         return credentialsValidator.validate(credentials)
                 .filter(authenticated -> !authenticated)
-                .map(notAuthenticated -> getFailedAuthenticationResponse())
+                .map(notAuthenticated -> getFailedAuthenticationResponse(request))
                 .switchIfEmpty(fromRunnable(() -> getLog().debug("Authentication successful"))
                         .then(execution.execute(request)))
                 .doOnSuccess(response -> logEnd(execution.getMappingName()));
@@ -45,8 +45,8 @@ abstract class Authenticator<V extends CredentialsValidator> extends CommonAuthe
         this.credentialsValidator = credentialsValidator;
     }
 
-    private HttpResponse getFailedAuthenticationResponse() {
-        HttpResponse response = new HttpResponse(getAuthenticationFailureResponseStatus());
+    private HttpResponse getFailedAuthenticationResponse(HttpRequest request) {
+        HttpResponse response = new HttpResponse(getAuthenticationFailureResponseStatus(), request);
         setAuthenticationInformation(response.headers().asHttpHeaders(), response::setHeaders);
         return response;
     }

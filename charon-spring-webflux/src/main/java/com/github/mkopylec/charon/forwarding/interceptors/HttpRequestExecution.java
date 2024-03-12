@@ -20,7 +20,7 @@ public class HttpRequestExecution {
         return exchange.exchange(request)
                 .map(response -> response instanceof HttpResponse
                         ? (HttpResponse) response
-                        : new HttpResponse(response))
+                        : new HttpResponse(response, request))
                 .doOnError(ChannelException.class, e -> {
                     throw requestForwardingError("Error executing request: " + e.getMessage(), e);
                 });
