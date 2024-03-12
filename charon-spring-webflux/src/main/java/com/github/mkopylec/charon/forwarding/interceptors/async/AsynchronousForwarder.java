@@ -21,7 +21,7 @@ class AsynchronousForwarder extends CommonAsynchronousForwarder implements Reque
     @Override
     public Mono<HttpResponse> forward(HttpRequest request, HttpRequestExecution execution) {
         getThreadPool().execute(() -> forwardAsynchronously(request, execution));
-        return just(new HttpResponse(getResponseStatus()));
+        return just(new HttpResponse(getResponseStatus(), request));
     }
 
     private void forwardAsynchronously(HttpRequest request, HttpRequestExecution execution) {

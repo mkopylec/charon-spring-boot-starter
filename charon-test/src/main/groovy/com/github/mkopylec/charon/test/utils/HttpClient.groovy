@@ -20,7 +20,7 @@ class HttpClient {
     }
 
     ResponseEntity<String> sendRequest(HttpMethod method, String path) {
-        return sendRequest(method, path, [:], '')
+        return sendRequest(method, path, [:], null)
     }
 
     ResponseEntity<String> sendRequest(HttpMethod method, String path, String body) {
@@ -28,7 +28,7 @@ class HttpClient {
     }
 
     ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers) {
-        return sendRequest(method, path, headers, '')
+        return sendRequest(method, path, headers, null)
     }
 
     ResponseEntity<String> sendRequest(HttpMethod method, String path, Map<String, String> headers, String body) {

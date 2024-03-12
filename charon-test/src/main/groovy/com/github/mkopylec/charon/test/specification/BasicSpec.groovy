@@ -12,7 +12,7 @@ import static com.github.mkopylec.charon.test.utils.MeterRegistryProvider.clearM
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@TestPropertySource(properties = ['default-charon-configuration: false'])
+@TestPropertySource(properties = ['default-charon-configuration = false'])
 abstract class BasicSpec extends Specification {
 
     protected static OutgoingServer localhost8080 = new OutgoingServer(8080)
