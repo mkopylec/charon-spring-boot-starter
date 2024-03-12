@@ -15,7 +15,7 @@ abstract class CircuitBreakingBasicSpec extends BasicSpec {
 
     @DirtiesContext
     // TODO Resilience4j features support resetting but charon uses internal registries. Try to find out how to reset them to speed up the tests.
-    // TODO After upgrading to spring-boot 3.2.3 the Tomcat server cannot be stopped normally. It is forced to stop after 10s. Logs from Tomcat show mockserver-netty version...
+    // TODO After upgrading to spring-boot 3.2.3 the Tomcat server cannot be stopped normally on my local machine (mac). It is forced to stop after 10s. Logs from Tomcat show mockserver-netty version...
     def "Should break circuit while forwarding request on HTTP 5xx response when proper interceptor is set"() {
         given:
         outgoingServers(localhost8080)
