@@ -25,6 +25,7 @@ abstract class RequestForwardingBasicSpec extends BasicSpec {
         then:
         assertThatServers(localhost8080, localhost8081)
                 .haveReceivedRequest(method, '/default')
+                .haveNotReceivedRequest(['Content-Type': 'application/octet-stream'])
 
         where:
         method << [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]

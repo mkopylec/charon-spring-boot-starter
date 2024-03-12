@@ -47,6 +47,7 @@ class HttpRequestMapper {
     }
 
     private byte[] extractBody(HttpServletRequest request) throws IOException {
-        return toByteArray(request.getInputStream());
+        byte[] body = toByteArray(request.getInputStream());
+        return body.length != 0 ? body : null;
     }
 }
