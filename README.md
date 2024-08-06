@@ -11,11 +11,11 @@ Charon is a universal Spring Boot tool. It already has a lot of features impleme
 
 ## Features
 - highly configurable and extensible
-- Spring [WebMVC](https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html) and [WebFlux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) support
+- Spring [WebMVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html#mvc) and [WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html#webflux) support
 - multiple request forwarding mappings
 - load balancing
 - flexible path rewriting
-- [Resilience4j](https://resilience4j.github.io/resilience4j/) support
+- [Resilience4j](https://resilience4j.readme.io/) support
 - metrics based on [Micrometer](https://micrometer.io/)
 - asynchronous request forwarding
 - authentication
