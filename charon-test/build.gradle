@@ -1,7 +1,7 @@
 dependencies {
     api project(':charon-common')
     api group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-    api group: 'org.spockframework', name: 'spock-spring', version: '2.4-M2-groovy-4.0'
+    api group: 'org.spockframework', name: 'spock-spring', version: '2.4-M4-groovy-4.0'
     api group: 'org.mock-server', name: 'mockserver-netty', version: '5.15.0'
     api group: 'com.squareup.okhttp3', name: 'okhttp', version: okHttpVersion
 }
