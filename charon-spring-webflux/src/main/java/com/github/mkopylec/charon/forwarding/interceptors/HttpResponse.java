@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.mkopylec.charon.forwarding.RequestForwardingException.requestForwardingError;
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
@@ -98,6 +99,11 @@ public class HttpResponse implements ClientResponse {
             @Override
             public HttpHeaders getHeaders() {
                 return request.headers();
+            }
+
+            @Override
+            public Map<String, Object> getAttributes() {
+                return request.attributes();
             }
         } : null;
     }
