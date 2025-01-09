@@ -35,4 +35,9 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
 
       - name: Report code coverage
-        run: ./gradlew jacocoTestReport && bash <(curl -s https://codecov.io/bash)
+        run: ./gradlew jacocoTestReport
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
