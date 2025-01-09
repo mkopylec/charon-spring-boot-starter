@@ -1,9 +1,11 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
 import java.net.URI;
+import java.util.Map;
 
 import static com.github.mkopylec.charon.forwarding.Utils.copyHeaders;
 
@@ -13,12 +15,14 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
     private HttpMethod method;
     private HttpHeaders headers;
     private byte[] body;
+    private final Map<String, Object> attributes;
 
     HttpRequest(org.springframework.http.HttpRequest request, byte[] body) {
         uri = request.getURI();
         method = request.getMethod();
         headers = request.getHeaders();
         this.body = body;
+        attributes = request.getAttributes();
     }
 
     @Override
@@ -57,5 +61,11 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         HttpHeaders rewrittenHeaders = copyHeaders(headers);
         rewrittenHeaders.setContentLength(body.length);
         setHeaders(rewrittenHeaders);
+    }
+
+    @NotNull
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 }

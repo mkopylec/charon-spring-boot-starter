@@ -17,7 +17,7 @@ subprojects {
     }
 
     ext {
-        springBootVersion = '3.3.2'
+        springBootVersion = '3.4.0'
         resilience4jVersion = '2.2.0'
         okHttpVersion = '4.12.0'
 
@@ -58,15 +58,15 @@ subprojects {
     version = scmVersion.version
 
     dependencies {
-        api group: 'org.springframework', name: 'spring-web', version: '6.1.11'
+        api group: 'org.springframework', name: 'spring-web', version: '6.2.0'
         api group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: resilience4jVersion
         api group: 'io.github.resilience4j', name: 'resilience4j-ratelimiter', version: resilience4jVersion
         api group: 'io.github.resilience4j', name: 'resilience4j-retry', version: resilience4jVersion
         api group: 'io.github.resilience4j', name: 'resilience4j-micrometer', version: resilience4jVersion
-        api group: 'io.micrometer', name: 'micrometer-core', version: '1.12.3'
-        api group: 'org.apache.commons', name: 'commons-lang3', version: '3.15.0'
+        api group: 'io.micrometer', name: 'micrometer-core', version: '1.14.2'
+        api group: 'org.apache.commons', name: 'commons-lang3', version: '3.17.0'
         api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-        api group: 'commons-io', name: 'commons-io', version: '2.16.1'
+        api group: 'commons-io', name: 'commons-io', version: '2.18.0'
     }
 
     test {
