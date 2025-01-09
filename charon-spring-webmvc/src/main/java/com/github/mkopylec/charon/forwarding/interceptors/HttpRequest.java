@@ -1,6 +1,5 @@
 package com.github.mkopylec.charon.forwarding.interceptors;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
@@ -63,7 +62,6 @@ public class HttpRequest implements org.springframework.http.HttpRequest {
         setHeaders(rewrittenHeaders);
     }
 
-    @NotNull
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;

@@ -1,5 +1,5 @@
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.18.2'
+    id 'pl.allegro.tech.build.axion-release' version '1.18.16'
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
@@ -17,8 +17,8 @@ subprojects {
     }
 
     ext {
-        springBootVersion = '3.4.0'
-        resilience4jVersion = '2.2.0'
+        springBootVersion = '3.4.1'
+        resilience4jVersion = '2.3.0'
         okHttpVersion = '4.12.0'
 
         group = 'com.github.mkopylec'
@@ -85,5 +85,5 @@ nexusPublishing {
 }
 
 wrapper {
-    gradleVersion = '8.9'
+    gradleVersion = '8.12'
 }
